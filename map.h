@@ -1,5 +1,8 @@
 #pragma once
 #include "settings.h"
+sf::Color Purple(125, 34, 216);
+
+
 struct Map {
     sf::Texture texture;
     sf::Sprite sprite;
@@ -16,8 +19,16 @@ void MapObjectsINIT(Map& obj, std::string fileName, sf::Vector2f pos) {
 
 
 void Mapbjupdate(Map& obj) {
-    
+    if (D4CDimension == true) {
+        obj.sprite.setColor(Purple);
+    }
+    else {
+        obj.sprite.setColor(sf::Color::White);
+    }
 }
+
+
+
 void MapObjectsDraw(sf::RenderWindow& window, Map& obj) {
      window.draw(obj.sprite);  
 }

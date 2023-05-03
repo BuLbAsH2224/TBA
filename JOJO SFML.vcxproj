@@ -136,7 +136,7 @@
       <AdditionalIncludeDirectories>D:\SFML-2.5.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -149,6 +149,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="arrow.h" />
+    <ClInclude Include="CheckCollisions.h" />
+    <ClInclude Include="FIGHTS.h" />
     <ClInclude Include="HUD.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="menu.h" />

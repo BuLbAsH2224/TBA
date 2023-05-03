@@ -1,4 +1,4 @@
-#pragma once
+/*#pragma once
 #include "settings.h"
 struct RandomObjects {
     sf::Texture texture;
@@ -39,4 +39,4 @@ void RandomObjectsDraw(sf::RenderWindow& window, RandomObjects& obj) {
     if (obj.visible == true) {
         window.draw(obj.sprite);
     }
-}
+}*/
