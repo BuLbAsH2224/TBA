@@ -1,7 +1,7 @@
 #pragma once
 #include "settings.h"
 sf::Color Purple(125, 34, 216);
-
+sf::Color Goluboi(46, 215, 228);
 
 struct Map {
     sf::Texture texture;

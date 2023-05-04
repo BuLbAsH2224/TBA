@@ -7,8 +7,8 @@ using namespace sf;
 sf::Clock vremya;
 Player player1;
 Map Map1;
-Map FightBackground1;
-Map FightBackground2;
+Map FightBackground;
+
 Map ArrowSand;
 
 Stand playerstand;
@@ -25,6 +25,9 @@ NPC NPCPlohoiParen;
 InventoryPreview InvPR1;
 
 Fights fightmenu1;
+FightBackButton backbuttonfights;
+
+
 Quests quest1;
 Quests quest2;
 HUD AngeloHealth;
@@ -37,6 +40,7 @@ CursorArrow cursor1;
 Menu menu1;
 PlayerHealth hpbar;
 Map House;
+Map Shop;
 GameOver gameover1;
 Inventory PlayerInventory;
 
@@ -145,15 +149,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     sf::View view(sf::FloatRect(0.f, 0.f, WINDOW_X, WINDOW_Y));
     view.setCenter(player1.sprite.getPosition()); // устанавливаем центр камеры на игрока
     window.setView(view);
+ //   sf::Vector2f position(player1.sprite.getPosition());
     NPCInit(Haider, "sprites\\npc\\HaiderLoh.png", { 1578 ,360 });
-    NPCInit(NPCPlohoiParen, "sprites\\npc\\PlohoiParen.png", { 3500, 100 });
+    NPCInit(NPCPlohoiParen, "sprites\\npc\\PlohoiParen.png", { 2967, 412 });
 
     HudInit(MandomClockHUD, "sprites\\hud\\MandomClock1.png");
    // HudInit(InventoryArrow, "sprites\\hud\\ARROW.png");
     HudInit(AngeloHealth, "sprites\\hud\\angeloHealth10.png");
 
     VragiInit(YopAngelo, "sprites\\npc\\YoAngelo.png", 0, 100.f,{ 2377,1064 }, true,"Yo Angelo",0);
-    VragiInit(PlohoiParen, "sprites\\npc\\PlohoiParen.png", 1, 100.f, { 0,0 }, false, "Bad Guy", 1000);
+    VragiInit(PlohoiParen, "sprites\\npc\\PlohoiParenLeft.png", 1, 100.f, { 0,0 }, false, "Bad Guy", 1000);
 
     PowrsObjectsINIT(timestoppower, "sprites\\powers\\TimeStop.png");
     PowrsObjectsINIT(WrOxyImage, "sprites\\powers\\WRoxygen.png");
@@ -163,11 +168,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     // RandomObjectsINIT(arrow1, ARROW_FILE_NAME); 
     PlayerInit(player1, PLAYER1RIGHT_FILE_NAME);
    
-    MapObjectsINIT(FightBackground1, "sprites\\map\\grass1.jpg", { 0,0 });
-    MapObjectsINIT(FightBackground2, "sprites\\map\\grass1.jpg", { 1920,0 });
+    MapObjectsINIT(FightBackground, "sprites\\map\\FightBackgroundTest.png", { -480.f,423.f });
+  
     MapObjectsINIT(Map1, "sprites\\map\\MAP.png", { 0,0 });
     MapObjectsINIT(ArrowSand, "sprites\\map\\SANDARROWS.png", { 1567,1654 });
     MapObjectsINIT(House, "sprites\\map\\House.png", { 851,580 });
+    MapObjectsINIT(Shop, "sprites\\map\\Shop.png", {504.f,807.f});
+
     QuestsInit(quest1, "sprites\\quests\\quest1.png");
     QuestsInit(quest2, "sprites\\quests\\quest2.png");
 
@@ -188,18 +195,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     }
     float time;
     while (window.isOpen()) {
-        if (fightmenu1.getOpen() == true){
+        if (fightmenu1.getOpen() == true) {
             player1.stoi = true;
-    }
-        else{ player1.stoi = false; }
-      
+        }
+        else { player1.stoi = false; }
+
         time = vremya.getElapsedTime().asMicroseconds();
         vremya.restart();
         time = time / 800.f;
         Vector2i pixelPos = sf::Mouse::getPosition(window);
         Vector2f pos = window.mapPixelToCoords(pixelPos);
         Event event;
-      
+
         while (MenuOn == true) {
             view.setCenter(960, 540);
             window.setView(view);
@@ -207,7 +214,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             pos = window.mapPixelToCoords(pixelPos);
 
             menu1.update(pos, window, "saves\\auto_save.txt", view, player1, quest1, quest2, player1.sprite.getPosition().y, player1.sprite.getPosition().x, player1.health);
-            
+
             menu1.draw(VersionText, cursor1, window);
             menu1.setViewMenu(true);
             cursor1.update(pos);
@@ -245,6 +252,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                 }
             }
         }
+        backbuttonfights.restartClock();
         while (fightmenu1.getFight() == true) {
             time = vremya.getElapsedTime().asMicroseconds();
             vremya.restart();
@@ -262,6 +270,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                 playerstand.sprite.setPosition(fightmenu1.getPos());
                 playerstand.barrage = false;
             }
+            if (backbuttonfights.getClose() == true) {
+                backbuttonfights.setClose(false);
+                fightmenu1.setFight(false);
+                player1.sprite.setPosition(fightmenu1.getPos());
+                playerstand.visible = false;
+                playerstand.sprite.setPosition(fightmenu1.getPos());
+                playerstand.barrage = false;
+            }
             if (player1.health <= 0.f) {
                 player1.money -= fightmenu1.getVrag()->Reward;
                 fightmenu1.setFight(false);
@@ -273,23 +289,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             }
             VragiAuraUpdate(VragAura, *fightmenu1.getVrag(), VragStand, time);
             AuraUpdate(plAura, player1, playerstand, time);
-            fighthealth.update(fightmenu1.getVrag()->sprite.getPosition(), *fightmenu1.getVrag());
+            fighthealth.update({ view.getCenter().x + 350.f - fighthealth.getSprite().getGlobalBounds().width , view.getCenter().y - 250.f }, *fightmenu1.getVrag());
             PlayerUpdateInFight(player1, PLAYER1LEFT_FILE_NAME, "sprites\\player\\player1rightmove1.png", "sprites\\player\\player1leftmove1.png", PLAYER1RIGHT_FILE_NAME, playerstand, time);
             StandUpdate(playerstand, player1, time);
             VragiStandUpdate(VragStand, *fightmenu1.getVrag(), time);
-            VragiUpdate(*fightmenu1.getVrag(),VragStand ,player1, time);
-            FightMapUpdate(player1, FightBackground1.sprite, FightBackground2.sprite, 0.6f * time);
+            VragiUpdate(*fightmenu1.getVrag(), VragStand, player1, time);
+            Mapbjupdate(FightBackground);
+            backbuttonfights.update({ view.getCenter().x + 350.f, view.getCenter().y + 250.f - backbuttonfights.getSprite().getGlobalBounds().height }, pos);
             VragiBarrageDamage(player1, time, *fightmenu1.getVrag(), VragStand);
-            BarrageDamage(*fightmenu1.getVrag(), time,player1,playerstand);
+            BarrageDamage(*fightmenu1.getVrag(), time, player1, playerstand);
             if (D4CDimension == true && Gbuttontime.getElapsedTime().asSeconds() >= 20) {
                 D4CDimension = false;
             }
             if (D4CDimension == true && player1.stand != 6) {
                 D4CDimension = false;
             }
+            cursor1.update(pos);
             window.clear();
-            MapObjectsDraw(window, FightBackground1);
-            MapObjectsDraw(window, FightBackground2);
+            MapObjectsDraw(window, FightBackground);
+
             AuraDraw(window, plAura);
             AuraDraw(window, VragAura);
             for (auto laser : laserSprites) {
@@ -308,12 +326,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                 }
                 timestoppower.visible = true;
             }
-         
+
             if (isTimeStopped == true && timestop.getElapsedTime().asSeconds() > 10.f) {
                 isTimeStopped = false;
                 timeresumesound.play();
                 timestoppower.visible = false;
-                
+
             }
             if (isMandomTime == false && MandomTime.getElapsedTime().asSeconds() > 6.f) {
                 if (player1.stand == 2) {
@@ -386,7 +404,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                     SAWBarragesound.play();
                 }
             }
-            hpbar.update(view.getCenter(), player1,fightmenu1.getFight());
+            hpbar.update(view.getCenter(), player1, fightmenu1.getFight());
             if (SAWBublCreate == true) {
                 sf::Vector2f pos = playerstand.sprite.getPosition();
                 sf::FloatRect bounds = playerstand.sprite.getGlobalBounds();
@@ -398,7 +416,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                     posCenter = sf::Vector2f{ pos.x + bounds.width / 2,	pos.y + bounds.height / 2 };
                 }
 
-                Bubles* bubles = new Bubles(posCenter, player1,time);
+                Bubles* bubles = new Bubles(posCenter, player1, time);
                 BublesSprites.push_back(bubles);
                 SAWBublCreate = false;
             }
@@ -451,7 +469,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                 isMandomTime = false;
 
             }
-           
+
             if (D4CDimension == true && Gbuttontime.getElapsedTime().asMilliseconds() <= 100) {
                 D4CDimensionhopsound.play();
             }
@@ -459,16 +477,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                 isEmeraldSplash = false;
                 EmeraldSplashsound.stop();
             }
-          
 
-         
+
+
             VragiDraw(window, *fightmenu1.getVrag());
-  
+
             for (auto dimensionClones : DimensionClonesSprites) {
                 window.draw(dimensionClones->getSprite());
             }
-            
-          
+
+
             for (auto laser : laserSprites) {
                 window.draw(laser->getSprite());
             }
@@ -478,15 +496,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             for (auto bubles : BublesSprites) {
                 window.draw(bubles->getSprite());
             }
-            
+
 
             PowersObjectsDraw(window, timestoppower);
             PowersObjectsDraw(window, WrOxyImage);
             if (player1.stand == 2) {
                 HudDraw(window, MandomClockHUD);
             }
-           
+
             hpbar.Draw(window);
+            backbuttonfights.draw(window);
+            cursor1.draw(window);
             window.display();
             while (window.pollEvent(event)) {
 
@@ -589,9 +609,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
         }
 
-        
 
-        
+
+
 
 
 
@@ -660,18 +680,38 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             }
 
             if (player1.sprite.getGlobalBounds().intersects(NPCPlohoiParen.sprite.getGlobalBounds())) {
-                NPCPlohoiParen.texture.loadFromFile("sprites\\npc\\HaiderLohContour.png");
+                NPCPlohoiParen.texture.loadFromFile("sprites\\npc\\PlohoiParenContour.png");
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) && fightmenu1.getOpen() == false) {
 
                     fightmenu1.OpenMenu(PlohoiParen);
 
                 }
-               
+
             }
             else {
                 NPCPlohoiParen.texture.loadFromFile("sprites\\npc\\PlohoiParen.png");
             }
-            
+
+            if (player1.sprite.getGlobalBounds().intersects(Shop.sprite.getGlobalBounds())) {
+                Shop.texture.loadFromFile("sprites\\map\\ShopCONTOUR.png");
+            }
+            else {
+                Shop.texture.loadFromFile("sprites\\map\\Shop.png");
+            }
+
+            if (player1.sprite.getGlobalBounds().intersects(Haider.sprite.getGlobalBounds())) {
+                Haider.texture.loadFromFile("sprites\\npc\\HaiderLohContour.png");
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) && quest1.done == false) {
+                    quest1.active = true;
+                }
+                else if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) && quest1.done == true && quest2.done == false) {
+                    quest2.active = true;
+                }
+            }
+            else {
+                Haider.texture.loadFromFile("sprites\\npc\\HaiderLoh.png");
+            }
+
         }
         if (player1.stand != 4 || playerstand.visible == false) {
             isEmeraldSplash = false;
@@ -689,7 +729,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             quest2.active = false;
             quest2.done = true;
             //saveGame("saves\\auto_save.txt", player1, quest1, quest2, player1.sprite.getPosition().x, player1.sprite.getPosition().y, player1.health, view.getCenter().x, view.getCenter().y);
-          
+
         }
 
         if (AttackTm.getElapsedTime().asMilliseconds() > 500 && player1.attacking == true) {
@@ -798,18 +838,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             sf::Vector2f pos = playerstand.sprite.getPosition();
             if (StandBounds.intersects(YopAngelo.sprite.getGlobalBounds())) {
                 DimensionClones* dimensionClones = new DimensionClones(pos, YopAngelo);
-                    DimensionClonesSprites.push_back(dimensionClones);
-                    D4CDimensionClones = false;
+                DimensionClonesSprites.push_back(dimensionClones);
+                D4CDimensionClones = false;
             }
         }
-    
-        
+
+
         if (playerstand.barrage == true) {
-            
-                sf::Vector2f pos = playerstand.sprite.getPosition();
-                BarrageHands* barragehands = new BarrageHands(pos, player1);
-                BarrageHandsSprites.push_back(barragehands);
-        
+
+            sf::Vector2f pos = playerstand.sprite.getPosition();
+            BarrageHands* barragehands = new BarrageHands(pos, player1);
+            BarrageHandsSprites.push_back(barragehands);
+
         }
         if (playerstand.barrage == true && Barrageplayer.getElapsedTime().asSeconds() > 5.f && player1.stand != 5) {
             playerstand.barrage = false;
@@ -834,7 +874,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         //жизни
         if (D4CDimension == true && Gbuttontime.getElapsedTime().asMilliseconds() <= 100) {
             D4CDimensionhopsound.play();
-     }
+        }
         if (YopAngelo.health > 90) {
             AngeloHealth.texture.loadFromFile("sprites\\hud\\angeloHealth10.png");
         }
@@ -874,15 +914,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 
         BarrageDamage(YopAngelo, time, player1, playerstand);
-        PlayerUpdate(player1,PLAYER1LEFT_FILE_NAME, "sprites\\player\\player1rightmove1.png", "sprites\\player\\player1leftmove1.png", PLAYER1RIGHT_FILE_NAME, playerstand,time);
-        AuraUpdate(plAura, player1, playerstand,time);
+        PlayerUpdate(player1, PLAYER1LEFT_FILE_NAME, "sprites\\player\\player1rightmove1.png", "sprites\\player\\player1leftmove1.png", PLAYER1RIGHT_FILE_NAME, playerstand, time);
+        AuraUpdate(plAura, player1, playerstand, time);
         Powersbjupdate(timestoppower, { player1.sprite.getPosition().x - 370, player1.sprite.getPosition().y - 425 }, 1);
         //RandomObjupdate(window.getSize().x, window.getSize().y, arrow1);
-        StandUpdate(playerstand, player1,time);
+        StandUpdate(playerstand, player1, time);
         CheckCollisNPC(Haider, player1);
         CheckCollisNPC(NPCPlohoiParen, player1);
         CheckCollisVragi(YopAngelo, player1);
         CheckCollisMap(House, player1);
+        CheckCollisMap(Shop, player1);
         /* if (player1.sprite.getGlobalBounds().intersects(arrow1.sprite.getGlobalBounds()) && arrow1.visible == true) {
 
              player1.stand = rand() % 2 + 1;
@@ -897,18 +938,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
          // HealthAngeloTest.setString(std::to_string(YopAngelo.health));
         if (player1.health <= 0) {
             GameOverOn = true;
-            
+
         }
-       
-        if (player1.sprite.getPosition().x + 22 >= 979 && player1.sprite.getPosition().x + 22 <= 2872) {
-            view.setCenter(player1.sprite.getPosition().x + 22, view.getCenter().y);
+
+
+     /*   sf::Vector2f target(player1.sprite.getPosition()); // целевая позиция камеры
+        sf::Vector2f direction = target - position;
+        float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+        if (distance > 1.f) // если расстояние между текущей и целевой позициями больше 1 пикселя
+        {
+            sf::Vector2f unit_direction = direction / distance;
+            float pixels_to_move = 0.25f * time;
+            pixels_to_move = std::min(pixels_to_move, distance);
+            sf::Vector2f movement = unit_direction * pixels_to_move;
+            position += movement;
+            view.setCenter(position);
+           
         }
-        if (player1.sprite.getPosition().y >= 544 && player1.sprite.getPosition().y <= 1609) {
-            view.setCenter(view.getCenter().x, player1.sprite.getPosition().y);
-        }
-        if (player1.sprite.getPosition().y <= 544 && player1.sprite.getPosition().y >= 1609) {
-            view.setCenter(view.getCenter().x, player1.sprite.getPosition().y);
-        }
+    */
+        
+        view.setCenter(player1.sprite.getPosition());
 
         // HealthAngeloTest.setPosition(view.getCenter().x - 965, view.getCenter().y - 565);
         hpbar.update(view.getCenter(), player1,fightmenu1.getFight());
@@ -957,11 +1006,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         }
         cursor1.update(pos);
         window.setView(view);
-        window.clear();
+        window.clear(Goluboi);
       
         MapObjectsDraw(window, Map1);
         MapObjectsDraw(window, ArrowSand);
         MapObjectsDraw(window, House);
+        MapObjectsDraw(window, Shop);
         //RandomObjectsDraw(window, arrow1);
         if (D4CDimension == false) {
             VragiDraw(window, YopAngelo);

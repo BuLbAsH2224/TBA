@@ -1,12 +1,13 @@
 #pragma once
 #include "settings.h"
 
+
 void PlayerUpdateInFight(Player& obj, std::string LeftSpriteFileNAME, std::string RightSpriteMOVEFileNAME, std::string LeftSpriteMoveFileNAME, std::string RightSpriteFileNAME, Stand& stands, float time) {
     if (obj.health > obj.maxhealth) {
         obj.health = obj.maxhealth;
     }
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && obj.sprite.getPosition().x <= 1920.f - obj.sprite.getGlobalBounds().width) {
         if (obj.attacking == true) {
             obj.texture.loadFromFile("sprites\\player\\player1rightAttacking.png");
         }
@@ -25,7 +26,7 @@ void PlayerUpdateInFight(Player& obj, std::string LeftSpriteFileNAME, std::strin
         }
 
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && obj.sprite.getPosition().x >= 0.f) {
         obj.left = true;
         if (obj.attacking == true) {
             obj.texture.loadFromFile("sprites\\player\\player1leftAttacking.png");
@@ -49,43 +50,45 @@ void PlayerUpdateInFight(Player& obj, std::string LeftSpriteFileNAME, std::strin
 
 }
 
-void FightMapUpdate(Player& pl, sf::Sprite& background1, sf::Sprite& background2, float backgroundSpeed)
-{
-
-    // ѕеремещаем фоны в зависимости от позиции игрока и скорости движени€ фона
-
-
-    // ѕровер€ем, вышел ли игрок за границы экрана вправо
-    if (pl.sprite.getPosition().x + 44.f >= background1.getPosition().x + background1.getGlobalBounds().width / 2  && pl.left == false)
-    {
-        background2.setPosition(background1.getPosition().x + background1.getGlobalBounds().width - 1.f, 0);
+class FightBackButton {
+private:
+    sf::Sprite sprite;
+    sf::Texture texture;
+    sf::Clock valid;
+    bool close;
+public:
+    FightBackButton() {
+        texture.loadFromFile("sprites\\hud\\FightBackButton.png");
+        sprite.setTexture(texture);
+        close = false;
     }
-    if (pl.sprite.getPosition().x + 44.f >= background2.getPosition().x + background2.getGlobalBounds().width / 2  && pl.left == false)
-    {
-        background1.setPosition(background2.getPosition().x + background2.getGlobalBounds().width - 1.f, 0);
-    }
-    //исправить снизу фигню
+    void update(sf::Vector2f pos,sf::Vector2f mouspos) {
+        sprite.setPosition(pos);
+        if (valid.getElapsedTime().asSeconds() <= 10.f){
+            if (sprite.getGlobalBounds().contains(mouspos.x, mouspos.y)) {
+                texture.loadFromFile("sprites\\hud\\FightBackButtonContour.png");
+                if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                    close = true;
+                }
+            }
+            else {
+                texture.loadFromFile("sprites\\hud\\FightBackButton.png");
+            }
     
-    if (pl.sprite.getPosition().x <= background1.getPosition().x + background1.getGlobalBounds().width / 2 && pl.left == true)
-    {
-        background2.setPosition(background1.getPosition().x - background1.getGlobalBounds().width + 1.f, 0);
     }
-    if (pl.sprite.getPosition().x <= background2.getPosition().x + background2.getGlobalBounds().width / 2 && pl.left == true)
-    {
-        background1.setPosition(background2.getPosition().x - background2.getGlobalBounds().width + 1.f, 0);
     }
-    // ѕровер€ем, вышел ли игрок за границы экрана влево
-
-
-    if (D4CDimension == true) {
-        background1.setColor(Purple);
-        background2.setColor(Purple);
+    void draw(sf::RenderWindow& window) {
+        if(valid.getElapsedTime().asSeconds() <= 10.f)
+        window.draw(sprite);
     }
-    else {
-        background1.setColor(sf::Color::White);
-        background2.setColor(sf::Color::White);
-    }
-}
+    bool getClose() { return close; }
+    void setClose(bool a) { close = a; }
+    void restartClock() {
+        valid.restart();
+        
+   }
+    sf::Sprite getSprite() { return sprite; }
+};
 
 
 class Fights {
@@ -115,7 +118,7 @@ public:
         Acceptbutton.setTexture(Accepttexture);
         Rejecttexture.loadFromFile("sprites\\hud\\RejectButton.png");
         Rejectbutton.setTexture(Rejecttexture);
-        Icontexture.loadFromFile("sprites\\NPC\\PlohoiParen.png");
+        Icontexture.loadFromFile("sprites\\NPC\\icons\\PlohoiParenIcon.png");
         Icon.setTexture(Icontexture);
         menu.setTexture(menutexture);
         font.loadFromFile("NjalBold.ttf");
@@ -123,7 +126,7 @@ public:
         textvizova.setCharacterSize(16);
 
         RewardText.setFont(font);
-       RewardText.setCharacterSize(24);
+        RewardText.setCharacterSize(24);
 
 
         Accepttext.setFont(font);
@@ -173,14 +176,15 @@ public:
             }
             if (Acceptbutton.getGlobalBounds().contains(mouspos.x, mouspos.y)) {
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                   
                     IsOpen = false;
                     InFight = true;
                     pl.stoi = false;
                     VragBitv->health = 100.f;
-                    pl.sprite.setPosition({ 1000.f,840.f - pl.sprite.getGlobalBounds().height });
+                    pl.sprite.setPosition({ 900.f,840.f - pl.sprite.getGlobalBounds().height });
                     stpl.visible = false;
-                    VragBitv->sprite.setPosition({ 1500.f,840.f - VragBitv->sprite.getGlobalBounds().height });
-                    vragpl.sprite.setPosition({ 1500.f,840.f - VragBitv->sprite.getGlobalBounds().height });
+                    VragBitv->sprite.setPosition({ 1300.f,840.f - VragBitv->sprite.getGlobalBounds().height });
+                    vragpl.sprite.setPosition({ VragBitv->sprite.getPosition() });
                     Pos = plpos;
                     
                 }

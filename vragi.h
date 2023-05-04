@@ -91,11 +91,15 @@ void VragiAuraUpdate(Aura& obj, Vragi& pl, Stand& st, float time) {
 
 void VragiUpdate(Vragi& obj, Stand& st, Player& pl1, float time) {
     if (obj.health > 0) {
+
+
+
+
         if (obj.statics == true) {
             // Враг находится на месте
         }
         else {
-            if(st.visible == false){
+            if(st.visible == false && rand() % 50 == 3){
                 st.visible = true;
                  }
             // Определяем направление движения врага
@@ -106,6 +110,12 @@ void VragiUpdate(Vragi& obj, Stand& st, Player& pl1, float time) {
             else {
                 obj.sprite.move(-0.1f * time, 0); // Враг движется влево
                 obj.left = true;
+            }
+            if (obj.left == true) {
+                obj.texture.loadFromFile("sprites\\npc\\PlohoiParenLeft.png");
+            }
+            else if (obj.left == false) {
+                obj.texture.loadFromFile("sprites\\npc\\PlohoiParenRight.png");
             }
         }
     }
@@ -229,20 +239,20 @@ public:
 
     void update(sf::Vector2f pos, Vragi& pl) {
         
-        sprite.setPosition({ pos.x,pos.y - 50.f });
+        sprite.setPosition({pos});
         
-        if (pl.health > 90) { texture.loadFromFile("sprites\\hud\\angeloHealth10.png"); }
-        else   if (pl.health > 80) { texture.loadFromFile("sprites\\hud\\angeloHealth9.png"); }
-        else   if (pl.health > 70) { texture.loadFromFile("sprites\\hud\\angeloHealth8.png"); }
-        else   if (pl.health > 60) { texture.loadFromFile("sprites\\hud\\angeloHealth7.png"); }
-        else   if (pl.health > 50) { texture.loadFromFile("sprites\\hud\\angeloHealth6.png"); }
-        else   if (pl.health > 40) { texture.loadFromFile("sprites\\hud\\angeloHealth5.png"); }
-        else   if (pl.health > 30) { texture.loadFromFile("sprites\\hud\\angeloHealth4.png"); }
-        else   if (pl.health > 20) { texture.loadFromFile("sprites\\hud\\angeloHealth3.png"); }
-        else   if (pl.health > 10) { texture.loadFromFile("sprites\\hud\\angeloHealth2.png"); }
-        else   if (pl.health > 0) { texture.loadFromFile("sprites\\hud\\angeloHealth1.png"); }
+        if (pl.health > 90.f) { texture.loadFromFile("sprites\\hud\\angeloHealth10.png"); }
+        else   if (pl.health > 80.f) { texture.loadFromFile("sprites\\hud\\angeloHealth9.png"); }
+        else   if (pl.health > 70.f) { texture.loadFromFile("sprites\\hud\\angeloHealth8.png"); }
+        else   if (pl.health > 60.f) { texture.loadFromFile("sprites\\hud\\angeloHealth7.png"); }
+        else   if (pl.health > 50.f) { texture.loadFromFile("sprites\\hud\\angeloHealth6.png"); }
+        else   if (pl.health > 40.f) { texture.loadFromFile("sprites\\hud\\angeloHealth5.png"); }
+        else   if (pl.health > 30.f) { texture.loadFromFile("sprites\\hud\\angeloHealth4.png"); }
+        else   if (pl.health > 20.f) { texture.loadFromFile("sprites\\hud\\angeloHealth3.png"); }
+        else   if (pl.health > 10.f) { texture.loadFromFile("sprites\\hud\\angeloHealth2.png"); }
+        else   if (pl.health > 0.f) { texture.loadFromFile("sprites\\hud\\angeloHealth1.png"); }
     }
-
+    sf::Sprite getSprite() { return sprite; }
     void Draw(sf::RenderWindow& window) {
         if (visible == true) {
             window.draw(sprite);
