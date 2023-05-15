@@ -16,7 +16,7 @@ struct Vragi {
     bool statics;
     std::string Name;
     int Reward;
-    
+    bool stoppedbytime = false;
 };
 
 void VragiInit(Vragi& obj, std::string fileName, int stand, float health, sf::Vector2f pos, bool tupoi, std::string name, int rewards) {
@@ -33,58 +33,60 @@ void VragiInit(Vragi& obj, std::string fileName, int stand, float health, sf::Ve
 
 void VragiAuraUpdate(Aura& obj, Vragi& pl, Stand& st, float time) {
     obj.sprite.setPosition(pl.sprite.getPosition().x - 4.f, pl.sprite.getPosition().y - 2.f);
-    if (st.visible == true) {
-        obj.visible = true;
-        obj.Frame += 0.01f * time;
-    }
-    else obj.visible = false;
-    if (obj.CurrentFrame == 1 && obj.Frame >= 1.5) {
-        obj.CurrentFrame = 2;
-        obj.Frame = 0.f;
-    }
-    if (obj.CurrentFrame == 2 && obj.Frame >= 1.5) {
-        obj.CurrentFrame = 1;
-        obj.Frame = 0.f;
-    }
+    if (pl.stoppedbytime == false) {
+        if (st.visible == true) {
+            obj.visible = true;
+            obj.Frame += 0.01f * time;
+        }
+        else obj.visible = false;
+        if (obj.CurrentFrame == 1 && obj.Frame >= 1.5) {
+            obj.CurrentFrame = 2;
+            obj.Frame = 0.f;
+        }
+        if (obj.CurrentFrame == 2 && obj.Frame >= 1.5) {
+            obj.CurrentFrame = 1;
+            obj.Frame = 0.f;
+        }
 
-    if (pl.stand == 1) {
-        if (obj.CurrentFrame == 1) {
-            obj.texture.loadFromFile("sprites\\stands\\auras\\TwAuraFrame1.png");
+        if (pl.stand == 1) {
+            if (obj.CurrentFrame == 1) {
+                obj.texture.loadFromFile("sprites\\stands\\auras\\TwAuraFrame1.png");
+            }
+            if (obj.CurrentFrame == 2) {
+                obj.texture.loadFromFile("sprites\\stands\\auras\\TwAuraFrame2.png");
+            }
         }
-        if (obj.CurrentFrame == 2) {
-            obj.texture.loadFromFile("sprites\\stands\\auras\\TwAuraFrame2.png");
+        if (pl.stand == 2) {
+            if (obj.CurrentFrame == 1) {
+                obj.texture.loadFromFile("sprites\\stands\\auras\\MmAuraFrame1.png");
+            }
+            if (obj.CurrentFrame == 2) {
+                obj.texture.loadFromFile("sprites\\stands\\auras\\MmAuraFrame2.png");
+            }
         }
-    }
-    if (pl.stand == 2) {
-        if (obj.CurrentFrame == 1) {
-            obj.texture.loadFromFile("sprites\\stands\\auras\\MmAuraFrame1.png");
+        if (pl.stand == 3) {
+            if (obj.CurrentFrame == 1) {
+                obj.texture.loadFromFile("sprites\\stands\\auras\\WRAuraFrame1.png");
+            }
+            if (obj.CurrentFrame == 2) {
+                obj.texture.loadFromFile("sprites\\stands\\auras\\WRAuraFrame2.png");
+            }
         }
-        if (obj.CurrentFrame == 2) {
-            obj.texture.loadFromFile("sprites\\stands\\auras\\MmAuraFrame2.png");
+        if (pl.stand == 4) {
+            if (obj.CurrentFrame == 1) {
+                obj.texture.loadFromFile("sprites\\stands\\auras\\HGAuraFrame1.png");
+            }
+            if (obj.CurrentFrame == 2) {
+                obj.texture.loadFromFile("sprites\\stands\\auras\\HGAuraFrame2.png");
+            }
         }
-    }
-    if (pl.stand == 3) {
-        if (obj.CurrentFrame == 1) {
-            obj.texture.loadFromFile("sprites\\stands\\auras\\WRAuraFrame1.png");
-        }
-        if (obj.CurrentFrame == 2) {
-            obj.texture.loadFromFile("sprites\\stands\\auras\\WRAuraFrame2.png");
-        }
-    }
-    if (pl.stand == 4) {
-        if (obj.CurrentFrame == 1) {
-            obj.texture.loadFromFile("sprites\\stands\\auras\\HGAuraFrame1.png");
-        }
-        if (obj.CurrentFrame == 2) {
-            obj.texture.loadFromFile("sprites\\stands\\auras\\HGAuraFrame2.png");
-        }
-    }
-    if (pl.stand == 5) {
-        if (obj.CurrentFrame == 1) {
-            obj.texture.loadFromFile("sprites\\stands\\auras\\SAWAuraFrame1.png");
-        }
-        if (obj.CurrentFrame == 2) {
-            obj.texture.loadFromFile("sprites\\stands\\auras\\SAWAuraFrame2.png");
+        if (pl.stand == 5) {
+            if (obj.CurrentFrame == 1) {
+                obj.texture.loadFromFile("sprites\\stands\\auras\\SAWAuraFrame1.png");
+            }
+            if (obj.CurrentFrame == 2) {
+                obj.texture.loadFromFile("sprites\\stands\\auras\\SAWAuraFrame2.png");
+            }
         }
     }
 }
@@ -99,15 +101,15 @@ void VragiUpdate(Vragi& obj, Stand& st, Player& pl1, float time) {
             // Враг находится на месте
         }
         else {
-            if(st.visible == false && rand() % 50 == 3){
+            if(st.visible == false && rand() % 100 == 50){
                 st.visible = true;
                  }
             // Определяем направление движения врага
-            if (obj.sprite.getPosition().x < pl1.sprite.getPosition().x) {
+            if (obj.sprite.getPosition().x < pl1.sprite.getPosition().x && obj.stoppedbytime == false) {
                 obj.sprite.move(0.1f * time, 0); // Враг движется вправо
                 obj.left = false;
             }
-            else {
+            else if(obj.stoppedbytime == false){
                 obj.sprite.move(-0.1f * time, 0); // Враг движется влево
                 obj.left = true;
             }
@@ -128,7 +130,7 @@ void VragiDraw(sf::RenderWindow& window, Vragi& obj) {
 }
 
 sf::Clock BarrageVrag;
-sf::Clock PowerOdin;
+sf::Clock VragPowerH;
 
 bool VragIsTimeStopped;
 
@@ -137,7 +139,8 @@ void VragiStandUpdate(Stand& stand, Vragi& obj, float time) {
     if (obj.stand == 0) {
         stand.visible = false;
     }
-    if (stand.visible == true) {
+    if (stand.visible == true && obj.stoppedbytime == false) {
+
         /*1 - the world
         2 - Mandom
         3 - Weather Report
@@ -177,20 +180,20 @@ void VragiStandUpdate(Stand& stand, Vragi& obj, float time) {
 
             }
 
-            if (PowerOdin.getElapsedTime().asSeconds() >= 30 && VragIsTimeStopped == false && rand () % 100 == 50) {
+            if (VragPowerH.getElapsedTime().asSeconds() >= 30 && VragIsTimeStopped == false && rand () % 100 == 50) {
                
 
 
 
                     VragIsTimeStopped = true;
 
-                    PowerOdin.restart();
+                    VragPowerH.restart();
                 
             }
             if (stand.barrage == true && BarrageVrag.getElapsedTime().asSeconds() >= 10.f) {
                 stand.barrage = false;
             }
-            if (rand() % 100 == 50 && BarrageVrag.getElapsedTime().asSeconds() >= 20.f) {
+            if (rand() % 100 == 50 && BarrageVrag.getElapsedTime().asSeconds() >= 20.f || rand() % 70 == 50 && VragIsTimeStopped == true && BarrageVrag.getElapsedTime().asSeconds() >= 15.f) {
                 if (stand.barrage == false)
                 {
                     BarrageVrag.restart();
@@ -203,21 +206,23 @@ void VragiStandUpdate(Stand& stand, Vragi& obj, float time) {
 }
 
 void VragiBarrageDamage(Player &vrag, float time, Vragi& pl, Stand& st) {
-    if (st.sprite.getGlobalBounds().intersects(vrag.sprite.getGlobalBounds()) && st.barrage == true) {
-        if (pl.stand == 1) {
-            vrag.health = vrag.health - 0.009f * time;
-        }
-        if (pl.stand == 3) {
-            vrag.health = vrag.health - 0.01f * time;
-        }
-        if (pl.stand == 4) {
-            vrag.health = vrag.health - 0.01f * time;
-        }
-        if (pl.stand == 5) {
-            vrag.health = vrag.health - 0.02f * time;
-        }
-        if (pl.stand == 6) {
-            vrag.health = vrag.health - 0.01f * time;
+    if (pl.stoppedbytime == false) {
+        if (st.sprite.getGlobalBounds().intersects(vrag.sprite.getGlobalBounds()) && st.barrage == true) {
+            if (pl.stand == 1) {
+                vrag.health = vrag.health - 0.009f * time;
+            }
+            if (pl.stand == 3) {
+                vrag.health = vrag.health - 0.01f * time;
+            }
+            if (pl.stand == 4) {
+                vrag.health = vrag.health - 0.01f * time;
+            }
+            if (pl.stand == 5) {
+                vrag.health = vrag.health - 0.02f * time;
+            }
+            if (pl.stand == 6) {
+                vrag.health = vrag.health - 0.01f * time;
+            }
         }
     }
 }

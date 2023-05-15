@@ -1,52 +1,56 @@
 #pragma once
 #include "settings.h"
-
+std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+struct Languages {
+    bool RussiaText = false;
+    bool EnglishText = false;
+};
 
 void PlayerUpdateInFight(Player& obj, std::string LeftSpriteFileNAME, std::string RightSpriteMOVEFileNAME, std::string LeftSpriteMoveFileNAME, std::string RightSpriteFileNAME, Stand& stands, float time) {
     if (obj.health > obj.maxhealth) {
         obj.health = obj.maxhealth;
     }
-
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && obj.sprite.getPosition().x <= 1920.f - obj.sprite.getGlobalBounds().width) {
-        if (obj.attacking == true) {
-            obj.texture.loadFromFile("sprites\\player\\player1rightAttacking.png");
+    if (obj.stoi == false) {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && obj.sprite.getPosition().x <= 1920.f - obj.sprite.getGlobalBounds().width) {
+            if (obj.attacking == true) {
+                obj.texture.loadFromFile("sprites\\player\\player1rightAttacking.png");
+            }
+            else {
+                obj.texture.loadFromFile(RightSpriteMOVEFileNAME);
+            }
+            obj.sprite.move(obj.speed * time, 0);
+            obj.left = false;
         }
         else {
-            obj.texture.loadFromFile(RightSpriteMOVEFileNAME);
-        }
-        obj.sprite.move(obj.speed * time, 0);
-        obj.left = false;
-    }
-    else {
-        if (obj.attacking == true && obj.left == false) {
-            obj.texture.loadFromFile("sprites\\player\\player1rightAttacking.png");
-        }
-        else  if (obj.left == false) {
-            obj.texture.loadFromFile(RightSpriteFileNAME);
-        }
+            if (obj.attacking == true && obj.left == false) {
+                obj.texture.loadFromFile("sprites\\player\\player1rightAttacking.png");
+            }
+            else  if (obj.left == false) {
+                obj.texture.loadFromFile(RightSpriteFileNAME);
+            }
 
-    }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && obj.sprite.getPosition().x >= 0.f) {
-        obj.left = true;
-        if (obj.attacking == true) {
-            obj.texture.loadFromFile("sprites\\player\\player1leftAttacking.png");
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && obj.sprite.getPosition().x >= 0.f) {
+            obj.left = true;
+            if (obj.attacking == true) {
+                obj.texture.loadFromFile("sprites\\player\\player1leftAttacking.png");
+            }
+            else {
+                obj.texture.loadFromFile(LeftSpriteMoveFileNAME);
+            }
+
+            obj.sprite.move(-obj.speed * time, 0);
         }
         else {
-            obj.texture.loadFromFile(LeftSpriteMoveFileNAME);
-        }
+            if (obj.attacking == true && obj.left == true) {
+                obj.texture.loadFromFile("sprites\\player\\player1leftAttacking.png");
+            }
+            else if (obj.left == true) {
+                obj.texture.loadFromFile(LeftSpriteFileNAME);
+            }
 
-        obj.sprite.move(-obj.speed * time, 0);
+        }
     }
-    else {
-        if (obj.attacking == true && obj.left == true) {
-            obj.texture.loadFromFile("sprites\\player\\player1leftAttacking.png");
-        }
-        else if (obj.left == true) {
-            obj.texture.loadFromFile(LeftSpriteFileNAME);
-        }
-
-    }
-
 
 }
 
@@ -64,31 +68,32 @@ public:
     }
     void update(sf::Vector2f pos,sf::Vector2f mouspos) {
         sprite.setPosition(pos);
-        if (valid.getElapsedTime().asSeconds() <= 10.f){
+       
             if (sprite.getGlobalBounds().contains(mouspos.x, mouspos.y)) {
                 texture.loadFromFile("sprites\\hud\\FightBackButtonContour.png");
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
                     close = true;
                 }
             }
-            else {
+            else if (valid.getElapsedTime().asSeconds() <= 10.f){
                 texture.loadFromFile("sprites\\hud\\FightBackButton.png");
+            }
+            else  {
+                texture.loadFromFile("sprites\\hud\\FightSurrenderButton.png");
             }
     
     }
-    }
     void draw(sf::RenderWindow& window) {
-        if(valid.getElapsedTime().asSeconds() <= 10.f)
+       
         window.draw(sprite);
     }
     bool getClose() { return close; }
     void setClose(bool a) { close = a; }
-    void restartClock() {
-        valid.restart();
-        
-   }
+    void restartClock() {   valid.restart();}
+    bool getValidSur() { return valid.getElapsedTime().asSeconds() <= 10.f; }
     sf::Sprite getSprite() { return sprite; }
 };
+
 
 
 class Fights {
@@ -136,8 +141,7 @@ public:
         InFight = false;
        
         IsOpen = false; //false
-        Accepttext.setString("Accept");
-        Rejecttext.setString("Reject");
+       
     }
 
     void OpenMenu(Vragi& vrag) {
@@ -152,18 +156,47 @@ public:
     void setFight(bool a) { InFight = a; }
     auto getVrag() { return VragBitv; }
     auto setVrag(Vragi& vrag) { VragBitv = &vrag; }
-    void update(sf::Vector2f pos, sf::Vector2f mouspos, Player& pl, Stand& stpl, Stand& vragpl, sf::Vector2f plpos) {
-
+    void update( sf::Vector2f pos, sf::Vector2f mouspos, Player& pl, Stand& stpl, Stand& vragpl, sf::Vector2f plpos, Languages& language) {
+     
         if (IsOpen == true) {
+            if (language.EnglishText == true) {
+                Accepttext.setString("Accept");
+            }
+            else if (language.RussiaText == true) {
+                Accepttext.setString(L" Принять");
+
+            }
+            if (language.EnglishText == true) {
+
+                Rejecttext.setString("Reject");
+            }
+            else if (language.RussiaText == true) {
+
+                Rejecttext.setString(L"Отказ");
+
+            }
+          
             if (VragBitv->Name == "Bad Guy") {
                 Icontexture.loadFromFile("sprites\\NPC\\icons\\PlohoiParenIcon.png");
             }
-
-            RewardText.setString("Reward: " + std::to_string(VragBitv->Reward) + "$");
+            if (language.EnglishText == true) {
+                RewardText.setString("Reward: " + std::to_string(VragBitv->Reward) + "$");
+           }
+            else if (language.RussiaText == true) {
+                RewardText.setString(L"Награда: " + std::to_wstring(VragBitv->Reward) + L"$");
+            
+            }
             menu.setPosition(pos);
             Icon.setPosition({ menu.getPosition().x + 156.f, menu.getPosition().y + 155.f });
             textvizova.setPosition({ menu.getPosition().x + 90.f, menu.getPosition().y + 300.f });
-            textvizova.setString(VragBitv->Name + " wants to fight you,\naccept?");
+            if (language.EnglishText == true) {
+                textvizova.setString(VragBitv->Name + " wants to fight you,\naccept?");
+            }
+            else if (language.RussiaText == true) {
+                textvizova.setString(converter.from_bytes(VragBitv->Name) + L" хочет сразиться с тобой,\nпринять?");
+
+            }
+            
             RewardText.setPosition({ Icon.getPosition().x - 30.f, Icon.getPosition().y - 30.f });
             Acceptbutton.setPosition({ menu.getPosition().x + 10.f, menu.getPosition().y + menu.getGlobalBounds().height - 100.f });
             Rejectbutton.setPosition({ menu.getPosition().x + menu.getGlobalBounds().width - Rejectbutton.getGlobalBounds().width - 10.f, menu.getPosition().y + menu.getGlobalBounds().height - 100.f });
@@ -172,11 +205,11 @@ public:
             if (Rejectbutton.getGlobalBounds().contains(mouspos.x, mouspos.y)) {
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
                     IsOpen = false;
+                    pl.stoi = false;
                 }
             }
             if (Acceptbutton.getGlobalBounds().contains(mouspos.x, mouspos.y)) {
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-                   
                     IsOpen = false;
                     InFight = true;
                     pl.stoi = false;

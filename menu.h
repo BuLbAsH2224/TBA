@@ -113,6 +113,7 @@ bool GameOverOn = false;
 
 	class Menu {
 	private:
+		Languages& language;
 		sf::Sprite background1sprite;
 		sf::Texture background1texture;
 		sf::Sprite Backsprite;
@@ -128,7 +129,8 @@ bool GameOverOn = false;
 		sf::Text SupportText;
 		sf::Text CReditsText;
 		sf::Text SavesText;
-		std::string CREDITS{"Credits:\nBuLbAsH - programmer, creator\nMainBladee - beta tester\ncret - designer\nVS - designer, beta tester"};
+		std::string CREDITS{ "Credits:\nBuLbAsH - programmer, creator\nMainBladee - beta tester\ncret - designer\nVS - designer, beta tester" };
+		std::wstring CREDITS_RU{ L"Разработчики:\nBuLbAsH - программист, создатель\nVS - дизайнер, бета-тестер\nMainBladee - бета-тестер\ncret - дизайнер" };
 
 	    sf::Sprite Exitsprite;
 		sf::Texture Exittexture;
@@ -149,7 +151,7 @@ bool GameOverOn = false;
 		float viewpositiony;
 		bool MenuView;
 	public:
-		Menu() {
+		Menu(Languages& lang) : language(lang) {
 			MenuView = true;
 			Close = false;
 			font.loadFromFile("NjalBold.ttf");
@@ -184,40 +186,82 @@ bool GameOverOn = false;
 
 			PlayText.setFont(font);
 			PlayText.setCharacterSize(64);
-			PlayText.setPosition(Playsprite.getPosition().x + 50, Playsprite.getPosition().y + 50);
-			PlayText.setString("Play");
+			PlayText.setPosition(Playsprite.getPosition().x + 30, Playsprite.getPosition().y + 50);
+			if (lang.EnglishText == true) {
+				PlayText.setString("Play");
+			}
+			else if (lang.RussiaText == true) {
+				PlayText.setString(L"Играть");
+			}
+			
 
 			SettingsText.setFont(font);
 			SettingsText.setCharacterSize(64);
-			SettingsText.setPosition(Settingssprite.getPosition().x + 50, Settingssprite.getPosition().y + 50);
-			SettingsText.setString("Settings");
+			SettingsText.setPosition(Settingssprite.getPosition().x + 30, Settingssprite.getPosition().y + 50);
+			if (lang.EnglishText == true) {
+				SettingsText.setString("Settings");
+			}
+			else if (lang.RussiaText == true) {
+				SettingsText.setString(L"Настройки");
+			}
+			
 
 			ExitText.setFont(font);
 			ExitText.setCharacterSize(64);
-			ExitText.setPosition(Exitsprite.getPosition().x + 50, Exitsprite.getPosition().y + 50);
-			ExitText.setString("Exit");
+			ExitText.setPosition(Exitsprite.getPosition().x + 30, Exitsprite.getPosition().y + 50);
+			if (lang.EnglishText == true) {
+				ExitText.setString("Exit");
+			}
+			else if (lang.RussiaText == true) {
+				ExitText.setString(L"Выйти");
+			}
+			
 
 			CreditsText.setFont(font);
 			CreditsText.setCharacterSize(64);
-			CreditsText.setPosition(Creditssprite.getPosition().x + 50, Creditssprite.getPosition().y + 50);
-			CreditsText.setString("Credits");
+			CreditsText.setPosition(Creditssprite.getPosition().x + 30, Creditssprite.getPosition().y + 50);
+			if (lang.EnglishText == true) {
+				CreditsText.setString("Credits");
+			}
+			else if (lang.RussiaText == true) {
+				CreditsText.setString(L"Создатели");
+			}
+			
 
 			SupportText.setFont(font);
 			SupportText.setCharacterSize(24);
 			SupportText.setPosition(Exitsprite.getPosition().x  + 20, Exitsprite.getPosition().y + 20 + Exitsprite.getGlobalBounds().height);
-			SupportText.setString("Support the author");
+			
+			if (lang.EnglishText == true) {
+				SupportText.setString("Support the author");
+			}
+			else if (lang.RussiaText == true) {
+				SupportText.setString(L"Поддержать автора");
+			}
 
 
 			SavesText.setFont(font);
 			SavesText.setCharacterSize(64);
 			SavesText.setPosition(50,200);
-			SavesText.setString("Load Auto Save");
+			if (lang.EnglishText == true) {
+				SavesText.setString("Load Auto Save");
+			}
+			else if (lang.RussiaText == true) {
+				SavesText.setString(L"Загрузить авто-сохранение");
+			}
+			
 
 
 			CReditsText.setFont(font);
 			CReditsText.setCharacterSize(64);
 			CReditsText.setPosition(0, 200);
-			CReditsText.setString(CREDITS);
+			if (lang.EnglishText == true) {
+				CReditsText.setString(CREDITS);
+			}
+			else if (lang.RussiaText == true) {
+				CReditsText.setString(CREDITS_RU);
+			}
+			
 
 			ButtonIsNotPress = true;
 			SavesPress = false;

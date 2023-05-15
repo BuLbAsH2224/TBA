@@ -220,7 +220,7 @@ public:
         if (vrag.health > 0) {
             for (auto it = lasers.begin(); it != lasers.end(); /* без ++it здесь */) {
                 if ((*it)->getHitBox().intersects(vrag.sprite.getGlobalBounds())) {
-                    vrag.health -= 1.f;
+                    vrag.health -= 5.f;
                     it = lasers.erase(it);
                 }
                 else {
@@ -325,6 +325,10 @@ public:
         }
 
     }
+
+   
+
+
 
     void BarrageDamage(Vragi& vrag, float time,Player& pl, Stand& st) {
         if (st.sprite.getGlobalBounds().intersects(vrag.sprite.getGlobalBounds()) && st.barrage == true) {

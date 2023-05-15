@@ -1,5 +1,6 @@
 #pragma once
 #include "settings.h"
+#include "FIGHTS.h"
 struct HUD {
     sf::Texture texture;
     sf::Sprite sprite;
@@ -207,7 +208,7 @@ public:
    
    
 
-    void update(sf::Vector2f pos, sf::Vector2f pos2, Player& pl, sf::Vector2f mouspos) {
+    void update(sf::Vector2f pos, sf::Vector2f pos2, Player& pl, sf::Vector2f mouspos, Languages& language) {
         
         sprite.setPosition(pos2);
         if (IsOpen == true) {
@@ -220,13 +221,34 @@ public:
             standtext.setPosition(sprite.getPosition().x + 50.f, sprite.getPosition().y + 300.f);
 
             speedtext.setPosition(sprite.getPosition().x + 50.f, sprite.getPosition().y + 340.f);
-            speedtext.setString("SPEED: " + std::to_string((int)(pl.speed * 10.f)));
+            if (language.EnglishText == true) {
+                speedtext.setString("SPEED: " + std::to_string((int)(pl.speed * 10.f)));
+            }
+            else if (language.RussiaText == true) {
+                speedtext.setString(L"— ќ–ќ—“№: " + std::to_wstring((int)(pl.speed * 10.f)));
+
+            }
+            
 
             moneytext.setPosition(sprite.getPosition().x + 50.f, sprite.getPosition().y + 360.f);
-            moneytext.setString("Money: " + std::to_string(pl.money) + "$");
+            if (language.EnglishText == true) {
+                moneytext.setString("MONEY: " + std::to_string(pl.money) + "$");
+            }
+            else if (language.RussiaText == true) {
+                moneytext.setString(L"ƒ≈Ќ№√»: " + std::to_wstring(pl.money) + L"$");
+
+            }
+           
 
             healthtext.setPosition(sprite.getPosition().x + 50.f, sprite.getPosition().y + 320.f);
-            healthtext.setString("HEALTH: " + std::to_string((int)pl.health) + "/" + std::to_string((int)pl.maxhealth));
+            if (language.EnglishText == true) {
+                healthtext.setString("HEALTH: " + std::to_string((int)pl.health) + "/" + std::to_string((int)pl.maxhealth));
+            }
+            else if (language.RussiaText == true) {
+                healthtext.setString(L"«ƒќ–ќ¬№≈: " + std::to_wstring((int)pl.health) + L"/" + std::to_wstring((int)pl.maxhealth));
+
+            }
+          
             if (pl.stand == 0) {
                 standtext.setString("STAND: NONE");
             }
@@ -306,11 +328,22 @@ public:
         if (id == 3) {
             return 1;
         }
+       
         if (id == 4) {
             return 3;
         }
     }
-
+    bool ItemCanBeAdded(int ID) {
+        if (getWeightID(ID) + weight <= maxweight) {
+            for (int i = 0; i < 16; i++) {
+                if (inventoryitems[i].getID() == 0) {
+                  
+                    return true; // вернуть true, если предмет был успешно добавлен
+                }
+            }
+        }
+        return false; // вернуть false, если добавление не удалось
+    }
     void addItem(int ID) {
         
         if (getWeightID(ID) + weight <= maxweight) {
@@ -364,3 +397,72 @@ void MandomClock(sf::Clock& MandomTime, HUD& MandomClockHUD) {
         MandomClockHUD.texture.loadFromFile("sprites\\hud\\MandomClock6.png");
     }
 }
+
+class Notifications {
+private:
+    sf::Font font;
+    sf::Text Text;
+    sf::Clock die;
+    float elapsed_time;
+    int alpha;
+public:
+    Notifications(std::wstring  Notification) {
+        font.loadFromFile("NjalBold.ttf");
+        Text.setFont(font);  
+        Text.setCharacterSize(32);
+        Text.setString(Notification);
+    } 
+    void update(sf::Vector2f pos, float gap) {
+        Text.setPosition({ pos.x, pos.y + gap });
+
+         elapsed_time = die.getElapsedTime().asSeconds();
+         if (elapsed_time < 1.f) { // если анимаци€ еще не завершена
+             int alpha = static_cast<int>(elapsed_time / 1.f * 255); // вычисл€ем значение альфа-канала
+             sf::Color color = Text.getFillColor();
+             color.a = static_cast<sf::Uint8>(alpha);
+             Text.setFillColor(color);
+         }
+         else {
+             if (elapsed_time > 5.f) {
+                 alpha = static_cast<int>((1.f - elapsed_time / 8.f) * 255);
+                 if (alpha < 0) alpha = 0; // ограничить минимальное значение альфа-канала
+                 sf::Color color = Text.getFillColor();
+                 color.a = static_cast<sf::Uint8>(alpha);
+                 Text.setFillColor(color);
+             }
+         }
+    } 
+    void draw(sf::RenderWindow& window) {
+        window.draw(Text);
+    }
+    bool getDie() { return die.getElapsedTime().asSeconds() >= 10.f; }
+};
+
+void NotificationsDie(Notifications& las, std::list<Notifications*>& lasers) {
+    for (auto it = lasers.begin(); it != lasers.end(); /* без ++it здесь */) {
+        if ((*it)->getDie() == true) {
+
+            it = lasers.erase(it);
+        }
+        else {
+            ++it;
+        }
+    }
+
+
+}
+
+
+class ShopAndItems {
+private:
+    sf::Sprite backgroundsprite;
+    sf::Texture backgroundtexture;
+    sf::Sprite itemOdinSprite;
+    sf::Texture itemOdinSpritetexture;
+    sf::Sprite itemDvaSprite;
+    sf::Texture itemDvaSpritetexture;
+    sf::Sprite itemTriSprite;
+    sf::Texture itemTriSpritetexture;
+public:
+
+};

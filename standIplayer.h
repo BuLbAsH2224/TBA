@@ -490,6 +490,7 @@ void StandUpdate(Stand& stand, Player& obj, float time) {
 
 
 void StandSummon(Player& player1, Stand& playerstand) {
+
     if (player1.left == true) {
         if (player1.stand == 1) {
             playerstand.sprite.setPosition(player1.sprite.getPosition().x + 60, player1.sprite.getPosition().y - 50);
@@ -557,6 +558,7 @@ void AuraUpdate(Aura& obj, Player& pl, Stand& st, float time) {
         obj.Frame += 0.01f * time;
     }
     else obj.visible = false;
+    
     if (obj.CurrentFrame == 1 && obj.Frame >= 1.5) {
         obj.CurrentFrame = 2;
         obj.Frame = 0.f;
