@@ -40,7 +40,52 @@ const std::string PLAYER1RIGHT_FILE_NAME{ "sprites\\player\\player1right.png" };
 
  float PlSpeedX = 0.2f;
  float PlSpeedY = 0.2f;
- 
+ /*class Data {
+ private:
+     Player* pla;
+     float plposx;
+     float plposy;
+     int plstand;
+     std::string filename;
+ public:
+     void setStructures(std::string FileName, Player& pl) {
+         filename = FileName;
+         pla = &pl;
+
+     }
+     void SaveGame() {
+         std::ofstream file(filename + ".txt");
+         if (file.is_open()) {
+             file << pla->stand << "\n";
+             file << pla->sprite.getPosition().x << "\n";
+             file << pla->sprite.getPosition().y << "\n";
+
+             file.close();
+            
+         }
+         else {
+            
+         }
+     }
+     void LoadGame() {
+         std::ifstream file(filename + ".txt");
+         if (file.is_open()) {
+             file >> plstand;
+             file >> plposx;
+             file >> plposy;
+            
+             pla->stand = plstand;
+             pla->sprite.setPosition(plposx, plposy);
+
+             file.close();
+          
+         }
+         else {
+          
+         }
+
+     }
+ };*/
 
 
  struct LanguageFlags {

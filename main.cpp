@@ -460,7 +460,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                     posCenter = sf::Vector2f{ pos.x + bounds.width / 2,	pos.y + bounds.height / 2 };
                 }
 
-                Laser* laser = new Laser(posCenter, player1);
+                Laser* laser = new Laser(posCenter, player1,time);
                 laserSprites.push_back(laser);
                 EmeraldSplashTmAttack += 450.f;
 
@@ -597,7 +597,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                 player1.money -= fightmenu1.getVrag()->Reward;
                 fightmenu1.setFight(false);
                 player1.sprite.setPosition(fightmenu1.getPos());
-                player1.health = 1.f;
+              
                 playerstand.visible = false;
                 playerstand.sprite.setPosition(fightmenu1.getPos());
                 playerstand.barrage = false;
@@ -693,6 +693,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                         NotificationsTexts.push_back(Notificationstext);
                     }
                     PlayerInventory.addItem(4);
+                }
+                else if (rand() % 50 == 1) {
+                    Notifications* Notificationstext = nullptr;
+
+                    if (PlayerInventory.ItemCanBeAdded(3)) {
+                        if (laungag.EnglishText == true) {
+                            Notificationstext = new Notifications(L"+ Dio Diary");
+                        }
+                        else if (laungag.RussiaText == true) {
+                            Notificationstext = new Notifications(L"+ Дневник Дио");
+                        }
+
+                        NotificationsTexts.push_back(Notificationstext);
+                    }
+                    PlayerInventory.addItem(3);
                 }
             }
 
@@ -939,7 +954,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                 posCenter = sf::Vector2f{ pos.x + bounds.width / 2,	pos.y + bounds.height / 2 };
             }
 
-            Laser* laser = new Laser(posCenter, player1);
+            Laser* laser = new Laser(posCenter, player1,time);
             laserSprites.push_back(laser);
             EmeraldSplashTmAttack += 450.f;
 

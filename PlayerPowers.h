@@ -10,30 +10,31 @@ class Laser {
 private:
     sf::Sprite sprite;
     sf::Texture texture;
-    int angle;
+    float angle;
     float speedy, speedx, speed;
     bool left;
 public:
-    Laser(sf::Vector2f pos,Player& pl){
+    Laser(sf::Vector2f pos,Player& pl,float time){
         texture.loadFromFile("sprites\\powers\\EmeraldHG.png");
         sprite.setTexture(texture);
+
         sf::FloatRect bounds = sprite.getLocalBounds();
-        sprite.setOrigin(bounds.width / 2, bounds.height / 2);
+        sprite.setOrigin(bounds.width / 2, bounds.height);
         sprite.setPosition(pos);
-        speed = rand() % 15 + 5.f;
+        speed = rand() % 2 + 1.f;
         
         
         if (pl.left == true) {
             left = true;
-            angle = rand() % 90 + 30;
-            speedx = speed * sin(angle * 3.141592653589793f / 180.f);
-            speedy = speed * cos(angle * 3.141592653589793f / 180.f);
+            angle = rand() % 70 + 60;
+            speedx = (speed * sin(angle * 3.141592653589793f / 180.f)) * time;
+            speedy = (-speed * cos(angle * 3.141592653589793f / 180.f)) * time;
         }
         if (pl.left == false) {
             left = false;
-            angle = rand() % 90 + 30;
-            speedx = speed * sin(angle * 3.141592653589793f / 180.f);
-            speedy = -speed * cos(angle * 3.141592653589793f / 180.f);
+            angle = rand() % 70 + 60;
+            speedx = (speed * sin(angle * 3.141592653589793f / 180.f)) * time;
+            speedy = (-speed * cos(angle * 3.141592653589793f / 180.f)) * time;
         }
         sprite.setRotation(angle);
       
@@ -235,7 +236,7 @@ public:
         if (vrag.health > 0) {
             for (auto it = lasers.begin(); it != lasers.end(); /* без ++it здесь */) {
                 if ((*it)->getHitBox().intersects(vrag.sprite.getGlobalBounds())) {
-                    vrag.health -= 1.f;
+                    vrag.health -= 2.f;
                     it = lasers.erase(it);
                 }
                 else {
@@ -316,7 +317,7 @@ public:
         }
         for (auto it = lasers.begin(); it != lasers.end(); /* без ++it здесь */) {
             if ((*it)->getDeletes() == true) {
-                (*it)->getVrag()->health-= 10.f;
+                (*it)->getVrag()->health-= 20.f;
                 it = lasers.erase(it);
             }
             else {

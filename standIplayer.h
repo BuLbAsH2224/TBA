@@ -60,7 +60,7 @@ struct Player {
     int FighTech = 1;
     bool attacking;
     bool stoi = false;
-    // добавьте поля, методы и конструкторы по необходимости
+   
 };
 
 void PlayerInit(Player& obj, std::string fileName) {
@@ -467,11 +467,11 @@ void StandUpdate(Stand& stand, Player& obj, float time) {
                 }
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::H)) {
-                if (D4CDimensionClones == false)
+                if (D4CDimensionClones == false && Hbuttontime.getElapsedTime().asSeconds() >= 20.f)
                 {
 
 
-
+                    Hbuttontime.restart();
                     D4CDimensionClones = true;
 
                  

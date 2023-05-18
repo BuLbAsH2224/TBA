@@ -100,7 +100,7 @@ void VragiUpdate(Vragi& obj, Stand& st, Player& pl1, float time) {
         if (obj.statics == true) {
             // Враг находится на месте
         }
-        else {
+        else if (D4CDimension == false){
             if(st.visible == false && rand() % 100 == 50){
                 st.visible = true;
                  }
@@ -124,7 +124,7 @@ void VragiUpdate(Vragi& obj, Stand& st, Player& pl1, float time) {
 }
 
 void VragiDraw(sf::RenderWindow& window, Vragi& obj) {
-    if (obj.health > 0) {
+    if (obj.health > 0 && D4CDimension == false) {
         window.draw(obj.sprite);
     }
 }
@@ -139,7 +139,7 @@ void VragiStandUpdate(Stand& stand, Vragi& obj, float time) {
     if (obj.stand == 0) {
         stand.visible = false;
     }
-    if (stand.visible == true && obj.stoppedbytime == false) {
+    if (stand.visible == true && obj.stoppedbytime == false && D4CDimension == false) {
 
         /*1 - the world
         2 - Mandom
@@ -206,7 +206,7 @@ void VragiStandUpdate(Stand& stand, Vragi& obj, float time) {
 }
 
 void VragiBarrageDamage(Player &vrag, float time, Vragi& pl, Stand& st) {
-    if (pl.stoppedbytime == false) {
+    if (pl.stoppedbytime == false && D4CDimension == false) {
         if (st.sprite.getGlobalBounds().intersects(vrag.sprite.getGlobalBounds()) && st.barrage == true) {
             if (pl.stand == 1) {
                 vrag.health = vrag.health - 0.009f * time;

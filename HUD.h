@@ -53,11 +53,13 @@ private:
     sf::Texture texture;
     sf::Sprite sprite;
     bool IsOpen;
+
 public:
     InventoryPreview() {
         texture.loadFromFile("sprites\\hud\\inventory\\inventoryPR.png");
         sprite.setTexture(texture);
         IsOpen = false;
+
     }
   
     void update(sf::Vector2f pos) {
@@ -111,7 +113,7 @@ public:
             weigt = 1;
         }
         else if (ID == 3) {
-            texture.loadFromFile("sprites\\hud\\inventory\\rokakaitem.png");
+            texture.loadFromFile("sprites\\hud\\inventory\\DioDiary.png");
             weigt = 1;
         }
         else if (ID == 4) {
@@ -125,7 +127,7 @@ public:
         
 
         if (sprite.getGlobalBounds().contains(mouspos.x, mouspos.y)) {
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+           /* if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
                 if (ID == 1 && pl.stand == 0) {
                     ID = 0;
                     pl.stand = rand() % 6 + 1;
@@ -144,7 +146,7 @@ public:
                     ID = 0;
                     pl.health += 20.f;
                 }
-            }
+            }*/
         }
         if (sprite.getGlobalBounds().contains(mouspos.x, mouspos.y)) {
             if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
@@ -161,15 +163,85 @@ public:
     int getID() { return ID; }
     void setID(int id) { ID = id; }
     sf::Sprite getSprite() { return sprite; }
+    sf::Texture getTexture() { return texture; }
 };
+
+class SaintsCorpse {
+private:
+    sf::Sprite sprite;
+    sf::Texture texture;
+    bool active;
+public:
+    SaintsCorpse() {
+        active = false;
+    }
+    void setTexturaAndSprite(sf::String FileName) {
+        texture.loadFromFile(FileName);
+        sprite.setTexture(texture);
+        
+    }
+
+    void draw(sf::RenderWindow& window) {
+        window.draw(sprite);
+    }
+    void update(sf::Vector2f pos) {
+        if (active == true) {
+            sprite.setPosition(pos);
+        }
+    }
+    bool getActive() { return active; }
+};
+
+
+class InventoryMenu {
+private:
+    Item* items;
+    sf::Texture InventoryMenuTexture;
+    sf::Sprite InventoryMenuSprite;
+    sf::Sprite ItemSprite;
+    sf::Texture ItemTexture;
+    bool MenuIsOpen;
+    int ItemMenuID;
+public:
+    InventoryMenu(Item* lang) : items(lang) {
+
+        InventoryMenuTexture.loadFromFile("sprites\\hud\\inventory\\InventoryMenu.png");
+        ItemTexture.loadFromFile("sprites\\hud\\inventory\\none.png");
+        ItemSprite.setTexture(ItemTexture);
+        InventoryMenuSprite.setTexture(InventoryMenuTexture);
+        ItemMenuID = 0;
+        MenuIsOpen = false;
+    }
+    void setItemID(int id) { ItemMenuID = id; }
+    bool getItemID() { return ItemMenuID; }
+    void setMenuOpen(bool a) { MenuIsOpen = a; }
+    bool getMenuOpen() { return MenuIsOpen; }
+    void draw(sf::RenderWindow& window) {
+        window.draw(InventoryMenuSprite);
+        window.draw(ItemSprite);
+    }
+    void update(sf::Vector2f pos) {
+        InventoryMenuSprite.setPosition(pos);
+        ItemSprite.setPosition({ pos.x + 20.f, pos.y + 20.f });
+        if (ItemMenuID >= 0 && ItemMenuID < 16) {
+            ItemTexture = items[ItemMenuID].getTexture();
+        }
+    }
+};
+
+
 class Inventory {
 private:
     Item inventoryitems[16];
     sf::Texture texture;
     sf::Sprite sprite;
+ 
+
     bool IsOpen;
     int maxweight;
     int weight;
+    InventoryMenu Menu;
+
     sf::Text weighttext;
     sf::Text standtext;
     sf::Text healthtext;
@@ -177,16 +249,21 @@ private:
     sf::Text moneytext;
   //  sf::Text maxweighttext;
     sf::Font font;
+    SaintsCorpse Heart;
+    SaintsCorpse RibCage;
 public:
-    Inventory(){
+    Inventory() : Menu(inventoryitems) {
         texture.loadFromFile("sprites\\hud\\inventory\\inventory.png");
         sprite.setTexture(texture);
+        
         IsOpen = false; 
         maxweight = 24;
         weight = 0;
         font.loadFromFile("NjalBold.ttf");
         weighttext.setFont(font);
         weighttext.setCharacterSize(16);
+        Heart.setTexturaAndSprite("sprites\\hud\\inventory\\HeartOfTheSaintsCorpse.png");
+        RibCage.setTexturaAndSprite("sprites\\hud\\inventory\\HeartOfTheSaintsCorpse.png");
        // maxweighttext.setFont(font);
     //    maxweighttext.setCharacterSize(16);
 
@@ -209,9 +286,24 @@ public:
    
 
     void update(sf::Vector2f pos, sf::Vector2f pos2, Player& pl, sf::Vector2f mouspos, Languages& language) {
-        
+        if (Heart.getActive() == true) {
+            pl.speed = 0.3;
+        }
+        else {
+            pl.speed = 0.2;
+        }
         sprite.setPosition(pos2);
         if (IsOpen == true) {
+            Heart.update({ sprite.getPosition().x + 10.f, sprite.getPosition().y + 139.f });
+            Menu.update({ sprite.getPosition().x + sprite.getGlobalBounds().width, sprite.getPosition().y });
+
+
+
+
+
+
+
+            
             weighttext.setPosition(sprite.getPosition().x + 380.f, sprite.getPosition().y + 8.f);
             weighttext.setString( std::to_string(weight) + "/" + std::to_string(maxweight));
 
@@ -272,7 +364,14 @@ public:
             }
             if (D4CDimension == false) {
                 for (int i = 0; i < 16; i++) {
+                    if (inventoryitems[i].getSprite().getGlobalBounds().contains(mouspos.x, mouspos.y)) {
+                        if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && inventoryitems[i].getID() != 0) {
+                            Menu.setItemID(i);
+                            Menu.setMenuOpen(true);
+                        }
+                    }
                     if (i == 0) {
+
                         inventoryitems[i].update(pos, mouspos, pl);
                     }
                     else if (i < 4) {
@@ -358,7 +457,11 @@ public:
     void draw(sf::RenderWindow& window) {
         if (IsOpen == true) {
             window.draw(sprite);
+            Heart.draw(window);
             //window.draw(maxweighttext);
+            if (Menu.getMenuOpen() == true) {
+                Menu.draw(window);
+            }
             window.draw(moneytext);
             window.draw(standtext);
             window.draw(speedtext);
@@ -453,16 +556,3 @@ void NotificationsDie(Notifications& las, std::list<Notifications*>& lasers) {
 }
 
 
-class ShopAndItems {
-private:
-    sf::Sprite backgroundsprite;
-    sf::Texture backgroundtexture;
-    sf::Sprite itemOdinSprite;
-    sf::Texture itemOdinSpritetexture;
-    sf::Sprite itemDvaSprite;
-    sf::Texture itemDvaSpritetexture;
-    sf::Sprite itemTriSprite;
-    sf::Texture itemTriSpritetexture;
-public:
-
-};
