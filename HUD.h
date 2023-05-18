@@ -1,6 +1,19 @@
 #pragma once
 #include "settings.h"
 #include "FIGHTS.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
 struct HUD {
     sf::Texture texture;
     sf::Sprite sprite;
@@ -200,7 +213,10 @@ private:
     sf::Sprite InventoryMenuSprite;
     sf::Sprite ItemSprite;
     sf::Texture ItemTexture;
+    sf::Text Description;
+    sf::Font font;
     bool MenuIsOpen;
+    int ItemMenu;
     int ItemMenuID;
 public:
     InventoryMenu(Item* lang) : items(lang) {
@@ -209,9 +225,15 @@ public:
         ItemTexture.loadFromFile("sprites\\hud\\inventory\\none.png");
         ItemSprite.setTexture(ItemTexture);
         InventoryMenuSprite.setTexture(InventoryMenuTexture);
-        ItemMenuID = 0;
+        ItemMenu = 0;
         MenuIsOpen = false;
+        font.loadFromFile("NjalBold.ttf");
+        Description.setFont(font);
+        Description.setCharacterSize(16);
+      
     }
+    void setItem(int id) { ItemMenu = id; }
+    bool getItem() { return ItemMenu; }
     void setItemID(int id) { ItemMenuID = id; }
     bool getItemID() { return ItemMenuID; }
     void setMenuOpen(bool a) { MenuIsOpen = a; }
@@ -219,12 +241,53 @@ public:
     void draw(sf::RenderWindow& window) {
         window.draw(InventoryMenuSprite);
         window.draw(ItemSprite);
+        window.draw(Description);
     }
-    void update(sf::Vector2f pos) {
+    void Descriptions(Languages& language) {
+        if (ItemMenuID == 1) {
+            if (language.EnglishText == true) {
+                Description.setString(L"Mysterious arrow that\ngrants a Stand");
+            }
+            else if (language.RussiaText == true) {
+                Description.setString(L"Загадочная стрела \nкоторая дает стенд"); 
+
+            }
+        }
+        else if (ItemMenuID == 2) {
+            if (language.EnglishText == true) {
+                Description.setString(L"Mysterious fruit \nthat removes a Stand");
+            }
+            else if (language.RussiaText == true) {
+                Description.setString(L"Загадочный фрукт \nкоторый убирает стенд");
+
+            }
+        }
+        else if (ItemMenuID == 1) {
+            if (language.EnglishText == true) {
+                Description.setString(L"Mysterious arrow that\ngrants a Stand");
+            }
+            else if (language.RussiaText == true) {
+                Description.setString(L"Загадочная стрела \nкоторая дает стенд");
+
+            }
+        }
+        else if (ItemMenuID == 4) {
+            if (language.EnglishText == true) {
+                Description.setString(L"Delicious food \nfrom Tonio, \nrestores 20 \nhealth points");
+            }
+            else if (language.RussiaText == true) {
+                Description.setString(L"Вкусная еда от Тонио, \nвостанавливает \n20 жизней");
+
+            }
+        }
+    }
+    void update(sf::Vector2f pos, Languages& language) {
         InventoryMenuSprite.setPosition(pos);
-        ItemSprite.setPosition({ pos.x + 20.f, pos.y + 20.f });
-        if (ItemMenuID >= 0 && ItemMenuID < 16) {
-            ItemTexture = items[ItemMenuID].getTexture();
+        ItemSprite.setPosition({ InventoryMenuSprite.getPosition().x + 85.f, InventoryMenuSprite.getPosition().y + 102.f });
+        Description.setPosition({ InventoryMenuSprite.getPosition().x + 10.f, InventoryMenuSprite.getPosition().y + 140.f });
+        if (ItemMenu >= 0 && ItemMenu < 16 && ItemMenuID != 0) {
+            ItemTexture = items[ItemMenu].getTexture();
+            Descriptions(language);
         }
     }
 };
@@ -295,7 +358,8 @@ public:
         sprite.setPosition(pos2);
         if (IsOpen == true) {
             Heart.update({ sprite.getPosition().x + 10.f, sprite.getPosition().y + 139.f });
-            Menu.update({ sprite.getPosition().x + sprite.getGlobalBounds().width, sprite.getPosition().y });
+
+            Menu.update({ sprite.getPosition().x + sprite.getGlobalBounds().width, sprite.getPosition().y },language);
 
 
 
@@ -366,7 +430,8 @@ public:
                 for (int i = 0; i < 16; i++) {
                     if (inventoryitems[i].getSprite().getGlobalBounds().contains(mouspos.x, mouspos.y)) {
                         if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && inventoryitems[i].getID() != 0) {
-                            Menu.setItemID(i);
+                            Menu.setItem(i);
+                            Menu.setItemID(inventoryitems[i].getID());
                             Menu.setMenuOpen(true);
                         }
                     }

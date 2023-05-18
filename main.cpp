@@ -244,6 +244,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
       //  std::cin >> player1.stand;
     }
     float time;
+    
     while (window.isOpen()) {
        
 
@@ -1198,6 +1199,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             HudDraw(window, AngeloHealth);
 
         }
+       
         PowersObjectsDraw(window, timestoppower);
         PowersObjectsDraw(window, WrOxyImage);
         if (player1.stand == 2) {
