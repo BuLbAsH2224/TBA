@@ -70,9 +70,9 @@ public:
         sprite.setOrigin(bounds.width / 2, bounds.height / 2);
         sprite.setPosition(pos);
 
-        speedx = 1.f * time;
+        speedx = 0.5f * time;
         speedy = 0;
-        angle = rand() % 90 + 30;
+        angle = rand() % 360;
 
         if (pl.left == true) {
             left = true;
@@ -86,11 +86,59 @@ public:
     void update() {
         if (left == true) {
             sprite.move(-speedx, speedy);
+            angle = angle - 2.f;
         }
         if (left == false) {
             sprite.move(speedx, speedy);
+            angle = angle + 2.f;
         }
+        
+        sprite.setRotation(angle);
+    }
+    sf::Sprite& getSprite() { return sprite; }
+    sf::FloatRect getHitBox() { return sprite.getGlobalBounds(); }
+};
 
+class SteelBall {
+private:
+    sf::Sprite sprite;
+    sf::Texture texture;
+    int angle;
+    float speedy, speedx;
+    bool left;
+    float damage;
+public:
+    SteelBall(sf::Vector2f pos, Player& pl, float time) {
+        texture.loadFromFile("sprites\\powers\\SAWBubles2.png");
+        sprite.setTexture(texture);
+        sf::FloatRect bounds = sprite.getLocalBounds();
+        sprite.setOrigin(bounds.width / 2, bounds.height / 2);
+        sprite.setPosition(pos);
+
+        speedx = 0.5f * time;
+        speedy = 0;
+        angle = rand() % 360;
+
+        if (pl.left == true) {
+            left = true;
+        }
+        if (pl.left == false) {
+            left = false;
+        }
+        sprite.setRotation(angle);
+    }
+
+    void update() {
+        if (left == true) {
+            sprite.move(-speedx, speedy);
+            angle = angle - 2.f;
+        }
+        if (left == false) {
+            sprite.move(speedx, speedy);
+            angle = angle + 2.f;
+        }
+        
+        sprite.setRotation(angle);
     }
     sf::Sprite& getSprite() { return sprite; }
     sf::FloatRect getHitBox() { return sprite.getGlobalBounds(); }

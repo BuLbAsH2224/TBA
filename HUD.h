@@ -111,6 +111,7 @@ public:
         // 2 - rokaka
         // 3 - dio diary
         // 4 - havchik
+       //5 - heart
     }
     void updatedva() {
         if (ID == 0) {
@@ -133,14 +134,26 @@ public:
             texture.loadFromFile("sprites\\hud\\inventory\\FoodPomidori.png");
             weigt = 3;
         }
+        else if (ID == 5) {
+            texture.loadFromFile("sprites\\hud\\inventory\\HeartOfTheSaintsCorpse.png");
+            weigt = 5;
+        }
+        else if (ID == 6) {
+            texture.loadFromFile("sprites\\hud\\inventory\\RibCageOfTheSaintsCorpse.png");
+            weigt = 5;
+        }
+        else if (ID == 7) {
+            texture.loadFromFile("sprites\\hud\\inventory\\LegsOfTheSaintsCorpse.png");
+            weigt = 5;
+        }
     }
     void update(sf::Vector2f pos, sf::Vector2f mouspos, Player& pl) {
         sprite.setPosition(pos);
         
         
 
-        if (sprite.getGlobalBounds().contains(mouspos.x, mouspos.y)) {
-           /* if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+        /*  if (sprite.getGlobalBounds().contains(mouspos.x, mouspos.y)) {
+          if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
                 if (ID == 1 && pl.stand == 0) {
                     ID = 0;
                     pl.stand = rand() % 6 + 1;
@@ -159,8 +172,8 @@ public:
                     ID = 0;
                     pl.health += 20.f;
                 }
-            }*/
-        }
+            }
+        }*/
         if (sprite.getGlobalBounds().contains(mouspos.x, mouspos.y)) {
             if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
                 
@@ -195,12 +208,25 @@ public:
     }
 
     void draw(sf::RenderWindow& window) {
-        window.draw(sprite);
-    }
-    void update(sf::Vector2f pos) {
         if (active == true) {
-            sprite.setPosition(pos);
+            window.draw(sprite);
         }
+    }
+    void update(sf::Vector2f pos,sf::Vector2f mouspos) {
+        sprite.setPosition(pos);
+        if (active == true) {
+            if (sprite.getGlobalBounds().contains(mouspos.x, mouspos.y)) {
+                if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
+
+                    active = false;
+
+
+                }
+            }
+        }
+    }
+    void setActive(bool a) {
+        active = a;
     }
     bool getActive() { return active; }
 };
@@ -209,28 +235,66 @@ public:
 class InventoryMenu {
 private:
     Item* items;
+    SaintsCorpse* corpses;
     sf::Texture InventoryMenuTexture;
     sf::Sprite InventoryMenuSprite;
+
+    sf::Texture EquipButtonTexture;
+    sf::Sprite EquipButtonSprite;
+    sf::Text EquipText;
+    sf::Text WeightText;
+    bool EquipIsOn;
+
+    sf::Texture CloseButtonTexture;
+    sf::Sprite  CloseButtonSprite;
+    sf::Texture UseButtonTexture;
+    sf::Sprite  UseButtonSprite;
+    sf::Texture DeleteButtonTexture;
+    sf::Sprite  DeleteButtonSprite;
     sf::Sprite ItemSprite;
     sf::Texture ItemTexture;
     sf::Text Description;
+    sf::Text NameText;
+    sf::Text UseText;
+    sf::Text DeleteText;
     sf::Font font;
     bool MenuIsOpen;
     int ItemMenu;
     int ItemMenuID;
 public:
-    InventoryMenu(Item* lang) : items(lang) {
+    InventoryMenu(Item* lang, SaintsCorpse* corpsesLang) : items(lang), corpses(corpsesLang) {
 
         InventoryMenuTexture.loadFromFile("sprites\\hud\\inventory\\InventoryMenu.png");
         ItemTexture.loadFromFile("sprites\\hud\\inventory\\none.png");
         ItemSprite.setTexture(ItemTexture);
+
+        EquipButtonTexture.loadFromFile("sprites\\hud\\inventory\\EquipButton.png");
+        EquipButtonSprite.setTexture(EquipButtonTexture);
+
         InventoryMenuSprite.setTexture(InventoryMenuTexture);
         ItemMenu = 0;
+        EquipIsOn = false;
         MenuIsOpen = false;
         font.loadFromFile("NjalBold.ttf");
         Description.setFont(font);
         Description.setCharacterSize(16);
-      
+        NameText.setFont(font);
+        NameText.setCharacterSize(18);
+        UseText.setFont(font);
+        UseText.setCharacterSize(12);
+        DeleteText.setFont(font);
+        DeleteText.setCharacterSize(12);
+        WeightText.setFont(font);
+        WeightText.setCharacterSize(12);
+        EquipText.setFont(font);
+        EquipText.setCharacterSize(12);
+
+        CloseButtonTexture.loadFromFile("sprites\\hud\\inventory\\CloseButton.png");
+        CloseButtonSprite.setTexture(CloseButtonTexture);
+        UseButtonTexture.loadFromFile("sprites\\hud\\inventory\\UseButton.png");
+        UseButtonSprite.setTexture(UseButtonTexture);
+        DeleteButtonTexture.loadFromFile("sprites\\hud\\inventory\\DeleteButton.png");
+        DeleteButtonSprite.setTexture(DeleteButtonTexture);
     }
     void setItem(int id) { ItemMenu = id; }
     bool getItem() { return ItemMenu; }
@@ -242,52 +306,200 @@ public:
         window.draw(InventoryMenuSprite);
         window.draw(ItemSprite);
         window.draw(Description);
+        window.draw(NameText);
+        window.draw(CloseButtonSprite);
+        window.draw(DeleteButtonSprite);
+        window.draw(UseButtonSprite);
+        window.draw(UseText);
+        window.draw(DeleteText);
+        window.draw(WeightText);
+        if (EquipIsOn == true) {
+            window.draw(EquipButtonSprite);
+            window.draw(EquipText);
+        }
     }
     void Descriptions(Languages& language) {
         if (ItemMenuID == 1) {
             if (language.EnglishText == true) {
                 Description.setString(L"Mysterious arrow that\ngrants a Stand");
+                NameText.setString(L"Arrow");
             }
             else if (language.RussiaText == true) {
-                Description.setString(L"Загадочная стрела \nкоторая дает стенд"); 
-
+                Description.setString(L"Загадочная стрела \nкоторая дает стенд");
+                NameText.setString(L"Стрела");
             }
         }
         else if (ItemMenuID == 2) {
             if (language.EnglishText == true) {
                 Description.setString(L"Mysterious fruit \nthat removes a Stand");
+                NameText.setString(L"Rokaka");
             }
             else if (language.RussiaText == true) {
                 Description.setString(L"Загадочный фрукт \nкоторый убирает стенд");
-
+                NameText.setString(L"Рокака");
             }
         }
-        else if (ItemMenuID == 1) {
+        else if (ItemMenuID == 3) {
             if (language.EnglishText == true) {
-                Description.setString(L"Mysterious arrow that\ngrants a Stand");
+                Description.setString(L"in future updates");
+                NameText.setString(L"Dio Diary");
             }
             else if (language.RussiaText == true) {
-                Description.setString(L"Загадочная стрела \nкоторая дает стенд");
-
+                Description.setString(L"в будующих обновлениях");
+                NameText.setString(L"Дневник Дио");
             }
         }
         else if (ItemMenuID == 4) {
             if (language.EnglishText == true) {
                 Description.setString(L"Delicious food \nfrom Tonio, \nrestores 20 \nhealth points");
+                NameText.setString(L"Tonio Food");
             }
             else if (language.RussiaText == true) {
                 Description.setString(L"Вкусная еда от Тонио, \nвостанавливает \n20 жизней");
-
+                NameText.setString(L"Блюдо Тонио");
             }
         }
+        else if (ItemMenuID == 5) {
+            if (language.EnglishText == true) {
+                Description.setString(L"When equipped, \nit increases \nhealth by 50");
+                NameText.setString(L"Heart OTS Corpse");
+            }
+            else if (language.RussiaText == true) {
+                Description.setString(L"При экипирировании \nувеличивает \nздоровье на 50");
+                NameText.setString(L"Сердце СТ");
+            }
+        }
+        else if (ItemMenuID == 6) {
+            if (language.EnglishText == true) {
+                Description.setString(L"When equipped, \nit increases the \nmaximum weight \nof the backpack by 10");
+                NameText.setString(L"RibCage OTS Corpse");
+            }
+            else if (language.RussiaText == true) {
+                Description.setString(L"При экипирировании \nувеличивает \nмаксимальный вес \nрюказака на 10");
+                NameText.setString(L"Ребро СТ");
+            }
+        }
+        else if (ItemMenuID == 7) {
+            if (language.EnglishText == true) {
+                Description.setString(L"When equipped, \nit increases \nspeed by 1");
+                NameText.setString(L"Legs OTS Corpse");
+            }
+            else if (language.RussiaText == true) {
+                Description.setString(L"При экипирировании \nувеличивает \nскорость на 1");
+                NameText.setString(L"Ноги СТ");
+            }
+        }
+        else {
+            Description.setString(L"???");
+            NameText.setString(L"???");
+        }
     }
-    void update(sf::Vector2f pos, Languages& language) {
+    void ItemActions(Player& pl) {
+
+        if (ItemMenuID == 1 && pl.stand == 0) {
+
+            pl.stand = rand() % 6 + 1;
+
+            // Проверяем, совпадает ли новое число со старым значением
+            while (pl.stand == pl.old_stand) {
+                // Если да, то генерируем новое случайное число
+                pl.stand = rand() % 6 + 1;
+            }
+            items[ItemMenu].setID(0);
+        }
+
+        else if (ItemMenuID == 2 && pl.stand != 0) {
+
+            pl.stand = 0;
+            items[ItemMenu].setID(0);
+        }
+
+        else if (ItemMenuID == 4) {
+
+            pl.health += 20.f;
+            items[ItemMenu].setID(0);
+        }
+        else if (ItemMenuID == 5 && corpses[1].getActive() == false) {
+            corpses[1].setActive(true);
+            items[ItemMenu].setID(0);
+        }
+        else if (ItemMenuID == 6 && corpses[0].getActive() == false) {
+            corpses[0].setActive(true);
+            items[ItemMenu].setID(0);
+        }
+        else if (ItemMenuID == 7 && corpses[2].getActive() == false) {
+            corpses[2].setActive(true);
+            items[ItemMenu].setID(0);
+        }
+    }
+
+
+
+    void update(sf::Vector2f pos, Languages& language, sf::Vector2f mouspos, Player& pl) {
         InventoryMenuSprite.setPosition(pos);
+        UseButtonSprite.setPosition({ InventoryMenuSprite.getPosition().x + 7.f , InventoryMenuSprite.getPosition().y + 325.f });
+        if (language.EnglishText == true) {
+            UseText.setString(L"Use");
+            DeleteText.setString(L"Delete");
+            EquipText.setString(L"Equip");
+            WeightText.setString(L"Weight: " + std::to_wstring(items[ItemMenu].getWeight()));
+        }
+        else if (language.RussiaText == true) {
+            UseText.setString(L"Применить");
+            DeleteText.setString(L"Удалить");
+            EquipText.setString(L"Снарядить");
+            WeightText.setString(L"Вес: " + std::to_wstring(items[ItemMenu].getWeight()));
+        }
+        DeleteButtonSprite.setPosition({ InventoryMenuSprite.getPosition().x + InventoryMenuSprite.getGlobalBounds().width - 7.f - DeleteButtonSprite.getGlobalBounds().width, InventoryMenuSprite.getPosition().y + 325.f });
         ItemSprite.setPosition({ InventoryMenuSprite.getPosition().x + 85.f, InventoryMenuSprite.getPosition().y + 102.f });
+        UseText.setPosition({ UseButtonSprite.getPosition().x + 5.f,UseButtonSprite.getPosition().y + 2.f });
+        DeleteText.setPosition({ DeleteButtonSprite.getPosition().x + 5.f,DeleteButtonSprite.getPosition().y + 2.f });
         Description.setPosition({ InventoryMenuSprite.getPosition().x + 10.f, InventoryMenuSprite.getPosition().y + 140.f });
-        if (ItemMenu >= 0 && ItemMenu < 16 && ItemMenuID != 0) {
-            ItemTexture = items[ItemMenu].getTexture();
-            Descriptions(language);
+        EquipButtonSprite.setPosition({ InventoryMenuSprite.getPosition().x + 66.f, InventoryMenuSprite.getPosition().y + 298.f });
+        EquipText.setPosition({ EquipButtonSprite.getPosition().x + 5.f,EquipButtonSprite.getPosition().y + 2.f });
+        NameText.setPosition({ InventoryMenuSprite.getPosition().x + 10.f , InventoryMenuSprite.getPosition().y + 50.f });
+        CloseButtonSprite.setPosition({ InventoryMenuSprite.getPosition().x + 179.f , InventoryMenuSprite.getPosition().y - 12.f });
+        WeightText.setPosition({ InventoryMenuSprite.getPosition().x + 10.f , InventoryMenuSprite.getPosition().y + 10.f });
+        if (items[ItemMenu].getID() == 0) {
+            MenuIsOpen = false;
+        }
+        if (MenuIsOpen == true) {
+            if (ItemMenuID == 5 || ItemMenuID == 6 || ItemMenuID == 7) {
+                EquipIsOn = true;
+           }
+            else {
+                EquipIsOn = false;
+            }
+            if (CloseButtonSprite.getGlobalBounds().contains(mouspos.x, mouspos.y)) {
+                if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                    MenuIsOpen = false;
+                 }
+            }
+            else  if (DeleteButtonSprite.getGlobalBounds().contains(mouspos.x, mouspos.y)) {
+                if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                    items[ItemMenu].setID(0);
+                    MenuIsOpen = false;
+                }
+            }
+            else if (EquipIsOn == true && EquipButtonSprite.getGlobalBounds().contains(mouspos.x, mouspos.y)) {
+                if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                   
+                    MenuIsOpen = false;
+                    ItemActions(pl);
+                }
+            }
+            else if (UseButtonSprite.getGlobalBounds().contains(mouspos.x, mouspos.y)) {
+                if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                  
+                    MenuIsOpen = false;
+                    ItemActions(pl);
+                }
+            }
+            if (ItemMenu >= 0 && ItemMenu < 16 && ItemMenuID != 0) {
+                ItemTexture = items[ItemMenu].getTexture();
+                Descriptions(language);
+                
+            }
         }
     }
 };
@@ -312,10 +524,10 @@ private:
     sf::Text moneytext;
   //  sf::Text maxweighttext;
     sf::Font font;
-    SaintsCorpse Heart;
-    SaintsCorpse RibCage;
+    SaintsCorpse saintscorpes[9];
+  
 public:
-    Inventory() : Menu(inventoryitems) {
+    Inventory() : Menu(inventoryitems,saintscorpes) {
         texture.loadFromFile("sprites\\hud\\inventory\\inventory.png");
         sprite.setTexture(texture);
         
@@ -325,8 +537,9 @@ public:
         font.loadFromFile("NjalBold.ttf");
         weighttext.setFont(font);
         weighttext.setCharacterSize(16);
-        Heart.setTexturaAndSprite("sprites\\hud\\inventory\\HeartOfTheSaintsCorpse.png");
-        RibCage.setTexturaAndSprite("sprites\\hud\\inventory\\HeartOfTheSaintsCorpse.png");
+        saintscorpes[2].setTexturaAndSprite("sprites\\hud\\inventory\\LegsOfTheSaintsCorpse.png");
+        saintscorpes[1].setTexturaAndSprite("sprites\\hud\\inventory\\HeartOfTheSaintsCorpse.png");
+        saintscorpes[0].setTexturaAndSprite("sprites\\hud\\inventory\\RibCageOfTheSaintsCorpse.png");
        // maxweighttext.setFont(font);
     //    maxweighttext.setCharacterSize(16);
 
@@ -349,17 +562,30 @@ public:
    
 
     void update(sf::Vector2f pos, sf::Vector2f pos2, Player& pl, sf::Vector2f mouspos, Languages& language) {
-        if (Heart.getActive() == true) {
+        if (saintscorpes[2].getActive() == true) {
             pl.speed = 0.3;
         }
         else {
             pl.speed = 0.2;
         }
+        if (saintscorpes[1].getActive() == true) {
+            pl.maxhealth = 250.f;
+        }
+        else {
+            pl.maxhealth = 200.f;
+        }
+        if (saintscorpes[0].getActive() == true) {
+            maxweight = 34;
+        }
+        else {
+            maxweight = 24;
+        }
         sprite.setPosition(pos2);
         if (IsOpen == true) {
-            Heart.update({ sprite.getPosition().x + 10.f, sprite.getPosition().y + 139.f });
-
-            Menu.update({ sprite.getPosition().x + sprite.getGlobalBounds().width, sprite.getPosition().y },language);
+            saintscorpes[2].update({ sprite.getPosition().x + 9.f, sprite.getPosition().y + 190.f }, mouspos);
+            saintscorpes[1].update({ sprite.getPosition().x + 9.f, sprite.getPosition().y + 139.f },mouspos);
+            saintscorpes[0].update({ sprite.getPosition().x + 177.f, sprite.getPosition().y + 139.f }, mouspos);
+            Menu.update({ sprite.getPosition().x + sprite.getGlobalBounds().width, sprite.getPosition().y },language,mouspos,pl);
 
 
 
@@ -483,18 +709,27 @@ public:
         if (id == 0) {
             return 0;
         }
-        if (id == 1) {
+        else if (id == 1) {
             return 2;
         }
-        if (id == 2) {
+        else if (id == 2) {
             return 1;
         }
-        if (id == 3) {
+        else if (id == 3) {
             return 1;
         }
        
-        if (id == 4) {
+        else if (id == 4) {
             return 3;
+        }
+        else if (id == 5) {
+            return 4;
+        }
+        else if (id == 6) {
+            return 5;
+        }
+        else {
+            return 0;
         }
     }
     bool ItemCanBeAdded(int ID) {
@@ -522,7 +757,10 @@ public:
     void draw(sf::RenderWindow& window) {
         if (IsOpen == true) {
             window.draw(sprite);
-            Heart.draw(window);
+            for (int i = 0; i < 9; i++) {
+                saintscorpes[i].draw(window);
+            }
+            
             //window.draw(maxweighttext);
             if (Menu.getMenuOpen() == true) {
                 Menu.draw(window);
@@ -597,6 +835,7 @@ public:
                  sf::Color color = Text.getFillColor();
                  color.a = static_cast<sf::Uint8>(alpha);
                  Text.setFillColor(color);
+               
              }
          }
     } 
@@ -620,4 +859,10 @@ void NotificationsDie(Notifications& las, std::list<Notifications*>& lasers) {
 
 }
 
+/*class Quests {
+private:
+    sf::Sprite sprite;
+    sf::Texture texture;
+public:
 
+};*/

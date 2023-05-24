@@ -66,7 +66,7 @@ struct Player {
 void PlayerInit(Player& obj, std::string fileName) {
     obj.texture.loadFromFile(fileName);
     obj.sprite.setTexture(obj.texture);
-    obj.stand = 5;
+    obj.stand = 0;
     obj.sprite.setPosition(1632,1054);
 }
 void StandInit(Stand& obj, std::string fileName) {
@@ -475,6 +475,71 @@ void StandUpdate(Stand& stand, Player& obj, float time) {
                     D4CDimensionClones = true;
 
                  
+                }
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && Barrageplayer.getElapsedTime().asSeconds() > 20.f && D4CDimension == false) {
+                if (stand.barrage == false)
+                {
+                    Barrageplayer.restart();
+                    stand.barrage = true;
+                }
+            }
+        }
+        if (obj.stand == 7) {
+
+
+
+            if (obj.left == true) {
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+                    stand.texture.loadFromFile("sprites\\stands\\TwLeftMove.png");
+                }
+                else {
+                    stand.texture.loadFromFile("sprites\\stands\\D4CLeft.png");
+                }
+                if (stand.barrage == false) {
+                    moveTo(stand, { obj.sprite.getPosition().x + 60, obj.sprite.getPosition().y - 50 }, 3.5, 0.11f * time);
+                }
+                if (stand.barrage == true || D4CDimensionClones == true) {
+                    moveTo(stand, { obj.sprite.getPosition().x - 60, obj.sprite.getPosition().y - 20 }, 3.5, 0.25f * time);
+                }
+
+            }
+            if (obj.left == false) {
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+                    stand.texture.loadFromFile("sprites\\stands\\TwRightMove.png");
+                }
+                else {
+                    stand.texture.loadFromFile("sprites\\stands\\D4CRight.png");
+                }
+                if (stand.barrage == false) {
+                    moveTo(stand, { obj.sprite.getPosition().x - 60, obj.sprite.getPosition().y - 50 }, 3.5, 0.11f * time);
+                }
+                if (stand.barrage == true || D4CDimensionClones == true) {
+                    moveTo(stand, { obj.sprite.getPosition().x + 60, obj.sprite.getPosition().y - 20 }, 3.5, 0.25f * time);
+                }
+
+
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::G) && stand.barrage == false) {
+                if (D4CDimension == false && Gbuttontime.getElapsedTime().asSeconds() > 30.f)
+                {
+
+
+
+                    D4CDimension = true;
+
+                    Gbuttontime.restart();
+                }
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::H)) {
+                if (D4CDimensionClones == false && Hbuttontime.getElapsedTime().asSeconds() >= 20.f)
+                {
+
+
+                    Hbuttontime.restart();
+                    D4CDimensionClones = true;
+
+
                 }
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && Barrageplayer.getElapsedTime().asSeconds() > 20.f && D4CDimension == false) {

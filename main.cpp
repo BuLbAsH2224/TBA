@@ -75,7 +75,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     LanguageFlagsInit(RU_FLAG, { 0.f,0 }, "RUSSIA.png");
     sf::Vector2i pixelPos;
     sf::Vector2f pos;
-    Event eventda;
+   
     RenderWindow SelectLaungage(sf::VideoMode::getDesktopMode(), "Select Laungage",
         Style::Titlebar | Style::Close | Style::Fullscreen);
 
@@ -99,7 +99,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                 SelectLaungage.close();
             }
         }
-        else
+        Event eventda;
         while (SelectLaungage.pollEvent(eventda)) {
 
             if (eventda.type == sf::Event::Closed) {
@@ -680,15 +680,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                     }
                     PlayerInventory.addItem(2);
                 }
-                else if (rand() % 5 == 1) {
+                else if (rand() % 10 == 1) {
                     Notifications* Notificationstext = nullptr;
 
                     if (PlayerInventory.ItemCanBeAdded(4)) {
                         if (laungag.EnglishText == true) {
-                            Notificationstext = new Notifications(L"+ Food");
+                            Notificationstext = new Notifications(L"+ Tonio Food");
                         }
                         else if (laungag.RussiaText == true) {
-                            Notificationstext = new Notifications(L"+ Еда");
+                            Notificationstext = new Notifications(L"+ Еда Тонио");
                         }
 
                         NotificationsTexts.push_back(Notificationstext);
@@ -709,6 +709,51 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                         NotificationsTexts.push_back(Notificationstext);
                     }
                     PlayerInventory.addItem(3);
+                }
+                else if (rand() % 20 == 1) {
+                    Notifications* Notificationstext = nullptr;
+
+                    if (PlayerInventory.ItemCanBeAdded(5)) {
+                        if (laungag.EnglishText == true) {
+                            Notificationstext = new Notifications(L"+ Heart Of The Saints Corpse");
+                        }
+                        else if (laungag.RussiaText == true) {
+                            Notificationstext = new Notifications(L"+ Сердце Святого Трупа");
+                        }
+
+                        NotificationsTexts.push_back(Notificationstext);
+                    }
+                    PlayerInventory.addItem(5);
+                }
+                else if (rand() % 20 == 1) {
+                    Notifications* Notificationstext = nullptr;
+
+                    if (PlayerInventory.ItemCanBeAdded(6)) {
+                        if (laungag.EnglishText == true) {
+                            Notificationstext = new Notifications(L"+ RibCage Of The Saints Corpse");
+                        }
+                        else if (laungag.RussiaText == true) {
+                            Notificationstext = new Notifications(L"+ Ребро Святого Трупа");
+                        }
+
+                        NotificationsTexts.push_back(Notificationstext);
+                    }
+                    PlayerInventory.addItem(6);
+                }
+                else if (rand() % 20 == 1) {
+                    Notifications* Notificationstext = nullptr;
+
+                    if (PlayerInventory.ItemCanBeAdded(7)) {
+                        if (laungag.EnglishText == true) {
+                            Notificationstext = new Notifications(L"+ Legs Of The Saints Corpse");
+                        }
+                        else if (laungag.RussiaText == true) {
+                            Notificationstext = new Notifications(L"+ Ноги Святого Трупа");
+                        }
+
+                        NotificationsTexts.push_back(Notificationstext);
+                    }
+                    PlayerInventory.addItem(7);
                 }
             }
 
