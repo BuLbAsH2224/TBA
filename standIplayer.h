@@ -57,7 +57,7 @@ struct Player {
     int money = 0;
     float health = 200;
     float maxhealth = 200;
-    int FighTech = 1;
+    int FightTech = 0;
     bool attacking;
     bool stoi = false;
    
@@ -80,6 +80,7 @@ void StandInit(Stand& obj, std::string fileName) {
 void PlayerDraw(sf::RenderWindow& window, Player& obj) {
     window.draw(obj.sprite);
 }
+
 
 void PlayerUpdate(Player& obj, std::string LeftSpriteFileNAME, std::string RightSpriteMOVEFileNAME, std::string LeftSpriteMoveFileNAME, std::string RightSpriteFileNAME, Stand& stands, float time) {
     if (obj.health > obj.maxhealth) {
@@ -136,7 +137,10 @@ void PlayerUpdate(Player& obj, std::string LeftSpriteFileNAME, std::string Right
         }
 
     }
-   
+   if (sf::Keyboard::isKeyPressed(sf::Keyboard::T) && AttackTm.getElapsedTime().asSeconds() > 3 && obj.attacking == false) {
+        AttackTm.restart();
+        obj.attacking = true;
+    }
    
      }
 

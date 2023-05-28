@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 #include "settings.h"
 #include "vragi.h"
 struct Powers {
@@ -99,50 +99,7 @@ public:
     sf::FloatRect getHitBox() { return sprite.getGlobalBounds(); }
 };
 
-class SteelBall {
-private:
-    sf::Sprite sprite;
-    sf::Texture texture;
-    int angle;
-    float speedy, speedx;
-    bool left;
-    float damage;
-public:
-    SteelBall(sf::Vector2f pos, Player& pl, float time) {
-        texture.loadFromFile("sprites\\powers\\SAWBubles2.png");
-        sprite.setTexture(texture);
-        sf::FloatRect bounds = sprite.getLocalBounds();
-        sprite.setOrigin(bounds.width / 2, bounds.height / 2);
-        sprite.setPosition(pos);
 
-        speedx = 0.5f * time;
-        speedy = 0;
-        angle = rand() % 360;
-
-        if (pl.left == true) {
-            left = true;
-        }
-        if (pl.left == false) {
-            left = false;
-        }
-        sprite.setRotation(angle);
-    }
-
-    void update() {
-        if (left == true) {
-            sprite.move(-speedx, speedy);
-            angle = angle - 2.f;
-        }
-        if (left == false) {
-            sprite.move(speedx, speedy);
-            angle = angle + 2.f;
-        }
-        
-        sprite.setRotation(angle);
-    }
-    sf::Sprite& getSprite() { return sprite; }
-    sf::FloatRect getHitBox() { return sprite.getGlobalBounds(); }
-};
 
 class BarrageHands {
 private:
@@ -243,7 +200,7 @@ public:
     }
 
     void DeleteBarrageHands(BarrageHands& las, std::list<BarrageHands*>& lasers) {
-        for (auto it = lasers.begin(); it != lasers.end(); /* без ++it здесь */) {
+        for (auto it = lasers.begin(); it != lasers.end(); /* Р±РµР· ++it Р·РґРµСЃСЊ */) {
             if ((*it)->GetLeft() == false) {
                 if ((*it)->GetPos() >= (*it)->GetDeletePos()) {
                     it = lasers.erase(it);
@@ -267,7 +224,7 @@ public:
 
     void LaserDamage(Laser& las, std::list<Laser*>& lasers, Vragi& vrag) {
         if (vrag.health > 0) {
-            for (auto it = lasers.begin(); it != lasers.end(); /* без ++it здесь */) {
+            for (auto it = lasers.begin(); it != lasers.end(); /* Р±РµР· ++it Р·РґРµСЃСЊ */) {
                 if ((*it)->getHitBox().intersects(vrag.sprite.getGlobalBounds())) {
                     vrag.health -= 5.f;
                     it = lasers.erase(it);
@@ -282,7 +239,7 @@ public:
    
     void BublesDamage(Bubles& las, std::list<Bubles*>& lasers, Vragi& vrag) {
         if (vrag.health > 0) {
-            for (auto it = lasers.begin(); it != lasers.end(); /* без ++it здесь */) {
+            for (auto it = lasers.begin(); it != lasers.end(); /* Р±РµР· ++it Р·РґРµСЃСЊ */) {
                 if ((*it)->getHitBox().intersects(vrag.sprite.getGlobalBounds())) {
                     vrag.health -= 2.f;
                     it = lasers.erase(it);
@@ -306,7 +263,140 @@ public:
             }
         }
     }
+    
+    class SteelBall {
+    private:
+        sf::Sprite sprite;
+        sf::Texture texture;
+        int angle;
+        float speedy, speedx;
+        bool left;
+        float damage;
+    public:
+        SteelBall(sf::Vector2f pos, Player& pl, bool charge) {
+            texture.loadFromFile("sprites\\powers\\SteelBall.png");
+            sprite.setTexture(texture);
+            sf::FloatRect bounds = sprite.getLocalBounds();
+            sprite.setOrigin(bounds.width / 2, bounds.height / 2);
+            sprite.setPosition(pos);
 
+            speedx = 0.5f ;
+            speedy = 0;
+            angle = rand() % 360;
+
+            if (pl.left == true) {
+                left = true;
+            }
+            if (pl.left == false) {
+                left = false;
+            }
+            sprite.setRotation(angle);
+            if (charge == false) {
+                damage = 4.f;
+            }
+            else if (charge == true) {
+                damage = 8.f;
+            }
+        }
+
+
+        void update(float time) {
+            if (left == true) {
+                sprite.move(-speedx * time, speedy);
+                angle = angle - 2.f * time;
+            }
+            if (left == false) {
+                sprite.move(speedx * time, speedy);
+                angle = angle + 2.f* time;
+            }
+
+            sprite.setRotation(angle);
+        }
+        void draw(sf::RenderWindow& window) {
+            window.draw(sprite);
+        }
+        float getDamage() { return damage; }
+        sf::Sprite& getSprite() { return sprite; }
+        sf::FloatRect getHitBox() { return sprite.getGlobalBounds(); }
+    };
+
+    void SteelBallsDamage(SteelBall& las, std::list<SteelBall*>& lasers, Vragi& vrag) {
+        if (vrag.health > 0) {
+            for (auto it = lasers.begin(); it != lasers.end(); /* пїЅпїЅпїЅ ++it пїЅпїЅпїЅпїЅпїЅ */) {
+                if ((*it)->getHitBox().intersects(vrag.sprite.getGlobalBounds())) {
+                    vrag.health -= (*it)->getDamage();
+                    it = lasers.erase(it);
+                }
+                else {
+                    ++it;
+                }
+            }
+        }
+    }
+
+    class MandomBullet {
+    private:
+        sf::Sprite sprite;
+        sf::Texture texture;
+        int angle;
+        float speedy, speedx;
+        bool left;
+        float damage;
+    public:
+        MandomBullet(sf::Vector2f pos, Player& pl, float time, bool charge) {
+            texture.loadFromFile("sprites\\powers\\SAWBubles2.png");
+            sprite.setTexture(texture);
+            sf::FloatRect bounds = sprite.getLocalBounds();
+            sprite.setOrigin(bounds.width / 2, bounds.height / 2);
+            sprite.setPosition(pos);
+
+            speedx = 0.5f * time;
+            speedy = 0;
+
+
+            if (pl.left == true) {
+                left = true;
+
+            }
+            if (pl.left == false) {
+                left = false;
+                sprite.setRotation(180.f);
+            }
+
+            damage = 0.5f * time;
+        }
+
+
+        void update() {
+            if (left == true) {
+                sprite.move(-speedx, speedy);
+
+            }
+            if (left == false) {
+                sprite.move(speedx, speedy);
+
+            }
+
+            sprite.setRotation(angle);
+        }
+        float getDamage() { return damage; }
+        sf::Sprite& getSprite() { return sprite; }
+        sf::FloatRect getHitBox() { return sprite.getGlobalBounds(); }
+    };
+
+    void MandomBulletDamage(MandomBullet& las, std::list<MandomBullet*>& lasers, Vragi& vrag) {
+        if (vrag.health > 0) {
+            for (auto it = lasers.begin(); it != lasers.end(); /* пїЅпїЅпїЅ ++it пїЅпїЅпїЅпїЅпїЅ */) {
+                if ((*it)->getHitBox().intersects(vrag.sprite.getGlobalBounds())) {
+                    vrag.health -= (*it)->getDamage();
+                    it = lasers.erase(it);
+                }
+                else {
+                    ++it;
+                }
+            }
+        }
+    }
 
     class DimensionClones {
     private:
@@ -317,7 +407,7 @@ public:
         sf::Clock die;
     public:
         DimensionClones(sf::Vector2f pos, Vragi& vrag) {
-            texture = vrag.texture; // Создаем новый объект sf::Texture с помощью конструктора копирования
+            texture = vrag.texture; // РЎРѕР·РґР°РµРј РЅРѕРІС‹Р№ РѕР±СЉРµРєС‚ sf::Texture СЃ РїРѕРјРѕС‰СЊСЋ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂР° РєРѕРїРёСЂРѕРІР°РЅРёСЏ
             sprite.setTexture(texture);
             sprite.setPosition(pos);
             vragPtr = &vrag;
@@ -354,7 +444,7 @@ public:
     };
 
     void DimensionClonesDamage(DimensionClones& las, std::list<DimensionClones*>& lasers) {
-        for (auto it = lasers.begin(); it != lasers.end(); /* без ++it здесь */) {
+        for (auto it = lasers.begin(); it != lasers.end(); /* Р±РµР· ++it Р·РґРµСЃСЊ */) {
             if ((*it)->getDeletesClock() == true) {
             
                 it = lasers.erase(it);
@@ -363,7 +453,7 @@ public:
                 ++it;
             }
         }
-        for (auto it = lasers.begin(); it != lasers.end(); /* без ++it здесь */) {
+        for (auto it = lasers.begin(); it != lasers.end(); /* Р±РµР· ++it Р·РґРµСЃСЊ */) {
             if ((*it)->getDeletes() == true) {
                 (*it)->getVrag()->health-= 20.f;
                 it = lasers.erase(it);

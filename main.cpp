@@ -14,7 +14,7 @@ Map ArrowSand;
 
 Stand playerstand;
 Stand VragStand;
-
+Shops ShopTutorial;
 Powers timestoppower;
 Powers Vragtimestoppower;
 
@@ -45,17 +45,19 @@ Map House;
 Map Shop;
 GameOver gameover1;
 Inventory PlayerInventory;
-
+bool teststeelballscharge = false;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
     std::list<Laser*> laserSprites;
     std::list<Bubles*> BublesSprites;
     std::list<BarrageHands*> BarrageHandsSprites;
     std::list<DimensionClones*> DimensionClonesSprites;
     std::list<Notifications*> NotificationsTexts;
+    std::list<SteelBall*> SteelBallsPlayerSprites;
     setlocale(LC_ALL, "Russian");
    
     bool testrazrab = false;
-    
+    ShopTutorial.SetShopItems(3, 2, 1);
+  
     float MandomX = 0;
     float MandomY = 0;
     float MandomViewX = 0;
@@ -262,7 +264,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             pos = window.mapPixelToCoords(pixelPos);
 
             menu1.update(pos, window, "saves\\auto_save.txt", view, player1, quest1, quest2, player1.sprite.getPosition().y, player1.sprite.getPosition().x, player1.health);
-
+            
             menu1.draw(VersionText, cursor1, window);
             menu1.setViewMenu(true);
             cursor1.update(pos);
@@ -300,6 +302,32 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                 }
             }
         }
+
+        while (ShopTutorial.getOpen() == true) {
+            view.setCenter(960, 540);
+            window.setView(view);
+            pixelPos = sf::Mouse::getPosition(window);
+            pos = window.mapPixelToCoords(pixelPos);
+            PlayerInventory.update({ view.getCenter().x + 24, view.getCenter().y + 136 }, { view.getCenter().x - 234, view.getCenter().y + 100 }, player1, pos, laungag);
+            ShopTutorial.update(laungag, pos,player1);
+            window.clear();
+           ShopTutorial.draw(window);
+         
+            cursor1.update(pos);
+            cursor1.draw(window);
+            window.display();
+
+            while (window.pollEvent(event)) {
+
+                if (event.type == sf::Event::Closed) {
+                    window.close();
+                    return 0;
+                }
+                else { ShopTutorial.updatedva(PlayerInventory, player1,pos); }
+            }
+        }
+
+
         backbuttonfights.restartClock();
         while (fightmenu1.getFight() == true) {
             if (MandomX >= 1920.f || MandomX <= 0.f) {
@@ -324,6 +352,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                 playerstand.sprite.setPosition(fightmenu1.getPos());
                 playerstand.barrage = false;
                 player1.stoi = false;
+                Notifications* Notificationstext = nullptr;
+
+           
+                    if (laungag.EnglishText == true) {
+                        Notificationstext = new Notifications(L"+" + std::to_wstring(fightmenu1.getVrag()->Reward) + L" money");
+                    }
+                    else if (laungag.RussiaText == true) {
+                        Notificationstext = new Notifications(L"+" + std::to_wstring(fightmenu1.getVrag()->Reward) + L" денег");
+                    }
+
+                    NotificationsTexts.push_back(Notificationstext);
+               
             }
           
             if (player1.health <= 0.f) {
@@ -335,6 +375,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                 playerstand.sprite.setPosition(fightmenu1.getPos());
                 playerstand.barrage = false;
                 player1.stoi = false;
+                Notifications* Notificationstext = nullptr;
+
+
+                if (laungag.EnglishText == true) {
+                    Notificationstext = new Notifications(L"-" + std::to_wstring(fightmenu1.getVrag()->Reward) + L" money");
+                }
+                else if (laungag.RussiaText == true) {
+                    Notificationstext = new Notifications(L"-" + std::to_wstring(fightmenu1.getVrag()->Reward) + L" денег");
+                }
+
+                NotificationsTexts.push_back(Notificationstext);
             }
             VragiAuraUpdate(VragAura, *fightmenu1.getVrag(), VragStand, time);
             AuraUpdate(plAura, player1, playerstand, time);
@@ -447,7 +498,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             for (auto barragehands : BarrageHandsSprites) {
                 DeleteBarrageHands(*barragehands, BarrageHandsSprites);
             }
-            
+            for (auto steelballs : SteelBallsPlayerSprites) {
+                SteelBallsDamage(*steelballs, SteelBallsPlayerSprites, *fightmenu1.getVrag());
+            }
+            for (auto steelballs : SteelBallsPlayerSprites) {
+                steelballs->update(time);
+            }
             WrOxyDamagePl(WrOxyImage, player1, time);
             WrOxyDamageVragov(WrOxyImage, *fightmenu1.getVrag(), time);
             if (isEmeraldSplash == true && EmeraldSplashTm.getElapsedTime().asMilliseconds() > EmeraldSplashTmAttack) {
@@ -465,6 +521,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                 laserSprites.push_back(laser);
                 EmeraldSplashTmAttack += 450.f;
 
+            }
+            if (player1.attacking == true) {
+                if (player1.FightTech == 1) {
+                    sf::Vector2f pos = player1.sprite.getPosition();
+                    sf::FloatRect bounds = player1.sprite.getGlobalBounds();
+                    sf::Vector2f posCenter = sf::Vector2f{ 0,	0 };
+                    if (player1.left == true) {
+                        posCenter = sf::Vector2f{ pos.x + bounds.width / 2 - 44,	pos.y + bounds.height / 2 };
+                    }
+                    if (player1.left == false) {
+                        posCenter = sf::Vector2f{ pos.x + bounds.width / 2,	pos.y + bounds.height / 2 };
+                    }
+                    SteelBall* steelballs = new SteelBall(posCenter, player1, teststeelballscharge);
+                    SteelBallsPlayerSprites.push_back(steelballs);
+                }
+                player1.attacking = false;
             }
             if (playerstand.barrage == true && Barrageplayer.getElapsedTime().asMilliseconds() < 200) {
 
@@ -573,7 +645,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             for (auto bubles : BublesSprites) {
                 window.draw(bubles->getSprite());
             }
-
+            for (auto steelballs : SteelBallsPlayerSprites) {
+                steelballs->draw(window);
+            }
             PowersObjectsDraw(window, Vragtimestoppower);
             PowersObjectsDraw(window, timestoppower);
             PowersObjectsDraw(window, WrOxyImage);
@@ -603,6 +677,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                 playerstand.sprite.setPosition(fightmenu1.getPos());
                 playerstand.barrage = false;
                 player1.stoi = false;
+                Notifications* Notificationstext = nullptr;
+
+
+                if (laungag.EnglishText == true) {
+                    Notificationstext = new Notifications(L"-" + std::to_wstring(fightmenu1.getVrag()->Reward) + L" money");
+                }
+                else if (laungag.RussiaText == true) {
+                    Notificationstext = new Notifications(L"-" + std::to_wstring(fightmenu1.getVrag()->Reward) + L" денег");
+                }
+
+                NotificationsTexts.push_back(Notificationstext);
             }
             window.display();
             while (window.pollEvent(event)) {
@@ -710,7 +795,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                     }
                     PlayerInventory.addItem(3);
                 }
-                else if (rand() % 20 == 1) {
+
+                /*else if (rand() % 20 == 1) {
                     Notifications* Notificationstext = nullptr;
 
                     if (PlayerInventory.ItemCanBeAdded(5)) {
@@ -724,8 +810,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                         NotificationsTexts.push_back(Notificationstext);
                     }
                     PlayerInventory.addItem(5);
-                }
-                else if (rand() % 20 == 1) {
+                }*/
+               /* else if (rand() % 20 == 1) {
                     Notifications* Notificationstext = nullptr;
 
                     if (PlayerInventory.ItemCanBeAdded(6)) {
@@ -739,7 +825,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                         NotificationsTexts.push_back(Notificationstext);
                     }
                     PlayerInventory.addItem(6);
-                }
+                }*/
                 else if (rand() % 20 == 1) {
                     Notifications* Notificationstext = nullptr;
 
@@ -755,7 +841,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                     }
                     PlayerInventory.addItem(7);
                 }
+                else if (rand() % 20 == 1) {
+                Notifications* Notificationstext = nullptr;
+
+                if (PlayerInventory.ItemCanBeAdded(8)) {
+                    if (laungag.EnglishText == true) {
+                        Notificationstext = new Notifications(L"+ Steel Ball");
+                    }
+                    else if (laungag.RussiaText == true) {
+                        Notificationstext = new Notifications(L"+ Стальной шар");
+                    }
+
+                    NotificationsTexts.push_back(Notificationstext);
+                }
+                PlayerInventory.addItem(8);
+                }
             }
+
 
             /*  else  if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::U) {
                    saveGame(player1, quest1, quest2, player1.sprite.getPosition().x, player1.sprite.getPosition().y);
@@ -765,10 +867,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                    loadGame(player1, quest1, quest2, player1.sprite.getPosition().y, player1.sprite.getPosition().x);
 
                }*/
-            else if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::T && AttackTm.getElapsedTime().asSeconds() > 1 && playerstand.barrage == false) {
-                AttackTm.restart();
-                player1.attacking = true;
-            }
+           
             else if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Escape) {
                 MenuOn = true;
             }
@@ -888,6 +987,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
             if (player1.sprite.getGlobalBounds().intersects(Shop.sprite.getGlobalBounds())) {
                 Shop.texture.loadFromFile("sprites\\map\\ShopCONTOUR.png");
+              
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::E)) {
+                    ShopTutorial.setOpen(true);
+                }
             }
             else {
                 Shop.texture.loadFromFile("sprites\\map\\Shop.png");
@@ -926,7 +1029,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
         }
 
-        if (AttackTm.getElapsedTime().asMilliseconds() > 500 && player1.attacking == true) {
+        if (player1.attacking == true) {
+            if (player1.FightTech == 1) {
+                sf::Vector2f pos = player1.sprite.getPosition();
+                sf::FloatRect bounds = player1.sprite.getGlobalBounds();
+                sf::Vector2f posCenter = sf::Vector2f{ 0,	0 };
+                if (player1.left == true) {
+                    posCenter = sf::Vector2f{ pos.x + bounds.width / 2 - 44,	pos.y + bounds.height / 2 };
+                }
+                if (player1.left == false) {
+                    posCenter = sf::Vector2f{ pos.x + bounds.width / 2,	pos.y + bounds.height / 2 };
+                }
+                SteelBall* steelballs = new SteelBall(posCenter, player1,teststeelballscharge);
+                SteelBallsPlayerSprites.push_back(steelballs);  
+            }
             player1.attacking = false;
         }
 
@@ -970,6 +1086,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         for (auto dimensionClones : DimensionClonesSprites) {
             DimensionClonesDamage(*dimensionClones, DimensionClonesSprites);
         }
+        for (auto steelballs : SteelBallsPlayerSprites) {
+            SteelBallsDamage(*steelballs, SteelBallsPlayerSprites, YopAngelo);
+        }
+    
         for (auto laser : laserSprites) {
             LaserDamage(*laser, laserSprites, YopAngelo);
         }
@@ -982,7 +1102,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         for (auto barragehands : BarrageHandsSprites) {
             DeleteBarrageHands(*barragehands, BarrageHandsSprites);
         }
-
+        for (auto steelballs : SteelBallsPlayerSprites) {
+            steelballs->update(time);
+        }
 
     
      
@@ -1104,11 +1226,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             AngeloHealth.texture.loadFromFile("sprites\\hud\\angeloHealth1.png");
         }
 
-        if (player1.sprite.getGlobalBounds().intersects(YopAngelo.sprite.getGlobalBounds()) && player1.attacking == true) {
-            if (player1.FighTech == 1) {
-                YopAngelo.health = YopAngelo.health - 0.1;
-            }
-        }
+
 
 
         BarrageDamage(YopAngelo, time, player1, playerstand);
@@ -1141,20 +1259,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         }
 
 
-     /*   sf::Vector2f target(player1.sprite.getPosition()); // целевая позиция камеры
-        sf::Vector2f direction = target - position;
-        float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
-        if (distance > 1.f) // если расстояние между текущей и целевой позициями больше 1 пикселя
-        {
-            sf::Vector2f unit_direction = direction / distance;
-            float pixels_to_move = 0.25f * time;
-            pixels_to_move = std::min(pixels_to_move, distance);
-            sf::Vector2f movement = unit_direction * pixels_to_move;
-            position += movement;
-            view.setCenter(position);
-           
-        }
-    */
         
         view.setCenter(player1.sprite.getPosition());
         textgoap = 0.f;
@@ -1238,6 +1342,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         }
         for (auto bubles : BublesSprites) {
             window.draw(bubles->getSprite());
+        }
+        for (auto steelballs : SteelBallsPlayerSprites) {
+            steelballs->draw(window);
         }
         StandDraw(window, playerstand);
         if (YopAngelo.health > 0 && D4CDimension == false) {

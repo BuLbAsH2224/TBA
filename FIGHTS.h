@@ -50,6 +50,10 @@ void PlayerUpdateInFight(Player& obj, std::string LeftSpriteFileNAME, std::strin
             }
 
         }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::T) && AttackTm.getElapsedTime().asSeconds() > 3 && obj.attacking == false) {
+            AttackTm.restart();
+            obj.attacking = true;
+        }
     }
 
 }

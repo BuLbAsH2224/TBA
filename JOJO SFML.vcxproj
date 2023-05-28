@@ -148,7 +148,6 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="arrow.h" />
     <ClInclude Include="CheckCollisions.h" />
     <ClInclude Include="FIGHTS.h" />
     <ClInclude Include="HUD.h" />

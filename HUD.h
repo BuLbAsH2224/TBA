@@ -146,6 +146,10 @@ public:
             texture.loadFromFile("sprites\\hud\\inventory\\LegsOfTheSaintsCorpse.png");
             weigt = 5;
         }
+        else if (ID == 8) {
+            texture.loadFromFile("sprites\\hud\\inventory\\SteelBall.png");
+            weigt = 4;
+        }
     }
     void update(sf::Vector2f pos, sf::Vector2f mouspos, Player& pl) {
         sprite.setPosition(pos);
@@ -389,6 +393,16 @@ public:
                 NameText.setString(L"Ноги СТ");
             }
         }
+        else if (ItemMenuID == 8) {
+            if (language.EnglishText == true) {
+                Description.setString(L"When equipped, \nit increases \nspeed by 1");
+                NameText.setString(L"Steel Ball");
+            }
+            else if (language.RussiaText == true) {
+                Description.setString(L"РАСКУМАРЬТЕСЬ АБАЛДУИ \nувеличивает \nскорость на 1");
+                NameText.setString(L"Стальной шар");
+            }
+        }
         else {
             Description.setString(L"???");
             NameText.setString(L"???");
@@ -400,9 +414,9 @@ public:
 
             pl.stand = rand() % 6 + 1;
 
-            // Проверяем, совпадает ли новое число со старым значением
+          
             while (pl.stand == pl.old_stand) {
-                // Если да, то генерируем новое случайное число
+         
                 pl.stand = rand() % 6 + 1;
             }
             items[ItemMenu].setID(0);
@@ -423,7 +437,15 @@ public:
             corpses[1].setActive(true);
             items[ItemMenu].setID(0);
         }
-        else if (ItemMenuID == 6 && corpses[0].getActive() == false) {
+        else if (ItemMenuID == 8) {
+            pl.FightTech = 1;
+            items[ItemMenu].setID(0);
+        }
+    }
+
+    void ItemEquipActions() {
+
+        if (ItemMenuID == 6 && corpses[0].getActive() == false) {
             corpses[0].setActive(true);
             items[ItemMenu].setID(0);
         }
@@ -431,8 +453,8 @@ public:
             corpses[2].setActive(true);
             items[ItemMenu].setID(0);
         }
+      
     }
-
 
 
     void update(sf::Vector2f pos, Languages& language, sf::Vector2f mouspos, Player& pl) {
@@ -485,7 +507,7 @@ public:
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
                    
                     MenuIsOpen = false;
-                    ItemActions(pl);
+                    ItemEquipActions();
                 }
             }
             else if (UseButtonSprite.getGlobalBounds().contains(mouspos.x, mouspos.y)) {
@@ -504,7 +526,35 @@ public:
     }
 };
 
-
+class FightTechPreview {
+private:
+    sf::Sprite sprite;
+    sf::Texture texture;
+    int tech;
+public:
+    FightTechPreview() {
+        texture.loadFromFile("sprites\\hud\\inventory\\SteelBall.png");
+        sprite.setTexture(texture);
+        tech = 0;
+    }
+    void update(sf::Vector2f SetPos,Player& pl, sf::Vector2f mouspos) {
+        sprite.setPosition(SetPos);
+        tech = pl.FightTech;
+        if (pl.FightTech == 1) {
+            texture.loadFromFile("sprites\\hud\\inventory\\SteelBall.png");
+        }
+        if (sprite.getGlobalBounds().contains(mouspos.x, mouspos.y)) {
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Right) && pl.FightTech != 0) {
+                pl.FightTech = 0;
+            }
+        }
+    }
+    void draw(sf::RenderWindow& window){
+        if (tech != 0) {
+            window.draw(sprite);
+        }
+}
+};
 class Inventory {
 private:
     Item inventoryitems[16];
@@ -516,7 +566,7 @@ private:
     int maxweight;
     int weight;
     InventoryMenu Menu;
-
+    FightTechPreview tech;
     sf::Text weighttext;
     sf::Text standtext;
     sf::Text healthtext;
@@ -582,6 +632,7 @@ public:
         }
         sprite.setPosition(pos2);
         if (IsOpen == true) {
+            tech.update({ sprite.getPosition().x + 177.f, sprite.getPosition().y + 240.f }, pl, mouspos);
             saintscorpes[2].update({ sprite.getPosition().x + 9.f, sprite.getPosition().y + 190.f }, mouspos);
             saintscorpes[1].update({ sprite.getPosition().x + 9.f, sprite.getPosition().y + 139.f },mouspos);
             saintscorpes[0].update({ sprite.getPosition().x + 177.f, sprite.getPosition().y + 139.f }, mouspos);
@@ -737,11 +788,11 @@ public:
             for (int i = 0; i < 16; i++) {
                 if (inventoryitems[i].getID() == 0) {
                   
-                    return true; // вернуть true, если предмет был успешно добавлен
+                    return true; 
                 }
             }
         }
-        return false; // вернуть false, если добавление не удалось
+        return false; 
     }
     void addItem(int ID) {
         
@@ -765,6 +816,7 @@ public:
             if (Menu.getMenuOpen() == true) {
                 Menu.draw(window);
             }
+            tech.draw(window);
             window.draw(moneytext);
             window.draw(standtext);
             window.draw(speedtext);
@@ -866,3 +918,151 @@ private:
 public:
 
 };*/
+
+class ItemsForShop {
+private:
+    sf::Sprite sprite;
+    sf::Texture texture;
+    int ID;
+    int price;
+    sf::Text text;
+    sf::Font font;
+public:
+    ItemsForShop() {
+        font.loadFromFile("NjalBold.ttf");
+        text.setFont(font);
+        text.setCharacterSize(16);
+        text.setString(L"");
+        texture.loadFromFile("sprites\\hud\\inventory\\none.png");
+        sprite.setTexture(texture);
+        ID = 0;
+        price = 0;
+    }
+    void setID(int id) { ID = id; }
+    void update(sf::Vector2f pos, Languages& language) {
+        sprite.setPosition(pos);
+        text.setPosition({ sprite.getPosition().x - 30.f, sprite.getPosition().y - 60.f  });
+        if (language.EnglishText == true) {
+            text.setString(L"Price: " + std::to_wstring(price) + L"$");
+        }
+        else if (language.RussiaText == true) {
+            text.setString(L"Цена: " + std::to_wstring(price) + L"$");
+            
+        }
+        if (ID == 1) {
+            price = 2000;
+            texture.loadFromFile("sprites\\hud\\inventory\\HeartOfTheSaintsCorpse.png");
+        }
+      
+            if (ID == 2) {
+                price = 4000;
+                texture.loadFromFile("sprites\\hud\\inventory\\RibCageOfTheSaintsCorpse.png");
+            }
+            if (ID == 3) {
+                price = 500;
+                texture.loadFromFile("sprites\\hud\\inventory\\FoodPomidori.png");
+            }
+    }
+    void draw(sf::RenderWindow& window) {
+        if (ID != 0) {
+            window.draw(sprite);
+            window.draw(text);
+        }
+    }
+    int getID() { return ID; }
+    int getPrice() { return price; }
+    sf::FloatRect getHitbox() { return sprite.getGlobalBounds(); }
+    sf::Sprite getSprite() { return sprite; }
+};
+
+class Shops {
+private:
+    sf::Sprite backgroundsprite;
+    sf::Texture backgroundtexture;
+    sf::Sprite backbuttonsprite;
+    sf::Texture backbuttontexture;
+    bool MenuIsOpen;
+    ItemsForShop item[3];
+    sf::Text MoneyText;
+    sf::Font font;
+
+public:
+    Shops() {
+        backgroundtexture.loadFromFile("sprites\\hud\\ShopTutorial.png");
+        backgroundsprite.setTexture(backgroundtexture);
+        font.loadFromFile("NjalBold.ttf");
+        MoneyText.setFont(font);
+        MoneyText.setCharacterSize(64);
+        MoneyText.setString(L"");
+        MoneyText.setPosition({ 0.f,100.f });
+        backbuttontexture.loadFromFile("sprites\\hud\\FightBackButton.png");
+        MenuIsOpen = false;
+        backbuttonsprite.setTexture(backbuttontexture);
+        backbuttonsprite.setPosition({ 1920.f - backbuttonsprite.getGlobalBounds().width, backbuttonsprite.getGlobalBounds().height });
+    }
+    bool getOpen() { return MenuIsOpen; }
+    void setOpen(bool a) { MenuIsOpen = a; }
+    void SetShopItems(int id1, int id2, int id3) {
+        item[0].setID(id1);
+        item[1].setID(id2);
+        item[2].setID(id3);
+
+    }
+     void update(Languages& language, sf::Vector2f mouspos, Player& pl) {
+         if (language.EnglishText == true) {
+             MoneyText.setString(L"Money: " + std::to_wstring(pl.money) + L"$");
+         }
+         else if (language.RussiaText == true) {
+             MoneyText.setString(L"Денег: " + std::to_wstring(pl.money) + L"$");
+
+         }
+         for (int i = 0; i < 3; i++) {
+             if (i == 0) {
+                 item[i].update({500.f,1080.f / 2.f - 100.f }, language);
+             }
+             else {
+                 item[i].update({ item[i - 1].getSprite().getPosition().x + 200.f, item[i - 1].getSprite().getPosition().y}, language);
+             }
+         }
+         if (backbuttonsprite.getGlobalBounds().contains(mouspos.x, mouspos.y)) {
+             if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                 MenuIsOpen = false;
+             }
+         }
+         
+     }
+     void updatedva(Inventory& inv, Player& pl, sf::Vector2f mouspos) {
+         for (int i = 0; i < 3; i++) {
+             if (item[i].getHitbox().contains(mouspos.x, mouspos.y) && item[i].getID() != 0) {
+                 if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                     if (item[i].getID() == 2) {
+                         if (inv.ItemCanBeAdded(6) && pl.money >= item[i].getPrice()) {
+                             inv.addItem(6);
+                             pl.money -= item[i].getPrice();
+                         }
+                     }
+                     else  if (item[i].getID() == 1) {
+                         if (inv.ItemCanBeAdded(5) && pl.money >= item[i].getPrice()) {
+                             inv.addItem(5);
+                             pl.money -= item[i].getPrice();
+                         }
+                     }
+                     else  if (item[i].getID() == 3) {
+                         if (inv.ItemCanBeAdded(4) && pl.money >= item[i].getPrice()) {
+                             inv.addItem(4);
+                             pl.money -= item[i].getPrice();
+                         }
+                     }
+                 }
+             }
+         }
+     }
+    void draw(sf::RenderWindow& window) {
+        window.draw(backgroundsprite);
+        window.draw(backbuttonsprite);
+        for (int i = 0; i < 3; i++) {
+            item[i].draw(window);
+        }
+        window.draw(MoneyText);
+    }
+};
