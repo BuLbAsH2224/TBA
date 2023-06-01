@@ -359,17 +359,17 @@ public:
                 NameText.setString(L"Tonio Food");
             }
             else if (language.RussiaText == true) {
-                Description.setString(L"Вкусная еда от Тонио, \nвостанавливает \n20 жизней");
+                Description.setString(L"Вкусная еда от Тонио, \nвосстанавливает  \n20 жизней");
                 NameText.setString(L"Блюдо Тонио");
             }
         }
         else if (ItemMenuID == 5) {
             if (language.EnglishText == true) {
-                Description.setString(L"When equipped, \nit increases \nhealth by 50");
+                Description.setString(L"When equipped, \nit increases \nhealth by 50. \nWhen used, changes \nthe stand to D4C");
                 NameText.setString(L"Heart OTS Corpse");
             }
             else if (language.RussiaText == true) {
-                Description.setString(L"При экипирировании \nувеличивает \nздоровье на 50");
+                Description.setString(L"При экипирировании \nувеличивает \nздоровье на 50. \nПри применении \nменяет стенд на D4C");
                 NameText.setString(L"Сердце СТ");
             }
         }
@@ -412,10 +412,10 @@ public:
 
         if (ItemMenuID == 1 && pl.stand == 0) {
 
-            pl.stand = rand() % 6 + 1;
-
+            pl.stand = rand() % 8 + 1;
+            OffPowers();
           
-            while (pl.stand == pl.old_stand) {
+            while (pl.stand == pl.old_stand || pl.stand == 6) {
          
                 pl.stand = rand() % 6 + 1;
             }
@@ -423,7 +423,7 @@ public:
         }
 
         else if (ItemMenuID == 2 && pl.stand != 0) {
-
+            OffPowers();
             pl.stand = 0;
             items[ItemMenu].setID(0);
         }
@@ -433,8 +433,9 @@ public:
             pl.health += 20.f;
             items[ItemMenu].setID(0);
         }
-        else if (ItemMenuID == 5 && corpses[1].getActive() == false) {
-            corpses[1].setActive(true);
+        if (ItemMenuID == 5 && pl.stand != 6 && pl.stand == 0) {
+            pl.stand = 6;
+            OffPowers();
             items[ItemMenu].setID(0);
         }
         else if (ItemMenuID == 8) {
@@ -444,8 +445,11 @@ public:
     }
 
     void ItemEquipActions() {
-
-        if (ItemMenuID == 6 && corpses[0].getActive() == false) {
+          if (ItemMenuID == 5 && corpses[1].getActive() == false) {
+            corpses[1].setActive(true);
+            items[ItemMenu].setID(0);
+        }
+        else if (ItemMenuID == 6 && corpses[0].getActive() == false) {
             corpses[0].setActive(true);
             items[ItemMenu].setID(0);
         }
@@ -526,6 +530,9 @@ public:
     }
 };
 
+
+
+
 class FightTechPreview {
 private:
     sf::Sprite sprite;
@@ -572,6 +579,7 @@ private:
     sf::Text healthtext;
     sf::Text speedtext;
     sf::Text moneytext;
+    sf::Text FightTechtext;
   //  sf::Text maxweighttext;
     sf::Font font;
     SaintsCorpse saintscorpes[9];
@@ -604,6 +612,9 @@ public:
 
         healthtext.setFont(font);
         healthtext.setCharacterSize(16);
+
+        FightTechtext.setFont(font);
+        FightTechtext.setCharacterSize(16);
         
     }
     bool getOpen() { return IsOpen; }
@@ -681,7 +692,30 @@ public:
                 healthtext.setString(L"ЗДОРОВЬЕ: " + std::to_wstring((int)pl.health) + L"/" + std::to_wstring((int)pl.maxhealth));
 
             }
-          
+                FightTechtext.setPosition(sprite.getPosition().x + 50.f, sprite.getPosition().y + 380.f);
+            if (language.EnglishText == true) {
+                if (pl.FightTech == 0) {
+                    FightTechtext.setString("FIGHTING TECHNIQUE: NONE");
+                }
+                else if (pl.FightTech == 1) {
+                    FightTechtext.setString("Fighting Technique: Steel Ball" );
+                }
+                else  {
+                    FightTechtext.setString("Fighting Technique: ???");
+                }
+            }
+            else if (language.RussiaText == true) {
+                if (pl.FightTech == 0) {
+                    FightTechtext.setString(L"Техника Боя: Нету");
+                }
+                else if (pl.FightTech == 1) {
+                    FightTechtext.setString(L"Техника Боя: Стальной Шар");
+                }
+                else {
+                    FightTechtext.setString(L"Техника Боя: ???");
+                }
+            }
+
             if (pl.stand == 0) {
                 standtext.setString("STAND: NONE");
             }
@@ -702,6 +736,15 @@ public:
             }
             else  if (pl.stand == 6) {
                 standtext.setString("STAND: D4C");
+            }
+            else  if (pl.stand == 7) {
+                standtext.setString("STAND: Aerosmith");
+            }
+            else  if (pl.stand == 8) {
+                standtext.setString("STAND: Killer Queen");
+            }
+            else   {
+                standtext.setString("STAND: ???");
             }
             if (D4CDimension == false) {
                 for (int i = 0; i < 16; i++) {
@@ -779,6 +822,12 @@ public:
         else if (id == 6) {
             return 5;
         }
+        else if (id == 7) {
+            return 5;
+        }
+        else if (id == 8) {
+            return 4;
+        }
         else {
             return 0;
         }
@@ -822,6 +871,7 @@ public:
             window.draw(speedtext);
             window.draw(healthtext);
             window.draw(weighttext);
+            window.draw(FightTechtext);
             for (int i = 0; i < 16; i++) {
                 window.draw(inventoryitems[i].getSprite());
             }

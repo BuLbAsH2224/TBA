@@ -13,7 +13,20 @@ bool PlayerAttack = false;
 bool SAWBublCreate = false;
 bool D4CDimension = false;
 bool D4CDimensionClones = false;
-
+bool AerosmithHbutton = false;
+bool TheWorldKniveSpawn = false;
+void OffPowers() {
+     isTimeStopped = false;
+     isEmeraldSplash = false;
+   isWrOxy = false;
+     isMandomTime = false;
+     PlayerAttack = false;
+    SAWBublCreate = false;
+     D4CDimension = false;
+     D4CDimensionClones = false;
+     AerosmithHbutton = false;
+     TheWorldKniveSpawn = false;
+}
 sf::Clock EmeraldSplashTm;
 sf::Clock timestop;
 sf::Clock AttackTm;
@@ -66,7 +79,6 @@ struct Player {
 void PlayerInit(Player& obj, std::string fileName) {
     obj.texture.loadFromFile(fileName);
     obj.sprite.setTexture(obj.texture);
-    obj.stand = 0;
     obj.sprite.setPosition(1632,1054);
 }
 void StandInit(Stand& obj, std::string fileName) {
@@ -155,13 +167,18 @@ void StandUpdate(Stand& stand, Player& obj, float time) {
     if (obj.stand == 0) {
         stand.visible = false;
     }
- if (stand.visible == true && obj.stoi == false) {
+    if (stand.visible == false || obj.stoi == true) {
+        stand.barrage = false;
+    }
+ else if (stand.visible == true && obj.stoi == false) {
        /*1 - the world
        2 - Mandom
        3 - Weather Report
        4 - Hierophat Green
        5 - Soft And Wet
        6 - D4C
+       7 - Aerosmith
+       8 - Killer Queen
         */
         if (obj.stand == 1) {
            
@@ -209,6 +226,13 @@ void StandUpdate(Stand& stand, Player& obj, float time) {
                     timestop.restart();
                 }
             }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::G)) {
+                if (TheWorldKniveSpawn == false && Gbuttontime.getElapsedTime().asSeconds() >= 1.f && stand.barrage == false)
+                {
+                    TheWorldKniveSpawn = true;
+                    Gbuttontime.restart();
+                }
+            }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && Barrageplayer.getElapsedTime().asSeconds() > 20.f) {
                 if (stand.barrage == false )
                 {
@@ -216,6 +240,7 @@ void StandUpdate(Stand& stand, Player& obj, float time) {
                     stand.barrage = true;
                 }
             }
+
         }
         if (obj.stand == 2) {
             
@@ -242,7 +267,7 @@ void StandUpdate(Stand& stand, Player& obj, float time) {
 
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::H)) {
-                if (isMandomTime == false && MandomTimeTimeout.getElapsedTime().asSeconds() > 15.f)
+                if (isMandomTime == false && MandomTimeTimeout.getElapsedTime().asSeconds() >= 15.f)
                 {
 
 
@@ -416,7 +441,7 @@ void StandUpdate(Stand& stand, Player& obj, float time) {
                 }
             }
 
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && Barrageplayer.getElapsedTime().asSeconds() > 20.f) {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && Barrageplayer.getElapsedTime().asSeconds() > 30.f) {
                 if (stand.barrage == false)
                 {
                     Barrageplayer.restart();
@@ -489,6 +514,7 @@ void StandUpdate(Stand& stand, Player& obj, float time) {
                 }
             }
         }
+        //da
         if (obj.stand == 7) {
 
 
@@ -498,12 +524,12 @@ void StandUpdate(Stand& stand, Player& obj, float time) {
                     stand.texture.loadFromFile("sprites\\stands\\TwLeftMove.png");
                 }
                 else {
-                    stand.texture.loadFromFile("sprites\\stands\\D4CLeft.png");
+                    stand.texture.loadFromFile("sprites\\stands\\TwLeft.png");
                 }
                 if (stand.barrage == false) {
                     moveTo(stand, { obj.sprite.getPosition().x + 60, obj.sprite.getPosition().y - 50 }, 3.5, 0.11f * time);
                 }
-                if (stand.barrage == true || D4CDimensionClones == true) {
+                if (stand.barrage == true || AerosmithHbutton == true) {
                     moveTo(stand, { obj.sprite.getPosition().x - 60, obj.sprite.getPosition().y - 20 }, 3.5, 0.25f * time);
                 }
 
@@ -513,40 +539,95 @@ void StandUpdate(Stand& stand, Player& obj, float time) {
                     stand.texture.loadFromFile("sprites\\stands\\TwRightMove.png");
                 }
                 else {
-                    stand.texture.loadFromFile("sprites\\stands\\D4CRight.png");
+                    stand.texture.loadFromFile("sprites\\stands\\TwRight.png");
                 }
                 if (stand.barrage == false) {
                     moveTo(stand, { obj.sprite.getPosition().x - 60, obj.sprite.getPosition().y - 50 }, 3.5, 0.11f * time);
                 }
-                if (stand.barrage == true || D4CDimensionClones == true) {
+                if (stand.barrage == true || AerosmithHbutton == true) {
                     moveTo(stand, { obj.sprite.getPosition().x + 60, obj.sprite.getPosition().y - 20 }, 3.5, 0.25f * time);
                 }
 
 
             }
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::G) && stand.barrage == false) {
-                if (D4CDimension == false && Gbuttontime.getElapsedTime().asSeconds() > 30.f)
+           
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::H)) {
+                if (AerosmithHbutton == false && Hbuttontime.getElapsedTime().asSeconds() >= 30.f)
+                {
+
+
+                    Hbuttontime.restart();
+                    AerosmithHbutton = true;
+
+
+                }
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && Barrageplayer.getElapsedTime().asSeconds() > 20.f && AerosmithHbutton == false) {
+                if (stand.barrage == false)
+                {
+                    Barrageplayer.restart();
+                    stand.barrage = true;
+                }
+            }
+        }
+        if (obj.stand == 8) {
+
+
+
+            if (obj.left == true) {
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+                    stand.texture.loadFromFile("sprites\\stands\\TwLeftMove.png");
+                }
+                else {
+                    stand.texture.loadFromFile("sprites\\stands\\TwLeft.png");
+                }
+                if (stand.barrage == false) {
+                    moveTo(stand, { obj.sprite.getPosition().x + 60, obj.sprite.getPosition().y - 50 }, 3.5, 0.11f * time);
+                }
+                if (stand.barrage == true ) {
+                    moveTo(stand, { obj.sprite.getPosition().x - 60, obj.sprite.getPosition().y - 20 }, 3.5, 0.25f * time);
+                }
+
+            }
+            if (obj.left == false) {
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+                    stand.texture.loadFromFile("sprites\\stands\\TwRightMove.png");
+                }
+                else {
+                    stand.texture.loadFromFile("sprites\\stands\\TwRight.png");
+                }
+                if (stand.barrage == false) {
+                    moveTo(stand, { obj.sprite.getPosition().x - 60, obj.sprite.getPosition().y - 50 }, 3.5, 0.11f * time);
+                }
+                if (stand.barrage == true ) {
+                    moveTo(stand, { obj.sprite.getPosition().x + 60, obj.sprite.getPosition().y - 20 }, 3.5, 0.25f * time);
+                }
+
+
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::G) && stand.barrage == false ) {
+                if (D4CDimension == false && Gbuttontime.getElapsedTime().asSeconds() >= 30.f)
                 {
 
 
 
-                    D4CDimension = true;
+                  
 
                     Gbuttontime.restart();
                 }
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::H)) {
-                if (D4CDimensionClones == false && Hbuttontime.getElapsedTime().asSeconds() >= 20.f)
+                if (Hbuttontime.getElapsedTime().asSeconds() >= 30.f)
                 {
 
 
                     Hbuttontime.restart();
-                    D4CDimensionClones = true;
+          
 
 
                 }
             }
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && Barrageplayer.getElapsedTime().asSeconds() > 20.f && D4CDimension == false) {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && Barrageplayer.getElapsedTime().asSeconds() > 20.f) {
                 if (stand.barrage == false)
                 {
                     Barrageplayer.restart();
@@ -564,45 +645,57 @@ void StandSummon(Player& player1, Stand& playerstand) {
         if (player1.stand == 1) {
             playerstand.sprite.setPosition(player1.sprite.getPosition().x + 60, player1.sprite.getPosition().y - 50);
         }
-        if (player1.stand == 2) {
+        else if (player1.stand == 2) {
             playerstand.sprite.setPosition(player1.sprite.getPosition().x + 50, player1.sprite.getPosition().y);
         }
 
-        if (player1.stand == 3) {
+        else if (player1.stand == 3) {
             playerstand.sprite.setPosition(player1.sprite.getPosition().x + 60, player1.sprite.getPosition().y - 50);
         }
-        if (player1.stand == 4) {
+        else if (player1.stand == 4) {
             playerstand.sprite.setPosition(player1.sprite.getPosition().x + 60, player1.sprite.getPosition().y - 50);
         }
-        if (player1.stand == 5) {
+        else  if (player1.stand == 5) {
             playerstand.sprite.setPosition(player1.sprite.getPosition().x + 60, player1.sprite.getPosition().y - 50);
         }
-        if (player1.stand == 6) {
+        else if (player1.stand == 6) {
+            playerstand.sprite.setPosition(player1.sprite.getPosition().x + 60, player1.sprite.getPosition().y - 50);
+        }
+        else if (player1.stand == 7) {
+            playerstand.sprite.setPosition(player1.sprite.getPosition().x + 60, player1.sprite.getPosition().y - 50);
+        }
+        else if (player1.stand == 8) {
             playerstand.sprite.setPosition(player1.sprite.getPosition().x + 60, player1.sprite.getPosition().y - 50);
         }
     }
-    if (player1.left == false) {
-        if (player1.stand == 1) {
+    else if (player1.left == false) {
+     if (player1.stand == 1) {
             playerstand.sprite.setPosition(player1.sprite.getPosition().x - 60, player1.sprite.getPosition().y - 50);
         }
 
 
-        if (player1.stand == 2) {
+        else if (player1.stand == 2) {
             playerstand.sprite.setPosition(player1.sprite.getPosition().x - 20, player1.sprite.getPosition().y);
         }
 
-        if (player1.stand == 3) {
+     else if (player1.stand == 3) {
             playerstand.sprite.setPosition(player1.sprite.getPosition().x - 60, player1.sprite.getPosition().y - 50);
         }
-        if (player1.stand == 4) {
+     else if (player1.stand == 4) {
             playerstand.sprite.setPosition(player1.sprite.getPosition().x - 60, player1.sprite.getPosition().y - 50);
         }
-        if (player1.stand == 5) {
+     else  if (player1.stand == 5) {
             playerstand.sprite.setPosition(player1.sprite.getPosition().x - 60, player1.sprite.getPosition().y - 50);
         }
-        if (player1.stand == 6) {
+     else   if (player1.stand == 6) {
             playerstand.sprite.setPosition(player1.sprite.getPosition().x - 60, player1.sprite.getPosition().y - 50);
         }
+     else   if (player1.stand == 7) {
+         playerstand.sprite.setPosition(player1.sprite.getPosition().x - 60, player1.sprite.getPosition().y - 50);
+     }
+     else   if (player1.stand == 8) {
+         playerstand.sprite.setPosition(player1.sprite.getPosition().x - 60, player1.sprite.getPosition().y - 50);
+     }
     }
 }
 

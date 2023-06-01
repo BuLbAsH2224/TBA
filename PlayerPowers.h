@@ -6,6 +6,7 @@ struct Powers {
     sf::Sprite sprite;
     bool visible = false;
 };
+
 class Laser {
 private:
     sf::Sprite sprite;
@@ -14,7 +15,7 @@ private:
     float speedy, speedx, speed;
     bool left;
 public:
-    Laser(sf::Vector2f pos,Player& pl,float time){
+    Laser(sf::Vector2f pos, Player& pl, float time) {
         texture.loadFromFile("sprites\\powers\\EmeraldHG.png");
         sprite.setTexture(texture);
 
@@ -22,8 +23,8 @@ public:
         sprite.setOrigin(bounds.width / 2, bounds.height);
         sprite.setPosition(pos);
         speed = rand() % 2 + 1.f;
-        
-        
+
+
         if (pl.left == true) {
             left = true;
             angle = rand() % 70 + 60;
@@ -37,10 +38,10 @@ public:
             speedy = (-speed * cos(angle * 3.141592653589793f / 180.f)) * time;
         }
         sprite.setRotation(angle);
-      
+
     }
 
-        
+
     void update() {
         if (left == true) {
             sprite.move(-speedx, speedy);
@@ -54,6 +55,144 @@ public:
     sf::Sprite& getSprite() { return sprite; }
     sf::FloatRect getHitBox() { return sprite.getGlobalBounds(); }
 };
+class TheWorldKnive {
+private:
+    sf::Sprite sprite;
+    sf::Texture texture;
+   
+    float speedy, speedx, speed;
+    bool left;
+    float damage;
+
+public:
+    TheWorldKnive(sf::Vector2f pos, Player& pl) {
+        texture.loadFromFile("sprites\\powers\\TheWorldKnives.png");
+        sprite.setTexture(texture);
+
+        sf::FloatRect bounds = sprite.getLocalBounds();
+        sprite.setOrigin(bounds.width / 2, bounds.height);
+        sprite.setPosition(pos);
+        speed = rand() % 2 + 1.f;
+        damage = 3.f;
+
+        if (pl.left == true) {
+            left = true;
+            sprite.setRotation(-180.f);
+            speedx = 1.f;
+            speedy = 0;
+        }
+        else {
+            left = false;
+
+            speedx = 1.f;
+            speedy = 0;
+        }
+        
+
+    }
+
+    void update(float time, Powers& timestop) {
+        if (sprite.getGlobalBounds().intersects(timestop.sprite.getGlobalBounds()) && timestop.visible == true) {
+            // do nothing
+        }
+        else {
+            if (left == true) {
+                sprite.move(-speedx * time, speedy * time);
+            }
+            if (left == false) {
+                sprite.move(speedx * time, speedy * time);
+            }
+        }
+    }
+    void draw(sf::RenderWindow& window) {
+        window.draw(sprite);
+    }
+    float getDamage() { return damage; }
+    sf::Sprite& getSprite() { return sprite; }
+    sf::FloatRect getHitBox() { return sprite.getGlobalBounds(); }
+};
+void TheWorldKnivesDamage(TheWorldKnive& las, std::list<TheWorldKnive*>& lasers, Vragi& vrag) {
+    if (vrag.health > 0) {
+        for (auto it = lasers.begin(); it != lasers.end(); /* ��� ++it ����� */) {
+            if ((*it)->getHitBox().intersects(vrag.sprite.getGlobalBounds())) {
+                vrag.health -= (*it)->getDamage();
+                it = lasers.erase(it);
+            }
+            else {
+                ++it;
+            }
+        }
+    }
+}
+class AerosmithBullet {
+private:
+    sf::Sprite sprite;
+    sf::Texture texture;
+    float angle;
+    float speedy, speedx, speed;
+    bool left;
+    float damage;
+ 
+public:
+    AerosmithBullet(sf::Vector2f pos, Player& pl) {
+        texture.loadFromFile("sprites\\powers\\AerosmithBullet.png");
+        sprite.setTexture(texture);
+
+        sf::FloatRect bounds = sprite.getLocalBounds();
+        sprite.setOrigin(bounds.width / 2, bounds.height);
+        sprite.setPosition(pos);
+        speed = rand() % 2 + 1.f;
+        damage = 0.3f;
+
+        if (pl.left == true) {
+            left = true;
+            angle = rand() % 70 + 60;
+            speedx = (speed * sin(angle * 3.141592653589793f / 180.f));
+            speedy = (-speed * cos(angle * 3.141592653589793f / 180.f));
+        }
+        else if (pl.left == false) {
+            left = false;
+            angle = rand() % 70 + 60;
+            speedx = (speed * sin(angle * 3.141592653589793f / 180.f));
+            speedy = (-speed * cos(angle * 3.141592653589793f / 180.f));
+        }
+        if (pl.left == true) {
+            angle = -angle;
+        }
+        sprite.setRotation(angle);
+
+    }
+    
+    void update(float time) {
+        if (left == true) {
+            sprite.move(-speedx * time, speedy * time);
+        }
+        if (left == false) {
+            sprite.move(speedx * time, speedy * time);
+        }
+
+    }
+    void draw(sf::RenderWindow& window) {
+        window.draw(sprite);
+    }
+    float getDamage() { return damage; }
+    sf::Sprite& getSprite() { return sprite; }
+    sf::FloatRect getHitBox() { return sprite.getGlobalBounds(); }
+};
+void AerosmithBulletsDamage(AerosmithBullet& las, std::list<AerosmithBullet*>& lasers, Vragi& vrag) {
+    if (vrag.health > 0) {
+        for (auto it = lasers.begin(); it != lasers.end(); /* ��� ++it ����� */) {
+            if ((*it)->getHitBox().intersects(vrag.sprite.getGlobalBounds())) {
+                vrag.health -= (*it)->getDamage();
+                it = lasers.erase(it);
+            }
+            else {
+                ++it;
+            }
+        }
+    }
+}
+
 
 class Bubles {
 private:
@@ -125,6 +264,10 @@ public:
         if (pl.stand == 5) {
 
             texture.loadFromFile("sprites\\stands\\barrageHands\\SAWHand.png");
+        }
+        if (pl.stand == 6) {
+
+            texture.loadFromFile("sprites\\stands\\barrageHands\\D4CHand.png");
         }
         sprite.setTexture(texture);
         if (pl.left == true) {
@@ -407,7 +550,7 @@ public:
         sf::Clock die;
     public:
         DimensionClones(sf::Vector2f pos, Vragi& vrag) {
-            texture = vrag.texture; // Создаем новый объект sf::Texture с помощью конструктора копирования
+            texture = vrag.texture; 
             sprite.setTexture(texture);
             sprite.setPosition(pos);
             vragPtr = &vrag;
@@ -465,26 +608,80 @@ public:
 
     }
 
-   
+    class SheerHeartAttack {
+    private:
+        sf::Sprite sprite;
+        sf::Texture texture;
+        Vragi* vragPtr;
+        float damage;
+        sf::Clock die;
+    public:
+        SheerHeartAttack(sf::Vector2f pos, Vragi& vrag) {
+            texture.loadFromFile("sprites\\powers\\SAWBubles2.png");
+            sprite.setTexture(texture);
+            sprite.setPosition(pos);
+            vragPtr = &vrag;
+            damage = 20.f;
+        
+        }
+        void update() {
+
+        }
+        bool getDeletes() {
+            return sprite.getGlobalBounds().intersects(vragPtr->sprite.getGlobalBounds()) && vragPtr->health > 0;
+        }
+        bool getDeletesClock() {
+            return die.getElapsedTime().asSeconds() >= 15.f;
+        }
+        float getDamage() { return damage; }
+        auto getVrag() { return vragPtr; }
+        sf::Sprite& getSprite() { return sprite; }
+        sf::FloatRect getHitBox() { return sprite.getGlobalBounds(); }
+    };
+
+    void SheerHeartAttackDamage(SheerHeartAttack& las, std::list<SheerHeartAttack*>& lasers) {
+        for (auto it = lasers.begin(); it != lasers.end(); /* без ++it здесь */) {
+            if ((*it)->getDeletesClock() == true) {
+
+                it = lasers.erase(it);
+            }
+            else {
+                ++it;
+            }
+        }
+        for (auto it = lasers.begin(); it != lasers.end(); /* без ++it здесь */) {
+            if ((*it)->getDeletes() == true) {
+                (*it)->getVrag()->health -= (*it)->getDamage();
+                it = lasers.erase(it);
+            }
+            else {
+                ++it;
+            }
+        }
+
+    }
 
 
 
     void BarrageDamage(Vragi& vrag, float time,Player& pl, Stand& st) {
         if (st.sprite.getGlobalBounds().intersects(vrag.sprite.getGlobalBounds()) && st.barrage == true) {
             if (pl.stand == 1) {
-                vrag.health = vrag.health - 0.009f * time;
+                vrag.health = vrag.health - 0.005f * time;
             }
-            if (pl.stand == 3) {
-                vrag.health = vrag.health - 0.01f * time;
+            else if (pl.stand == 3) {
+                vrag.health = vrag.health - 0.005f * time;
             }
-            if (pl.stand == 4) {
-                vrag.health = vrag.health - 0.01f * time;
+            else if (pl.stand == 4) {
+                vrag.health = vrag.health - 0.005f * time;
             }
-            if (pl.stand == 5) {
-                vrag.health = vrag.health - 0.02f * time;
+            else if (pl.stand == 5) {
+                vrag.health = vrag.health - 0.012f * time;
             }
-            if (pl.stand == 6) {
-                vrag.health = vrag.health - 0.01f * time;
+            else if (pl.stand == 6) {
+                vrag.health = vrag.health - 0.005f * time;
+            }
+            else  if (pl.stand == 7) {
+                vrag.health = vrag.health - 0.006f * time;
             }
         }
     }

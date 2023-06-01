@@ -271,43 +271,13 @@ bool GameOverOn = false;
 			 viewpositiony = 124673712485187.f;
 		}
 		
-		void loadAutoSave(std::string filename, sf::View& view, Player& obj, Quests& quest1, Quests& quest2, float posx, float posy, float hp, float& viewposx, float& viewposy) {
-			std::ifstream file(filename);
-			if (file.is_open()) {
-				
-				file >> obj.stand;
-				file >> quest1.done;
-				file >> quest1.active;
-				file >> quest2.done;
-				file >> quest2.active;
-				file >> posx;
-				file >> posy;
-				file >> obj.health;;
-				file >> viewposy;
-				file >> viewposx;
-				viewposx = viewposx;
-				
-				viewposy = viewposy;
-
-				obj.stand = obj.stand;
-				obj.health = obj.health;
-				quest1.done = quest1.done;
-				quest1.active = quest1.active;
-				quest2.done = quest2.done;
-				quest2.active = quest2.active;
-				obj.sprite.setPosition(posx, posy);
-				file.close();
-			}
-			else {
-
-			}
-		}
+		
 
 
 		void setViewMenu(bool q) { MenuView = q; }
 		bool getViewMenu() { return MenuView; }
 		sf::Vector2f getViewPos() { return { viewpositionx,viewpositiony }; }
-		void update( sf::Vector2f mouspos, sf::RenderWindow& window, std::string filename, sf::View& view, Player& obj, Quests& quest1, Quests& quest2, float posx, float posy, float hp) {
+		void update(sf::Vector2f mouspos, sf::RenderWindow& window) {
 			if (Playsprite.getGlobalBounds().contains(mouspos.x, mouspos.y) && ButtonIsNotPress == true) {
 				
 			    Playtexture.loadFromFile("sprites\\menu\\ButtonsCont.png");
@@ -364,7 +334,7 @@ bool GameOverOn = false;
 
 				SavesText.setFillColor(sf::Color::Black);
 				if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-					loadAutoSave(filename, view, obj, quest1, quest2, posx, posy, hp, viewpositionx, viewpositiony);
+				
 				}
 			}
 			else{ SavesText.setFillColor(sf::Color::White); }
@@ -438,46 +408,16 @@ bool GameOverOn = false;
 			
 		}
 
-		void loadAutoSave(sf::RenderWindow& window,std::string filename, sf::View& view, Player& obj, Quests& quest1, Quests& quest2, float posx, float posy, float hp, float& viewposx, float& viewposy) {
-			std::ifstream file(filename);
-			if (file.is_open()) {
-
-				file >> obj.stand;
-				file >> quest1.done;
-				file >> quest1.active;
-				file >> quest2.done;
-				file >> quest2.active;
-				file >> posx;
-				file >> posy;
-				file >> obj.health;
-				file >> viewposx;
-				file >> viewposy;
-				viewpositionx = viewposy;
-				viewpositiony = viewposy;
-			
-				obj.stand = obj.stand;
-				obj.health = obj.health;
-				quest1.done = quest1.done;
-				quest1.active = quest1.active;
-				quest2.done = quest2.done;
-				quest2.active = quest2.active;
-				obj.sprite.setPosition(posx, posy);
-				file.close();
-			}
-			else {
-				
-			}
-		}
+	
 		
 		void setViewMenu(bool q) { MenuView = q; }
 		bool getViewMenu() { return MenuView; }
 	
-		void update(sf::RenderWindow& window, sf::Vector2f mouspos, std::string filename, sf::View& view, Player& obj, Quests& quest1, Quests& quest2, float posx, float posy, float hp) {
+		void update(sf::Vector2f mouspos) {
 			if (Retrysprite.getGlobalBounds().contains(mouspos.x, mouspos.y)) {
 
 			
-				if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-					loadAutoSave(window,filename, view, obj, quest1, quest2, posx, posy, hp, viewpositionx, viewpositiony);
+				if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {					
 					GameOverOn = false;
 					MenuOn = true;
 				}
