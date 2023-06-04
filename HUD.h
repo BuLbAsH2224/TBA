@@ -973,6 +973,8 @@ class ItemsForShop {
 private:
     sf::Sprite sprite;
     sf::Texture texture;
+    sf::Sprite Backgroundsprite;
+    sf::Texture Backgroundtexture;
     int ID;
     int price;
     sf::Text text;
@@ -983,14 +985,18 @@ public:
         text.setFont(font);
         text.setCharacterSize(16);
         text.setString(L"");
+       
         texture.loadFromFile("sprites\\hud\\inventory\\none.png");
         sprite.setTexture(texture);
+        Backgroundtexture.loadFromFile("sprites\\hud\\inventory\\ItemBackground.png");
+        Backgroundsprite.setTexture(Backgroundtexture);
         ID = 0;
         price = 0;
     }
     void setID(int id) { ID = id; }
     void update(sf::Vector2f pos, Languages& language) {
         sprite.setPosition(pos);
+        Backgroundsprite.setPosition(pos);
         text.setPosition({ sprite.getPosition().x - 30.f, sprite.getPosition().y - 60.f  });
         if (language.EnglishText == true) {
             text.setString(L"Price: " + std::to_wstring(price) + L"$");
@@ -1015,6 +1021,7 @@ public:
     }
     void draw(sf::RenderWindow& window) {
         if (ID != 0) {
+            window.draw(Backgroundsprite);
             window.draw(sprite);
             window.draw(text);
         }
@@ -1048,7 +1055,7 @@ public:
         backbuttontexture.loadFromFile("sprites\\hud\\FightBackButton.png");
         MenuIsOpen = false;
         backbuttonsprite.setTexture(backbuttontexture);
-        backbuttonsprite.setPosition({ 1920.f - backbuttonsprite.getGlobalBounds().width, backbuttonsprite.getGlobalBounds().height });
+        backbuttonsprite.setPosition({ 1280.f - backbuttonsprite.getGlobalBounds().width, backbuttonsprite.getGlobalBounds().height });
     }
     bool getOpen() { return MenuIsOpen; }
     void setOpen(bool a) { MenuIsOpen = a; }
@@ -1075,10 +1082,13 @@ public:
              }
          }
          if (backbuttonsprite.getGlobalBounds().contains(mouspos.x, mouspos.y)) {
+            
+             backbuttontexture.loadFromFile("sprites\\hud\\FightBackButtonContour.png");
              if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
                  MenuIsOpen = false;
              }
          }
+         else{ backbuttontexture.loadFromFile("sprites\\hud\\FightBackButton.png"); }
          
      }
      void updatedva(Inventory& inv, Player& pl, sf::Vector2f mouspos) {

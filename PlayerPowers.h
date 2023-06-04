@@ -615,6 +615,8 @@ public:
         Vragi* vragPtr;
         float damage;
         sf::Clock die;
+        bool left;
+        float speed;
     public:
         SheerHeartAttack(sf::Vector2f pos, Vragi& vrag) {
             texture.loadFromFile("sprites\\powers\\SAWBubles2.png");
@@ -622,10 +624,25 @@ public:
             sprite.setPosition(pos);
             vragPtr = &vrag;
             damage = 20.f;
-        
-        }
-        void update() {
+            left = false;
+            speed = 0.09;
 
+        }
+        void update(float time) {
+            if (sprite.getPosition().x < vragPtr->sprite.getPosition().x ) {
+                sprite.move(0.1f * time, 0); // Враг движется вправо
+                left = false;
+            }
+            else  {
+                sprite.move(-0.1f * time, 0); // Враг движется влево
+                left = true;
+            }
+            if (left == true) {
+                texture.loadFromFile("sprites\\npc\\PlohoiParenLeft.png");
+            }
+            else if (left == false) {
+                texture.loadFromFile("sprites\\npc\\PlohoiParenRight.png");
+            }
         }
         bool getDeletes() {
             return sprite.getGlobalBounds().intersects(vragPtr->sprite.getGlobalBounds()) && vragPtr->health > 0;

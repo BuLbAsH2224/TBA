@@ -258,6 +258,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         Event event;
 
         while (MenuOn == true) {
+            time = vremya.getElapsedTime().asMicroseconds();
+            vremya.restart();
+            time = time / 800.f;
             view.setCenter(960, 540);
             window.setView(view);
             pixelPos = sf::Mouse::getPosition(window);
@@ -304,7 +307,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         }
 
         while (ShopTutorial.getOpen() == true) {
-            view.setCenter(960, 540);
+            time = vremya.getElapsedTime().asMicroseconds();
+            vremya.restart();
+            time = time / 800.f;
+            sf::View view(sf::FloatRect(0.f, 0.f, 1280.f, 720.f));
             window.setView(view);
             pixelPos = sf::Mouse::getPosition(window);
             pos = window.mapPixelToCoords(pixelPos);
@@ -1374,19 +1380,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         for (auto theworldknives : TheWorldKnivesSprites) {
             TheWorldKnivesDamage(*theworldknives, TheWorldKnivesSprites, YopAngelo);
         }
-        if (menu1.getViewMenu() == true) {
-            menu1.setViewMenu(false);
-            if (menu1.getViewPos().x == 124673712485187.f && menu1.getViewPos().y == 124673712485187.f) {
-                view.setCenter(gameover1.getViewPos());
-            }
-            else { view.setCenter(menu1.getViewPos().x, menu1.getViewPos().y); }
-   
-        }
-        if (gameover1.getViewMenu() == true) {
-            gameover1.setViewMenu(false);
-            view.setCenter(gameover1.getViewPos());
-            
-        }
+       
+       
         fightmenu1.update({ view.getCenter().x - 205.5f, view.getCenter().y - 250.f },pos,player1,playerstand, VragStand, player1.sprite.getPosition(), laungag);
         if (D4CDimension == true && Gbuttontime.getElapsedTime().asSeconds() >= 20) {
             D4CDimension = false;

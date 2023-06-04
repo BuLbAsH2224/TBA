@@ -25,6 +25,7 @@
 #include "menu.h"
 #include "CheckCollisions.h"
 #include "FIGHTS.h"
+
 const float WINDOW_X = 1920;
 const float WINDOW_Y = 1080;
  float hsh = 0.f;

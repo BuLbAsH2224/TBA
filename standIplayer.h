@@ -15,6 +15,7 @@ bool D4CDimension = false;
 bool D4CDimensionClones = false;
 bool AerosmithHbutton = false;
 bool TheWorldKniveSpawn = false;
+bool SheertHeartAttackSpawn = false;
 void OffPowers() {
      isTimeStopped = false;
      isEmeraldSplash = false;
@@ -26,6 +27,7 @@ void OffPowers() {
      D4CDimensionClones = false;
      AerosmithHbutton = false;
      TheWorldKniveSpawn = false;
+     SheertHeartAttackSpawn = false;
 }
 sf::Clock EmeraldSplashTm;
 sf::Clock timestop;
@@ -606,17 +608,17 @@ void StandUpdate(Stand& stand, Player& obj, float time) {
 
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::G) && stand.barrage == false ) {
-                if (D4CDimension == false && Gbuttontime.getElapsedTime().asSeconds() >= 30.f)
+                if (SheertHeartAttackSpawn == false && Gbuttontime.getElapsedTime().asSeconds() >= 45.f)
                 {
 
 
 
                   
-
+                    SheertHeartAttackSpawn = true;
                     Gbuttontime.restart();
                 }
             }
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::H)) {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::H) && SheertHeartAttackSpawn == false) {
                 if (Hbuttontime.getElapsedTime().asSeconds() >= 30.f)
                 {
 
@@ -627,7 +629,7 @@ void StandUpdate(Stand& stand, Player& obj, float time) {
 
                 }
             }
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && Barrageplayer.getElapsedTime().asSeconds() > 20.f) {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && Barrageplayer.getElapsedTime().asSeconds() > 20.f && SheertHeartAttackSpawn == false) {
                 if (stand.barrage == false)
                 {
                     Barrageplayer.restart();
