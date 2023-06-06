@@ -371,6 +371,7 @@ bool GameOverOn = false;
 				window.draw(SettingsText);
 				window.draw(ExitText);
 				window.draw(CreditsText);
+				
 				window.draw(SupportText);
 				
 			}

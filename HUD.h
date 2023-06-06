@@ -395,11 +395,11 @@ public:
         }
         else if (ItemMenuID == 8) {
             if (language.EnglishText == true) {
-                Description.setString(L"When equipped, \nit increases \nspeed by 1");
+                Description.setString(L"When applied,\n it changes the\n style of combat");
                 NameText.setString(L"Steel Ball");
             }
             else if (language.RussiaText == true) {
-                Description.setString(L"РАСКУМАРЬТЕСЬ АБАЛДУИ \nувеличивает \nскорость на 1");
+                Description.setString(L"При применении \nменяет стиль боя ");
                 NameText.setString(L"Стальной шар");
             }
         }
@@ -978,14 +978,19 @@ private:
     int ID;
     int price;
     sf::Text text;
+    sf::Text Nametext;
     sf::Font font;
+    std::wstring name;
 public:
     ItemsForShop() {
         font.loadFromFile("NjalBold.ttf");
         text.setFont(font);
+        name = L"";
         text.setCharacterSize(16);
         text.setString(L"");
-       
+        Nametext.setFont(font);
+        Nametext.setCharacterSize(16);
+        Nametext.setString(L"");
         texture.loadFromFile("sprites\\hud\\inventory\\none.png");
         sprite.setTexture(texture);
         Backgroundtexture.loadFromFile("sprites\\hud\\inventory\\ItemBackground.png");
@@ -997,26 +1002,65 @@ public:
     void update(sf::Vector2f pos, Languages& language) {
         sprite.setPosition(pos);
         Backgroundsprite.setPosition(pos);
-        text.setPosition({ sprite.getPosition().x - 30.f, sprite.getPosition().y - 60.f  });
+        text.setPosition({ sprite.getPosition().x - 30.f, sprite.getPosition().y + 60.f });
+        Nametext.setPosition({ sprite.getPosition().x - 30.f, sprite.getPosition().y - 40.f });
         if (language.EnglishText == true) {
             text.setString(L"Price: " + std::to_wstring(price) + L"$");
+            
         }
         else if (language.RussiaText == true) {
             text.setString(L"Цена: " + std::to_wstring(price) + L"$");
-            
+           
         }
+        Nametext.setString(name);
         if (ID == 1) {
             price = 2000;
             texture.loadFromFile("sprites\\hud\\inventory\\HeartOfTheSaintsCorpse.png");
+            if (language.EnglishText == true) {
+                name = L"Heart OTS";
+
+            }
+            else if (language.RussiaText == true) {
+                name = L"Сердце СТ";
+
+            }
         }
       
             if (ID == 2) {
                 price = 4000;
                 texture.loadFromFile("sprites\\hud\\inventory\\RibCageOfTheSaintsCorpse.png");
+                if (language.EnglishText == true) {
+                    name = L"RibCage OTS";
+
+                }
+                else if (language.RussiaText == true) {
+                    name = L"Ребро СТ";
+
+                }
             }
             if (ID == 3) {
                 price = 500;
                 texture.loadFromFile("sprites\\hud\\inventory\\FoodPomidori.png");
+                if (language.EnglishText == true) {
+                    name = L"Tonio Food";
+
+                }
+                else if (language.RussiaText == true) {
+                    name = L"Блюдо Тонио";
+
+                }
+            }
+            if (ID == 4) {
+                price = 10000;
+                texture.loadFromFile("sprites\\hud\\inventory\\Kubok.png");
+                if (language.EnglishText == true) {
+                    name = L"Goap";
+
+                }
+                else if (language.RussiaText == true) {
+                    name = L"Кубок победителя \n если ты его купишь \n то пройдешь игру";
+
+                }
             }
     }
     void draw(sf::RenderWindow& window) {
@@ -1024,6 +1068,7 @@ public:
             window.draw(Backgroundsprite);
             window.draw(sprite);
             window.draw(text);
+            window.draw(Nametext);
         }
     }
     int getID() { return ID; }
@@ -1112,6 +1157,12 @@ public:
                              inv.addItem(4);
                              pl.money -= item[i].getPrice();
                          }
+                     }
+                     else  if (item[i].getID() == 4) {
+                         
+                         
+                             pl.money -= item[i].getPrice();
+                         
                      }
                  }
              }

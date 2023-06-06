@@ -269,6 +269,10 @@ public:
 
             texture.loadFromFile("sprites\\stands\\barrageHands\\D4CHand.png");
         }
+        if (pl.stand == 8) {
+
+            texture.loadFromFile("sprites\\stands\\barrageHands\\KQHand.png");
+        }
         sprite.setTexture(texture);
         if (pl.left == true) {
             sprite.setPosition(pos.x , rand() % 50 + 30 + pos.y);
@@ -476,7 +480,91 @@ public:
             }
         }
     }
+    class KqCoins {
+    private:
+        sf::Sprite sprite;
+        sf::Texture texture;
+        sf::Sprite BOOMsprite;
+        sf::Texture BOOMtexture;
+        sf::Clock die;
+        sf::Clock BOOMtm;
+        bool BOOM;
+        float damage;
+        sf::SoundBuffer BOOMBuffer;
+        sf::Sound BOOMsound;
+        
+    public:
+        KqCoins(sf::Vector2f pos, Player& pl, float time) {
+            BOOM = false;
+            BOOMtexture.loadFromFile("sprites\\powers\\BOOM.png");
+            BOOMsprite.setTexture(BOOMtexture);
+            texture.loadFromFile("sprites\\powers\\coin.png");
+            sprite.setTexture(texture);
+            BOOMBuffer.loadFromFile("sounds\\stands\\CoinBoom.ogg");
+            BOOMsound.setBuffer(BOOMBuffer);
+       
+            sprite.setPosition({ pos.x,pos.y - sprite.getGlobalBounds().height });
 
+            BOOMsprite.setPosition({ pos.x - (BOOMsprite.getGlobalBounds().width / 2.f),pos.y - BOOMsprite.getGlobalBounds().height });
+          
+            damage = 8.f;
+
+        }
+
+        void update() {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::J) && BOOM == false) {
+                BOOM = true;
+                BOOMsound.play();
+                BOOMtm.restart();
+            }
+
+
+        }
+        void draw(sf::RenderWindow& window) {
+            if (BOOM == false) {
+                window.draw(sprite);
+            }
+            else { window.draw(BOOMsprite); }
+        }
+        bool getDie() { return BOOM == false && die.getElapsedTime().asSeconds() >= 10.f; }
+        bool getDieBoom() { return  BOOM == true && BOOMtm.getElapsedTime().asSeconds() >= 1.f; }
+        float getDamage() { return damage; }
+        bool getBoom() { return BOOM; }
+        sf::Sprite& getSpriteBoom() { return BOOMsprite; }
+        sf::Sprite& getSprite() { return sprite; }
+        sf::FloatRect getHitBox() { return BOOMsprite.getGlobalBounds(); }
+    };
+
+    void KqCoinsDamage(KqCoins& las, std::list<KqCoins*>& lasers, Vragi& vrag) {
+        for (auto it = lasers.begin(); it != lasers.end(); /* без ++it здесь */) {
+            if ((*it)->getDie() == true) {
+
+                it = lasers.erase(it);
+            }
+            else {
+                ++it;
+            }
+        }
+        for (auto it = lasers.begin(); it != lasers.end(); /* без ++it здесь */) {
+            if ((*it)->getDieBoom() == true) {
+
+                it = lasers.erase(it);
+            }
+            else {
+                ++it;
+            }
+        }
+        for (auto it = lasers.begin(); it != lasers.end(); /* без ++it здесь */) {
+            if ((*it)->getHitBox().intersects(vrag.sprite.getGlobalBounds()) && vrag.health > 0 && (*it)->getBoom() == true) {
+                vrag.health -= (*it)->getDamage();
+                it = lasers.erase(it);
+            }
+            else {
+                ++it;
+            }
+        }
+
+    }
     class MandomBullet {
     private:
         sf::Sprite sprite;
@@ -619,13 +707,14 @@ public:
         float speed;
     public:
         SheerHeartAttack(sf::Vector2f pos, Vragi& vrag) {
-            texture.loadFromFile("sprites\\powers\\SAWBubles2.png");
+            texture.loadFromFile("sprites\\powers\\SheertHeartAttackLeft.png");
             sprite.setTexture(texture);
+            pos.y -= sprite.getGlobalBounds().height;
             sprite.setPosition(pos);
             vragPtr = &vrag;
             damage = 20.f;
             left = false;
-            speed = 0.09;
+            speed = 0.05;
 
         }
         void update(float time) {
@@ -638,10 +727,10 @@ public:
                 left = true;
             }
             if (left == true) {
-                texture.loadFromFile("sprites\\npc\\PlohoiParenLeft.png");
+                texture.loadFromFile("sprites\\powers\\SheertHeartAttackLeft.png");
             }
             else if (left == false) {
-                texture.loadFromFile("sprites\\npc\\PlohoiParenRight.png");
+                texture.loadFromFile("sprites\\powers\\SheertHeartAttackRight.png");
             }
         }
         bool getDeletes() {
@@ -649,6 +738,9 @@ public:
         }
         bool getDeletesClock() {
             return die.getElapsedTime().asSeconds() >= 15.f;
+        }
+        void draw(sf::RenderWindow& window) {
+            window.draw(sprite);
         }
         float getDamage() { return damage; }
         auto getVrag() { return vragPtr; }
@@ -698,6 +790,9 @@ public:
                 vrag.health = vrag.health - 0.005f * time;
             }
             else  if (pl.stand == 7) {
+                vrag.health = vrag.health - 0.006f * time;
+            }
+            else  if (pl.stand == 8) {
                 vrag.health = vrag.health - 0.006f * time;
             }
         }

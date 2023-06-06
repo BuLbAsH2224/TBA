@@ -53,6 +53,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     std::list<SteelBall*> SteelBallsPlayerSprites;
     std::list<AerosmithBullet*> AerosmithBulletsSprites;
     std::list<TheWorldKnive*> TheWorldKnivesSprites;
+    std::list<SheerHeartAttack*> SheerHeartAttackSprites;
+    std::list<KqCoins*> KqCoinsSprites;
     setlocale(LC_ALL, "Russian");
   
     ShopTutorial.SetShopItems(3, 2, 1);
@@ -73,11 +75,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     LanguageFlags RU_FLAG;
     LanguageFlags USA_FLAG;
-    LanguageFlagsInit(USA_FLAG, { 1000.f ,0.f}, "USA.png");
-    LanguageFlagsInit(RU_FLAG, { 0.f,0 }, "RUSSIA.png");
+    LanguageFlagsInit(USA_FLAG, { 1000.f  ,1080.f / 2.f  }, "sprites\\USA.png");
+    LanguageFlagsInit(RU_FLAG, { 100.f,1080.f / 2.f  }, "sprites\\RUSSIA.png");
     sf::Vector2i pixelPos;
     sf::Vector2f pos;
-   
+    Font font;
+    font.loadFromFile("NjalBold.ttf");
+    Text slLaung;
+    slLaung.setCharacterSize(128);
+    slLaung.setFont(font);
+    slLaung.setPosition({ 0.f, 128.f });
+    slLaung.setString(L"ÂÛÁÅÐÈ ßÇÛÊ || CHOOSE LANGUAGE");
     RenderWindow SelectLaungage(sf::VideoMode::getDesktopMode(), "Select Laungage",
         Style::Titlebar | Style::Close | Style::Fullscreen);
 
@@ -113,6 +121,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         SelectLaungage.clear();
         SelectLaungage.draw(RU_FLAG.sprite);
         SelectLaungage.draw(USA_FLAG.sprite);
+        SelectLaungage.draw(slLaung);
         SelectLaungage.display();
     }
 
@@ -125,8 +134,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     music1.play();
     music1.setVolume(30);
     music1.setLoop(true);
-    Font font;
-    font.loadFromFile("NjalBold.ttf");
+ 
 
 
 
@@ -185,6 +193,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     WRBarragebuffer.loadFromFile("sounds\\stands\\WRbarrage.ogg");
     sf::Sound WRBarragesound(WRBarragebuffer);
 
+    sf::SoundBuffer KQBarragebuffer;
+    KQBarragebuffer.loadFromFile("sounds\\stands\\KQBarrageSound.ogg");
+    sf::Sound KQBarragesound(KQBarragebuffer);
     
 
     RenderWindow window(sf::VideoMode::getDesktopMode(), "Traveler's Bizzare Adventure",
@@ -224,7 +235,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     // RandomObjectsINIT(arrow1, ARROW_FILE_NAME); 
     PlayerInit(player1, PLAYER1RIGHT_FILE_NAME);
    
-    MapObjectsINIT(FightBackground, "sprites\\map\\FightBackgroundTest.png", { -480.f,423.f });
+    MapObjectsINIT(FightBackground, "sprites\\map\\FightBackground.png", { -480.f,423.f });
   
     MapObjectsINIT(Map1, "sprites\\map\\MAP.png", { 0,0 });
     MapObjectsINIT(ArrowSand, "sprites\\map\\SANDARROWS.png", { 1567,1654 });
@@ -421,7 +432,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             MapObjectsDraw(window, FightBackground);
 
             AuraDraw(window, plAura);
-            AuraDraw(window, VragAura);
+            if (D4CDimension == false) {
+                AuraDraw(window, VragAura);
+            }
             for (auto laser : laserSprites) {
                 laser->update();
             }
@@ -431,10 +444,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             for (auto aerosmithBullet : AerosmithBulletsSprites) {
                 aerosmithBullet->update(time);
             }
+            for (auto SheerHeartAttacks : SheerHeartAttackSprites) {
+                SheerHeartAttacks->update(time);
+            }
+            for (auto SheerHeartAttacks : SheerHeartAttackSprites) {
+                SheerHeartAttackDamage(*SheerHeartAttacks, SheerHeartAttackSprites);
+            }
+            for (auto kqcoins : KqCoinsSprites) {
+                kqcoins->update();
+            }
+            for (auto kqcoins : KqCoinsSprites) {
+                KqCoinsDamage(*kqcoins, KqCoinsSprites, *fightmenu1.getVrag());
+            }
             PlayerDraw(window, player1);
+         
             fighthealth.Draw(window);
             StandDraw(window, playerstand);
-            StandDraw(window, VragStand);
+            if (D4CDimension == false) {
+                StandDraw(window, VragStand);
+            }
             if (isTimeStopped == true && timestop.getElapsedTime().asSeconds() < 10.f) {
                 if (timestop.getElapsedTime().asSeconds() < 1.f) {
                     timestopsound.play();
@@ -541,6 +569,24 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
                 AerosmithBulletsDamage(*aerosmithBullet, AerosmithBulletsSprites, *fightmenu1.getVrag());
             }
+            if (KqCoinSpawn == true) {
+         
+
+                sf::Vector2f pos = player1.sprite.getPosition();
+
+
+
+                if (player1.left == true) {
+                    pos = sf::Vector2f{ pos.x - player1.sprite.getGlobalBounds().width,	pos.y + player1.sprite.getGlobalBounds().height };
+                }
+                if (player1.left == false) {
+                    pos = sf::Vector2f{ pos.x + player1.sprite.getGlobalBounds().width,	pos.y + player1.sprite.getGlobalBounds().height };
+                }
+
+                KqCoins* kqcoins = new KqCoins(pos, player1, time);
+                KqCoinsSprites.push_back(kqcoins);
+                KqCoinSpawn = false;
+            }
             if (TheWorldKniveSpawn == true) {
                 sf::Vector2f pos = playerstand.sprite.getPosition();
                 sf::FloatRect bounds = playerstand.sprite.getGlobalBounds();
@@ -597,14 +643,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                 if (player1.stand == 1) {
                     TwBarragesound.play();
                 }
-                if (player1.stand == 3) {
+                else if (player1.stand == 3) {
                     WRBarragesound.play();
                 }
-                if (player1.stand == 4) {
+                else if (player1.stand == 4) {
 
                 }
-                if (player1.stand == 5) {
+                else if (player1.stand == 5) {
                     SAWBarragesound.play();
+                }
+               
+                else if (player1.stand == 8) {
+                    KQBarragesound.play();
                 }
             }
             hpbar.update(view.getCenter(), player1, fightmenu1.getFight());
@@ -654,6 +704,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                 BarrageHands* barragehands = new BarrageHands(pos, player1);
                 BarrageHandsSprites.push_back(barragehands);
 
+            }
+            if (SheertHeartAttackSpawn == true) {
+                sf::FloatRect StandBounds = playerstand.sprite.getGlobalBounds();
+
+                sf::Vector2f pos = { playerstand.sprite.getPosition().x, playerstand.sprite.getPosition().y + playerstand.sprite.getGlobalBounds().height};
+               
+                    SheerHeartAttack* SheerHeartAttacks = new SheerHeartAttack(pos, *fightmenu1.getVrag());
+                    SheerHeartAttackSprites.push_back(SheerHeartAttacks);
+                    SheertHeartAttackSpawn = false;
+               
             }
             if (playerstand.barrage == true && Barrageplayer.getElapsedTime().asSeconds() > 5.f && player1.stand != 5) {
                 playerstand.barrage = false;
@@ -711,7 +771,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             for (auto theworldknives : TheWorldKnivesSprites) {
                 theworldknives->draw(window);
             }
-
+            for (auto SheerHeartAttacks : SheerHeartAttackSprites) {
+                SheerHeartAttacks->draw(window);
+            }
+            for (auto kqcoins : KqCoinsSprites) {
+                kqcoins->draw(window);
+            }
             PowersObjectsDraw(window, Vragtimestoppower);
             PowersObjectsDraw(window, timestoppower);
             PowersObjectsDraw(window, WrOxyImage);
@@ -844,7 +909,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                     }
                     PlayerInventory.addItem(4);
                 }
-                else if (rand() % 50 == 1) {
+               else if (rand() % 50 == 1) {
                     Notifications* Notificationstext = nullptr;
 
                     if (PlayerInventory.ItemCanBeAdded(3)) {
@@ -1007,7 +1072,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             }
             if (player1.stand == 5) {
                 SAWBarragesound.play();
-            }       
+            }   
+            else if (player1.stand == 8) {
+                KQBarragesound.play();
+            }
         }
 
 
@@ -1022,7 +1090,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             }
 
             if (player1.sprite.getGlobalBounds().intersects(Haider.sprite.getGlobalBounds())) {
-                Haider.texture.loadFromFile("sprites\\npc\\HaiderLohContour.png");
+             //   Haider.texture.loadFromFile("sprites\\npc\\HaiderLohContour.png");
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::E)  ) {
                     
                     
@@ -1215,6 +1283,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             BublesSprites.push_back(bubles);
             SAWBublCreate = false;
         }
+        if (KqCoinSpawn == true) {
+            sf::Vector2f pos = player1.sprite.getPosition();
+          
+            
+
+            if (player1.left == true) {
+                pos = sf::Vector2f{ pos.x - player1.sprite.getGlobalBounds().width,	pos.y + player1.sprite.getGlobalBounds().height};
+            }
+            if (player1.left == false) {
+                pos = sf::Vector2f{ pos.x + player1.sprite.getGlobalBounds().width,	pos.y + player1.sprite.getGlobalBounds().height };
+            }
+
+            KqCoins* kqcoins = new KqCoins(pos, player1, time);
+            KqCoinsSprites.push_back(kqcoins);
+            KqCoinSpawn = false;
+        }
         if (TheWorldKniveSpawn == true) {
             sf::Vector2f pos = playerstand.sprite.getPosition();
             sf::FloatRect bounds = playerstand.sprite.getGlobalBounds();
@@ -1241,7 +1325,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         }
         if (D4CDimensionClones == true) {
             sf::FloatRect StandBounds = playerstand.sprite.getGlobalBounds();
-           
+            StandBounds.width += 50.f;
             sf::Vector2f pos = playerstand.sprite.getPosition();
             if (StandBounds.intersects(YopAngelo.sprite.getGlobalBounds())) {
                 DimensionClones* dimensionClones = new DimensionClones(pos, YopAngelo);
@@ -1249,7 +1333,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                 D4CDimensionClones = false;
             }
         }
-
+        if (SheertHeartAttackSpawn == true) {
+            sf::FloatRect StandBounds = playerstand.sprite.getGlobalBounds();
+            StandBounds.width += 50.f;
+            sf::Vector2f pos = { playerstand.sprite.getPosition().x, playerstand.sprite.getPosition().y + playerstand.sprite.getGlobalBounds().height };
+            if (StandBounds.intersects(YopAngelo.sprite.getGlobalBounds())) {
+                SheerHeartAttack* SheerHeartAttacks = new SheerHeartAttack(pos, YopAngelo);
+                SheerHeartAttackSprites.push_back(SheerHeartAttacks);
+                SheertHeartAttackSpawn = false;
+            }
+        }
 
         if (playerstand.barrage == true) {
 
@@ -1380,8 +1473,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         for (auto theworldknives : TheWorldKnivesSprites) {
             TheWorldKnivesDamage(*theworldknives, TheWorldKnivesSprites, YopAngelo);
         }
-       
-       
+        for (auto SheerHeartAttacks : SheerHeartAttackSprites) {
+            SheerHeartAttacks->update(time);
+        }
+        for (auto SheerHeartAttacks : SheerHeartAttackSprites) {
+            SheerHeartAttackDamage(*SheerHeartAttacks, SheerHeartAttackSprites);
+        }
+        
+        for (auto kqcoins : KqCoinsSprites) {
+            kqcoins->update();
+            }
+        for (auto kqcoins : KqCoinsSprites) {
+            KqCoinsDamage(*kqcoins, KqCoinsSprites, YopAngelo);
+        }
         fightmenu1.update({ view.getCenter().x - 205.5f, view.getCenter().y - 250.f },pos,player1,playerstand, VragStand, player1.sprite.getPosition(), laungag);
         if (D4CDimension == true && Gbuttontime.getElapsedTime().asSeconds() >= 20) {
             D4CDimension = false;
@@ -1424,6 +1528,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         }
         for (auto theworldknives : TheWorldKnivesSprites) {
             theworldknives->draw(window);
+        }
+        for (auto SheerHeartAttacks : SheerHeartAttackSprites) {
+            SheerHeartAttacks->draw(window);
+        }
+        for (auto kqcoins : KqCoinsSprites) {
+            kqcoins->draw(window);
         }
         StandDraw(window, playerstand);
         if (YopAngelo.health > 0 && D4CDimension == false) {

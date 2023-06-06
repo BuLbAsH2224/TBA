@@ -35,7 +35,7 @@ const float WINDOW_Y = 1080;
 const std::string GRASS1_FILE_NAME{ "sprites\\map\\grass1.jpg" };
 
 const std::string ARROW_FILE_NAME{ "sprites\\objects\\arrow.png" };
-const std::string VERSION_NAME{ "alpha 0.9.8" };
+const std::string VERSION_NAME{ "BETA 1.0" };
 const std::string PLAYER1LEFT_FILE_NAME{ "sprites\\player\\player1left.png" };
 const std::string PLAYER1RIGHT_FILE_NAME{ "sprites\\player\\player1right.png" };
 
