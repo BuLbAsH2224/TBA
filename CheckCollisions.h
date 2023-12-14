@@ -126,6 +126,7 @@ void CheckCollisMap(Map& YopAngelo, Player& player) {
         }
     }
 }
+
   /*для оталкивания 
   void CheckCollisVragi(Vragi& YopAngelo, Player& player) {
     if (player.sprite.getGlobalBounds().intersects(YopAngelo.sprite.getGlobalBounds()) && YopAngelo.health > 0) {

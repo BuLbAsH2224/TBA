@@ -159,6 +159,7 @@
     <ClInclude Include="settings.h" />
     <ClInclude Include="standIplayer.h" />
     <ClInclude Include="vragi.h" />
+    <ClInclude Include="VragPowers.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

@@ -110,7 +110,87 @@ bool GameOverOn = false;
 		window.display();
 	}
 	*/
+class SaveManager {
+private:
+	std::string filename;
+	Player* pl;
+	Inventory* inv;
 
+public:
+
+
+	SaveManager(std::string filename2, Player& gl, Inventory& inv2) {
+		filename = filename2;
+		pl = &gl;
+		inv = &inv2;
+	}
+
+
+	void saveData() {
+		std::ofstream file(filename);
+
+		if (file.is_open()) {
+			file << pl->sprite.getPosition().x << " ";
+			file << pl->sprite.getPosition().y << " ";
+			file << pl->stand << " ";
+			file << pl->money << " ";
+			file << pl->FightTech << " ";
+			file << pl->health << " ";
+			for (int i = 0; i < 16; i++) {
+				file << inv->getItems()[i].getID() << " ";
+			}
+			for (int i = 0; i < 9; i++) {
+				file << inv->getCorpses()[i].getActive() << " ";
+			}
+		}
+
+		file.close();
+	}
+
+
+
+
+
+	std::string loadData() {
+		std::ifstream file(filename);
+		std::string line;
+
+		if (file.is_open()) {
+			while (getline(file, line)) {
+				std::istringstream iss(line);
+
+				float x, y;
+				int stand, money, FightTech;
+				float health;
+				bool saintcorpse;
+				std::vector<int> ids;
+
+				if (iss >> x >> y >> stand >> money >> FightTech >> health) {
+					pl->sprite.setPosition(x, y);
+					pl->stand = stand;
+					pl->money = money;
+					pl->FightTech = FightTech;
+					pl->health = health;
+
+					int id;
+					for (int i = 0; i < 16; i++) {
+						iss >> id;
+						ids.push_back(id);
+					}
+					inv->setItemsFromIDs(ids);
+					for (int i = 0; i < 9; i++) {
+						iss >> id;
+						inv->getCorpses()[i].setActive(id);
+					}
+				}
+			}
+		}
+
+		file.close();
+	}
+
+
+};
 	class Menu {
 	private:
 		Languages& language;
@@ -128,7 +208,7 @@ bool GameOverOn = false;
 		sf::Text CreditsText;
 		sf::Text SupportText;
 		sf::Text CReditsText;
-		sf::Text SavesText;
+	
 		std::string CREDITS{ "Credits:\nBuLbAsH - programmer, creator\nMainBladee - beta tester\ncret - designer\nVS - designer, beta tester" };
 		std::wstring CREDITS_RU{ L"Разработчики:\nBuLbAsH - программист, создатель\nVS - дизайнер, бета-тестер\nMainBladee - бета-тестер\ncret - дизайнер" };
 
@@ -141,9 +221,26 @@ bool GameOverOn = false;
 		sf::Sprite Creditssprite;
 		sf::Texture Creditstexture;
 		
+		
+		sf::Texture Savetexture;
+		sf::Sprite Save1sprite;
+		sf::Sprite Save2sprite;
+		sf::Sprite Save3sprite;
+		sf::Sprite Save4sprite;
+		sf::Text Save1Text;
+		sf::Text Load1Text;
+		sf::Text Save2Text;
+		sf::Text Load2Text;
+		sf::Text Save3Text;
+		sf::Text Load3Text;
+		sf::Text Save4Text;
+		sf::Text Load4Text;
 		bool ButtonIsNotPress;
 		bool SavesPress;
-	
+		SaveManager save1;
+		SaveManager save2;
+		SaveManager save3;
+		SaveManager save4;
 		bool SettingsPress;
 		bool Close;
 		bool CreditsPress;
@@ -151,14 +248,16 @@ bool GameOverOn = false;
 		float viewpositiony;
 		bool MenuView;
 	public:
-		Menu(Languages& lang) : language(lang) {
+		Menu(Languages& lang, Player& pl, Inventory& inv)
+			: language(lang), save1("saves\\save1.txt", pl, inv), save2("saves\\save2.txt", pl, inv),
+			save3("saves\\save3.txt", pl, inv), save4("saves\\save4.txt", pl, inv) {
 			MenuView = true;
 			Close = false;
 			font.loadFromFile("NjalBold.ttf");
 			background1texture.loadFromFile("sprites\\menu\\background1.png");
 			background1sprite.setTexture(background1texture);
 			background1sprite.setPosition(0, 0);
-
+			
 			Backtexture.loadFromFile("sprites\\menu\\Back.png");
 			Backsprite.setTexture(Backtexture);
 			Backsprite.setPosition(1920 - 149, 0);
@@ -184,6 +283,15 @@ bool GameOverOn = false;
 			Savessprite.setTexture(Savestexture);
 			Savessprite.setPosition(1920 - 149, 1080 - 149);
 
+			Savetexture.loadFromFile("sprites\\menu\\SaveButton.png");
+			Save1sprite.setTexture(Savetexture);
+			Save1sprite.setPosition({ 200.f,200.f });
+			Save2sprite.setTexture(Savetexture);
+			Save2sprite.setPosition({ 200.f ,Save1sprite.getPosition().y + 10.f + Save1sprite.getGlobalBounds().height});
+			Save3sprite.setTexture(Savetexture);
+			Save3sprite.setPosition({ 200.f,Save2sprite.getPosition().y + 10.f +  Save1sprite.getGlobalBounds().height });
+			Save4sprite.setTexture(Savetexture);
+			Save4sprite.setPosition({ 200.f,Save3sprite.getPosition().y + 10.f +  Save1sprite.getGlobalBounds().height });
 			PlayText.setFont(font);
 			PlayText.setCharacterSize(64);
 			PlayText.setPosition(Playsprite.getPosition().x + 30, Playsprite.getPosition().y + 50);
@@ -240,17 +348,66 @@ bool GameOverOn = false;
 			}
 
 
-			SavesText.setFont(font);
-			SavesText.setCharacterSize(64);
-			SavesText.setPosition(50,200);
+		
+			
+			Save1Text.setFont(font);
+			Save1Text.setCharacterSize(40);
+			Save1Text.setPosition(Save1sprite.getPosition().x + 35.f, Save1sprite.getPosition().y + 40.f);
+			Load1Text.setFont(font);
+			Load1Text.setCharacterSize(40);
+			Load1Text.setPosition(Save1sprite.getPosition().x + 405.f, Save1sprite.getPosition().y + 40.f);
 			if (lang.EnglishText == true) {
-				SavesText.setString("Load Auto Save");
+				Save1Text.setString("Save Game");
+				Load1Text.setString(L"Load Save");
 			}
 			else if (lang.RussiaText == true) {
-				SavesText.setString(L"Загрузить авто-сохранение");
+				Save1Text.setString(L"сохранить игру");
+				Load1Text.setString(L"Загрузить сохранение");
 			}
-			
 
+			Save2Text.setFont(font);
+			Save2Text.setCharacterSize(40);
+			Save2Text.setPosition(Save2sprite.getPosition().x + 35.f, Save2sprite.getPosition().y + 40.f);
+			Load2Text.setFont(font);
+			Load2Text.setCharacterSize(40);
+			Load2Text.setPosition(Save2sprite.getPosition().x + 405.f, Save2sprite.getPosition().y + 40.f);
+			if (lang.EnglishText == true) {
+				Save2Text.setString("Save Game");
+				Load2Text.setString(L"Load Save");
+			}
+			else if (lang.RussiaText == true) {
+				Save2Text.setString(L"сохранить игру");
+				Load2Text.setString(L"Загрузить сохранение");
+			}
+
+			Save3Text.setFont(font);
+			Save3Text.setCharacterSize(40);
+			Save3Text.setPosition(Save3sprite.getPosition().x + 35.f, Save3sprite.getPosition().y + 40.f);
+			Load3Text.setFont(font);
+			Load3Text.setCharacterSize(40);
+			Load3Text.setPosition(Save3sprite.getPosition().x + 405.f, Save3sprite.getPosition().y + 40.f);
+			if (lang.EnglishText == true) {
+				Save3Text.setString("Save Game");
+				Load3Text.setString(L"Load Save");
+			}
+			else if (lang.RussiaText == true) {
+				Save3Text.setString(L"сохранить игру");
+				Load3Text.setString(L"Загрузить сохранение");
+			}
+			Save4Text.setFont(font);
+			Save4Text.setCharacterSize(40);
+			Save4Text.setPosition(Save4sprite.getPosition().x + 35.f, Save4sprite.getPosition().y + 40.f);
+			Load4Text.setFont(font);
+			Load4Text.setCharacterSize(40);
+			Load4Text.setPosition(Save4sprite.getPosition().x + 405.f, Save4sprite.getPosition().y + 40.f);
+			if (lang.EnglishText == true) {
+				Save4Text.setString("Save Game");
+				Load4Text.setString(L"Load Save");
+			}
+			else if (lang.RussiaText == true) {
+				Save4Text.setString(L"сохранить игру");
+				Load4Text.setString(L"Загрузить сохранение");
+			}
 
 			CReditsText.setFont(font);
 			CReditsText.setCharacterSize(64);
@@ -326,18 +483,77 @@ bool GameOverOn = false;
 
 				SupportText.setFillColor(sf::Color::Black);
 				if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-					system("start https://www.donationalerts.com/r/bulbashh");
+					//system("start https://www.donationalerts.com/r/bulbashh");
+				
+					system("start https://www.youtube.com/watch?v=dQw4w9WgXcQ");
 				}
 			}
 			else { SupportText.setFillColor(sf::Color::White);}
-			if (SavesText.getGlobalBounds().contains(mouspos.x, mouspos.y) && ButtonIsNotPress == false && SavesPress == true) {
+			
+			if (Save1Text.getGlobalBounds().contains(mouspos.x, mouspos.y) && ButtonIsNotPress == false && SavesPress == true) {
 
-				SavesText.setFillColor(sf::Color::Black);
+				Save1Text.setFillColor(sf::Color::Black);
 				if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-				
+					save1.saveData();
 				}
 			}
-			else{ SavesText.setFillColor(sf::Color::White); }
+			else{ Save1Text.setFillColor(sf::Color::White); }
+			if (Load1Text.getGlobalBounds().contains(mouspos.x, mouspos.y) && ButtonIsNotPress == false && SavesPress == true) {
+
+				Load1Text.setFillColor(sf::Color::Black);
+				if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+					save1.loadData();
+				}
+			}
+			else { Load1Text.setFillColor(sf::Color::White); }
+			if (Save2Text.getGlobalBounds().contains(mouspos.x, mouspos.y) && ButtonIsNotPress == false && SavesPress == true) {
+
+				Save2Text.setFillColor(sf::Color::Black);
+				if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+					save2.saveData();
+				}
+			}
+			else { Save2Text.setFillColor(sf::Color::White); }
+			if (Load2Text.getGlobalBounds().contains(mouspos.x, mouspos.y) && ButtonIsNotPress == false && SavesPress == true) {
+
+				Load2Text.setFillColor(sf::Color::Black);
+				if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+					save2.loadData();
+				}
+			}
+			else { Load2Text.setFillColor(sf::Color::White); }
+			if (Save3Text.getGlobalBounds().contains(mouspos.x, mouspos.y) && ButtonIsNotPress == false && SavesPress == true) {
+
+				Save3Text.setFillColor(sf::Color::Black);
+				if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+					save3.saveData();
+				}
+			}
+			else { Save3Text.setFillColor(sf::Color::White); }
+			if (Load3Text.getGlobalBounds().contains(mouspos.x, mouspos.y) && ButtonIsNotPress == false && SavesPress == true) {
+
+				Load3Text.setFillColor(sf::Color::Black);
+				if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+					save3.loadData();
+				}
+			}
+			else { Load3Text.setFillColor(sf::Color::White); }
+			if (Save4Text.getGlobalBounds().contains(mouspos.x, mouspos.y) && ButtonIsNotPress == false && SavesPress == true) {
+
+				Save4Text.setFillColor(sf::Color::Black);
+				if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+					save4.saveData();
+				}
+			}
+			else { Save4Text.setFillColor(sf::Color::White); }
+			if (Load4Text.getGlobalBounds().contains(mouspos.x, mouspos.y) && ButtonIsNotPress == false && SavesPress == true) {
+
+				Load4Text.setFillColor(sf::Color::Black);
+				if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+					save4.loadData();
+				}
+			}
+			else { Load4Text.setFillColor(sf::Color::White); }
 			if (Savessprite.getGlobalBounds().contains(mouspos.x, mouspos.y) && ButtonIsNotPress == true) {
 				
 				
@@ -353,7 +569,19 @@ bool GameOverOn = false;
 			vers.setPosition(0.f, 1060.f - vers.getGlobalBounds().height);
 			if (SavesPress == true) {
 				window.draw(Backsprite);
-			    window.draw(SavesText);
+			  
+				window.draw(Save1sprite);
+				window.draw(Save2sprite);
+				window.draw(Save3sprite);
+				window.draw(Save4sprite);
+				window.draw(Save1Text);
+				window.draw(Load1Text);
+				window.draw(Save2Text);
+				window.draw(Load2Text);
+				window.draw(Save3Text);
+				window.draw(Load3Text);
+				window.draw(Save4Text);
+				window.draw(Load4Text);
 			}
 			if (CreditsPress == true) {
 				window.draw(CReditsText);

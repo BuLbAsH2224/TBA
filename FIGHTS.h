@@ -10,7 +10,7 @@ void PlayerUpdateInFight(Player& obj, std::string LeftSpriteFileNAME, std::strin
     if (obj.health > obj.maxhealth) {
         obj.health = obj.maxhealth;
     }
-    if (obj.stoi == false) {
+    if (obj.intimestopdio == false) {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && obj.sprite.getPosition().x <= 1920.f - obj.sprite.getGlobalBounds().width) {
             if (obj.attacking == true) {
                 obj.texture.loadFromFile("sprites\\player\\player1rightAttacking.png");
@@ -75,6 +75,7 @@ public:
        
             if (sprite.getGlobalBounds().contains(mouspos.x, mouspos.y)) {
                 texture.loadFromFile("sprites\\hud\\FightBackButtonContour.png");
+                
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
                     close = true;
                 }
@@ -209,15 +210,15 @@ public:
             if (Rejectbutton.getGlobalBounds().contains(mouspos.x, mouspos.y)) {
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
                     IsOpen = false;
-                    pl.stoi = false;
+                    pl.intimestopdio = false;
                 }
             }
             if (Acceptbutton.getGlobalBounds().contains(mouspos.x, mouspos.y)) {
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
                     IsOpen = false;
                     InFight = true;
-                    pl.stoi = false;
-                    VragBitv->health = 100.f;
+                    pl.intimestopdio = false;
+                    VragBitv->health = VragBitv->maxhealth;
                     pl.sprite.setPosition({ 900.f,840.f - pl.sprite.getGlobalBounds().height });
                     stpl.visible = false;
                     VragBitv->sprite.setPosition({ 1300.f,840.f - VragBitv->sprite.getGlobalBounds().height });

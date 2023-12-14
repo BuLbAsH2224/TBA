@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "settings.h"
 #include "vragi.h"
+
+
 struct Powers {
     sf::Texture texture;
     sf::Sprite sprite;
@@ -83,7 +85,6 @@ public:
         }
         else {
             left = false;
-
             speedx = 1.f;
             speedy = 0;
         }
@@ -253,25 +254,37 @@ public:
           
                 texture.loadFromFile("sprites\\stands\\barrageHands\\TwHand.png");
         }
-        if (pl.stand == 3) {
+        else if (pl.stand == 3) {
 
             texture.loadFromFile("sprites\\stands\\barrageHands\\WRHand.png");
         }
-        if (pl.stand == 4) {
+        else  if (pl.stand == 4) {
 
             texture.loadFromFile("sprites\\stands\\barrageHands\\HGHand.png");
         }
-        if (pl.stand == 5) {
+        else if (pl.stand == 5) {
 
             texture.loadFromFile("sprites\\stands\\barrageHands\\SAWHand.png");
         }
-        if (pl.stand == 6) {
+        else if (pl.stand == 6) {
 
             texture.loadFromFile("sprites\\stands\\barrageHands\\D4CHand.png");
         }
-        if (pl.stand == 8) {
+        else if (pl.stand == 8) {
 
             texture.loadFromFile("sprites\\stands\\barrageHands\\KQHand.png");
+        }
+        else if (pl.stand == 9) {
+
+            texture.loadFromFile("sprites\\stands\\barrageHands\\GeHand.png");
+        }
+        else if (pl.stand == 10) {
+
+            texture.loadFromFile("sprites\\stands\\barrageHands\\WsHand.png");
+        }
+        else if (pl.stand == 11) {
+
+            texture.loadFromFile("sprites\\stands\\barrageHands\\GeHand.png");
         }
         sprite.setTexture(texture);
         if (pl.left == true) {
@@ -795,5 +808,518 @@ public:
             else  if (pl.stand == 8) {
                 vrag.health = vrag.health - 0.006f * time;
             }
+            else  if (pl.stand == 9) {
+                vrag.health = vrag.health - 0.006f * time;
+            }
+            else  if (pl.stand == 10) {
+                vrag.health = vrag.health - 0.006f * time;
+            }
         }
     }
+
+    class GeTree {
+    private:
+        sf::Sprite sprite;
+        sf::Texture texture;
+        sf::Clock die;
+        sf::Clock animation;
+        sf::Vector2f position;
+        int cadr;
+        bool animationOn;
+       
+        float times;
+    public:
+        GeTree(sf::Vector2f pos, bool left) {
+            texture.loadFromFile("sprites\\powers\\GeTree1.png");
+            sprite.setTexture(texture);
+          
+            if (left == true) {
+                position = { pos.x - sprite.getLocalBounds().width ,pos.y  };
+                sprite.setPosition(pos.x - 5.f - sprite.getLocalBounds().width, pos.y + sprite.getLocalBounds().height);
+            }
+            else {
+                position = { pos.x,pos.y  };
+                sprite.setPosition(pos.x + 5.f, pos.y + sprite.getLocalBounds().height);
+            }
+            
+          
+            cadr = 1;
+            animationOn = true;
+            
+            times = 200;
+        }
+        void TreemoveTo(GeTree & obj, sf::Vector2f to, float dt, float speed)
+        {
+
+            if (obj.sprite.getPosition() != to)
+            {
+                sf::Vector2f const delta = to - obj.sprite.getPosition();
+                float const ds = speed * dt;
+                float const off = ds / std::sqrt(delta.x * delta.x + delta.y * delta.y);
+                sf::Vector2f const pos = off < 1 ? obj.sprite.getPosition() + delta * off : to;
+                obj.sprite.setPosition(pos);
+            }
+        }
+        void update(GeTree& obj, float time,Vragi& vrag) {
+            if (animationOn == true) {
+                animation.restart();
+                animationOn = false;
+            }
+            if (vrag.sprite.getGlobalBounds().intersects(obj.sprite.getGlobalBounds())) {
+                sf::FloatRect playerBounds = vrag.sprite.getGlobalBounds();
+                playerBounds.left += 5.f;
+                playerBounds.width -= 10.f;
+                playerBounds.top += 50.f;
+                playerBounds.height -= 50.f;
+
+                if (playerBounds.intersects(obj.sprite.getGlobalBounds())) {
+                    sf::FloatRect enemyBounds = obj.sprite.getGlobalBounds();
+
+                    // Определяем пересечение объектов по осям X и Y
+                    float intersectX = std::max(0.f, std::min(playerBounds.left + playerBounds.width, enemyBounds.left + enemyBounds.width) - std::max(playerBounds.left, enemyBounds.left));
+                    float intersectY = std::max(0.f, std::min(playerBounds.top + playerBounds.height, enemyBounds.top + enemyBounds.height) - std::max(playerBounds.top, enemyBounds.top));
+
+                    // Определяем, по какой оси объекты пересекаются больше
+                    if (intersectX > intersectY) {
+                        if (playerBounds.top < enemyBounds.top) {
+                            // Игрок находится сверху от врага, перемещаем игрока вверх, а врага вниз
+                            vrag.sprite.move(0.f, -intersectY);
+
+                        }
+                        else {
+                            // Игрок находится снизу от врага, перемещаем игрока вниз, а врага вверх
+                            vrag.sprite.move(0.f, intersectY);
+
+                        }
+                    }
+                    else {
+                        if (playerBounds.left < enemyBounds.left) {
+                            // Игрок находится слева от врага, перемещаем игрока влево, а врага вправо
+                            vrag.sprite.move(-intersectX, 0.f);
+
+                        }
+                        else {
+                            // Игрок находится справа от врага, перемещаем игрока вправо, а врага влево
+                            vrag.sprite.move(intersectX, 0.f);
+
+                        }
+                    }
+                }
+            }
+        
+            if (cadr != 18) {
+                if (animation.getElapsedTime().asMilliseconds() >= times) {
+                    times = times + 200;
+                    cadr++;
+                }
+                
+                TreemoveTo(obj, position, 5.f, 0.01f * time);
+               
+                    if (rand() % 50 + 1 < 50) {
+                        obj.getSprite().setPosition(obj.getSprite().getPosition().x - 0.01f, obj.getSprite().getPosition().y);
+                 }
+                    else {
+                        obj.getSprite().setPosition(obj.getSprite().getPosition().x + 0.01f, obj.getSprite().getPosition().y);
+                    }
+                
+                if (cadr == 2) {
+                    texture.loadFromFile("sprites\\powers\\GeTree2.png");
+                    sprite.setTexture(texture);
+                }
+                else if (cadr == 3) {
+                    texture.loadFromFile("sprites\\powers\\GeTree3.png");
+                    sprite.setTexture(texture);
+                }
+                else if (cadr == 4) {
+                    texture.loadFromFile("sprites\\powers\\GeTree4.png");
+                    sprite.setTexture(texture);
+                }
+                else if (cadr == 5) {
+                    texture.loadFromFile("sprites\\powers\\GeTree" + std::to_string(cadr) + ".png");
+                    sprite.setTexture(texture);
+                }
+                else if (cadr == 6) {
+                    texture.loadFromFile("sprites\\powers\\GeTree" + std::to_string(cadr) + ".png");
+                    sprite.setTexture(texture);
+                }
+                else if (cadr == 7) {
+                    texture.loadFromFile("sprites\\powers\\GeTree" + std::to_string(cadr) + ".png");
+                    sprite.setTexture(texture);
+                }
+                else if (cadr == 8) {
+                    texture.loadFromFile("sprites\\powers\\GeTree" + std::to_string(cadr) + ".png");
+                    sprite.setTexture(texture);
+                }
+                else if (cadr == 9) {
+                    texture.loadFromFile("sprites\\powers\\GeTree" + std::to_string(cadr) + ".png");
+                    sprite.setTexture(texture);
+                }
+                else if (cadr == 10) {
+                    texture.loadFromFile("sprites\\powers\\GeTree" + std::to_string(cadr) + ".png");
+                    sprite.setTexture(texture);
+                }
+                else if (cadr == 11) {
+                    texture.loadFromFile("sprites\\powers\\GeTree" + std::to_string(cadr) + ".png");
+                    sprite.setTexture(texture);
+                }
+                else if (cadr == 12) {
+                    texture.loadFromFile("sprites\\powers\\GeTree" + std::to_string(cadr) + ".png");
+                    sprite.setTexture(texture);
+                }
+                else if (cadr == 13) {
+                    texture.loadFromFile("sprites\\powers\\GeTree" + std::to_string(cadr) + ".png");
+                    sprite.setTexture(texture);
+                }
+                else if (cadr == 14) {
+                    texture.loadFromFile("sprites\\powers\\GeTree" + std::to_string(cadr) + ".png");
+                    sprite.setTexture(texture);
+                }
+                else if (cadr == 15) {
+                    texture.loadFromFile("sprites\\powers\\GeTree" + std::to_string(cadr) + ".png");
+                    sprite.setTexture(texture);
+                }
+                else if (cadr == 16) {
+                    texture.loadFromFile("sprites\\powers\\GeTree" + std::to_string(cadr) + ".png");
+                    sprite.setTexture(texture);
+                }
+                else if (cadr == 17) {
+                    texture.loadFromFile("sprites\\powers\\GeTree" + std::to_string(cadr) + ".png");
+                    sprite.setTexture(texture);
+                }
+                else if (cadr == 18) {
+                    texture.loadFromFile("sprites\\powers\\GeTree.png");
+                    sprite.setTexture(texture);
+                }
+            }
+            
+        }
+        void draw(sf::RenderWindow& window) {
+            window.draw(sprite);
+        }
+        bool getDeletesClock() {
+            return die.getElapsedTime().asSeconds() >= 12.f;
+        }
+        sf::Sprite& getSprite() { return sprite; }
+        sf::FloatRect getHitBox() { return sprite.getGlobalBounds(); }
+    };
+    
+    void GeTreesDamage(GeTree& las, std::list<GeTree*>& lasers) {
+        for (auto it = lasers.begin(); it != lasers.end(); /* без ++it здесь */) {
+            if ((*it)->getDeletesClock() == true) {
+
+                it = lasers.erase(it);
+            }
+            else {
+                ++it;
+            }
+        }
+
+    }
+
+    class GeSoul {
+    private:
+        sf::Sprite sprite;
+        sf::Texture texture;
+        Vragi* vragPtr;
+        sf::Clock TimeAction;
+        sf::Vector2f position;
+    public:
+        GeSoul(sf::Vector2f pos, Vragi& vrag) {
+            texture = vrag.texture;
+            sprite.setTexture(texture);
+            sprite.setPosition(pos);
+            vragPtr = &vrag;
+            position = pos;
+            sprite.setColor(sf::Color::Blue);   
+            auto rect = vrag.sprite.getTextureRect();
+            rect.left += rect.width;
+            rect.width = -rect.width;
+            sprite.setTextureRect(rect);
+        }
+        void SoulmoveTo(GeSoul& obj, sf::Vector2f to, float dt, float speed)
+        {
+
+            if (obj.sprite.getPosition() != to)
+            {
+                sf::Vector2f const delta = to - obj.sprite.getPosition();
+                float const ds = speed * dt;
+                float const off = ds / std::sqrt(delta.x * delta.x + delta.y * delta.y);
+                sf::Vector2f const pos = off < 1 ? obj.sprite.getPosition() + delta * off : to;
+                obj.sprite.setPosition(pos);
+            }
+        }
+        void update(GeSoul& obj,float time) {
+            SoulmoveTo(obj, { position.x + 20.f + obj.getSprite().getGlobalBounds().width, position.y}, 5.f, 0.01f * time);
+            vragPtr->stunned = true;
+
+        }
+        void draw(sf::RenderWindow& window) {
+            window.draw(sprite);
+        }
+        bool getDeletes() {
+            return vragPtr->health < 0;
+        }
+        bool getDeletesClock() {
+            return TimeAction.getElapsedTime().asSeconds() >= 5.f;
+        }
+        auto getVrag() { return vragPtr; }
+        
+        sf::Sprite& getSprite() { return sprite; }
+        sf::FloatRect getHitBox() { return sprite.getGlobalBounds(); }
+    };
+
+    void GeSoulDamage(GeSoul& las, std::list<GeSoul*>& lasers) {
+        for (auto it = lasers.begin(); it != lasers.end(); /* без ++it здесь */) {
+            if ((*it)->getDeletesClock() == true) {
+                (*it)->getVrag()->stunned = false;
+                it = lasers.erase(it);
+            }
+            else {
+                ++it;
+            }
+        }
+        for (auto it = lasers.begin(); it != lasers.end(); /* без ++it здесь */) {
+            if ((*it)->getDeletes() == true) {
+                (*it)->getVrag()->stunned = false;
+                it = lasers.erase(it);
+            }
+            else {
+                ++it;
+            }
+        }
+
+    }
+
+    class WsDisc {
+    private:
+        sf::Sprite sprite;
+        sf::Texture texture;
+        Vragi* vragPtr;
+        sf::Clock TimeAction;
+        sf::RectangleShape EffectTime;
+        float width;
+        float height;
+        sf::SoundBuffer WsDiscbuffer;
+        bool playsound;
+        sf::Sound WsDiscSound;
+    public:
+        WsDisc(Vragi& vrag) {
+            texture.loadFromFile("sprites\\powers\\WsDisc.png");
+            sprite.setTexture(texture);
+            sprite.setPosition({(vrag.sprite.getPosition().x + (vrag.sprite.getGlobalBounds().width / 2.f)) - (sprite.getGlobalBounds().width / 2.f),vrag.sprite.getPosition().y - sprite.getGlobalBounds().height});
+            vragPtr = &vrag;
+            width = 24.f;
+            height = 6.f;
+            EffectTime.setFillColor(sf::Color::White);
+            EffectTime.setSize({ width,height });
+            WsDiscbuffer.loadFromFile("sounds\\stands\\WsDisc.ogg");
+            WsDiscSound.setBuffer(WsDiscbuffer);
+            playsound = true;
+        }
+      
+        void update() {
+            if (playsound == true) {
+                playsound = false;
+                WsDiscSound.play();
+            }
+            sprite.setPosition({ (vragPtr->sprite.getPosition().x + (vragPtr->sprite.getGlobalBounds().width / 2.f)) - (sprite.getGlobalBounds().width / 2.f),vragPtr->sprite.getPosition().y - sprite.getGlobalBounds().height - 2.f });
+            EffectTime.setPosition({ sprite.getPosition().x, sprite.getPosition().y - 6.f });
+            EffectTime.setSize({ (10.f - TimeAction.getElapsedTime().asSeconds()) / 10.f * width, height });
+            vragPtr->StandOff = true;
+
+        }
+        void draw(sf::RenderWindow& window) {
+            window.draw(sprite);
+            window.draw(EffectTime);
+        }
+        bool getDeletes() {
+            return vragPtr->health < 0;
+        }
+        bool getDeletesClock() {
+            return TimeAction.getElapsedTime().asSeconds() >= 10.f;
+        }
+        auto getVrag() { return vragPtr; }
+
+        sf::Sprite& getSprite() { return sprite; }
+        sf::FloatRect getHitBox() { return sprite.getGlobalBounds(); }
+    };
+
+    void WsDiscDamage(WsDisc& las, std::list<WsDisc*>& lasers) {
+        for (auto it = lasers.begin(); it != lasers.end(); /* без ++it здесь */) {
+            if ((*it)->getDeletesClock() == true) {
+                (*it)->getVrag()->StandOff = false;
+                it = lasers.erase(it);
+            }
+            else {
+                ++it;
+            }
+        }
+        for (auto it = lasers.begin(); it != lasers.end(); /* без ++it здесь */) {
+            if ((*it)->getDeletes() == true) {
+                (*it)->getVrag()->StandOff = false;
+                it = lasers.erase(it);
+            }
+            else {
+                ++it;
+            }
+        }
+
+    }
+
+    class WsAcidCloud {
+    private:
+        sf::Sprite sprite;
+       
+      
+        sf::Clock TimeAction;
+        sf::Clock Damage;
+        sf::SoundBuffer buffer;
+        bool soundplay;
+        sf::Sound sound;
+        sf::Texture textures[8];
+        int cadr;
+        float vremya;
+        
+    public:
+        WsAcidCloud(Vragi& vrag, Stand& pl) {
+            for (int i = 0; i < 8; i++) {
+                textures[i].loadFromFile("sprites\\powers\\WsAcid" + std::to_string(i+1) + ".png");
+            }
+            sprite.setTexture(textures[0]);
+            sprite.setPosition({ (pl.sprite.getPosition().x + (pl.sprite.getGlobalBounds().width / 2.f)) - (sprite.getGlobalBounds().width / 2.f), (pl.sprite.getPosition().y + (pl.sprite.getGlobalBounds().height / 2.f) - (sprite.getGlobalBounds().height / 2.f))});
+            buffer.loadFromFile("sounds\\stands\\WsAcid.ogg");
+           sound.setBuffer(buffer);
+            soundplay = true;
+            vremya = 150.f;
+            cadr = 0;
+           
+        }
+
+        void update(Stand& pl, Vragi& vrag) {
+            if (soundplay == true) {
+                sound.play();
+                soundplay = false;
+            }
+            if (vremya <  TimeAction.getElapsedTime().asMilliseconds()) {
+                
+                vremya = vremya + 150.f;
+                sprite.setTexture(textures[cadr]);
+                if (cadr != 7) {
+                    cadr++;
+                }
+                else {
+                    cadr = 0;
+                }
+            }
+            sprite.setPosition({ (pl.sprite.getPosition().x + (pl.sprite.getGlobalBounds().width / 2.f)) - (sprite.getGlobalBounds().width / 2.f), (pl.sprite.getPosition().y + (pl.sprite.getGlobalBounds().height / 2.f) - (sprite.getGlobalBounds().height / 2.f)) });
+            if (Damage.getElapsedTime().asSeconds() > 1.f && vrag.sprite.getGlobalBounds().intersects(sprite.getGlobalBounds())) {
+                vrag.health = vrag.health - 2.f - (vrag.health * 0.04f) ;
+                Damage.restart();
+           }
+            
+
+        }
+        void draw(sf::RenderWindow& window) {
+            window.draw(sprite);
+         
+        }
+       
+        bool getDeletesClock() {
+            return TimeAction.getElapsedTime().asSeconds() >= 10.f;
+        }
+    
+
+        sf::Sprite& getSprite() { return sprite; }
+        sf::FloatRect getHitBox() { return sprite.getGlobalBounds(); }
+    };
+
+    void WsAcidCloudDamage(WsAcidCloud& las, std::list<WsAcidCloud*>& lasers) {
+        for (auto it = lasers.begin(); it != lasers.end(); /* без ++it здесь */) {
+            if ((*it)->getDeletesClock() == true) {
+                
+                it = lasers.erase(it);
+            }
+            else {
+                ++it;
+            }
+        }
+        
+
+    }
+    class CmoonRotate {
+    private:
+        
+       
+        sf::Clock TimeAction;
+     
+      
+        sf::SoundBuffer buffer;
+        bool soundplay;
+        sf::Sound sound;
+        sf::SoundBuffer buffer2;
+        bool soundplay2;
+        sf::Sound sound2;
+        float angle;
+        bool active;
+        float vremya;
+    public:
+        CmoonRotate() {
+           
+           
+            vremya = 50.f;
+            buffer.loadFromFile("sounds\\stands\\CmGravityShift.ogg");
+            sound.setBuffer(buffer);
+            soundplay = false;
+            buffer2.loadFromFile("sounds\\stands\\CmGravityShiftBack.ogg");
+            sound2.setBuffer(buffer2);
+            soundplay2 = false;
+            angle = 0.f;
+            active = false;
+        }
+
+        void update(Vragi& vrag,sf::View& view) {
+            if (soundplay == true) {
+                sound.play();
+                soundplay = false;
+            }
+            if (active == true && vremya < TimeAction.getElapsedTime().asMilliseconds() && angle != -10.f){
+                view.setRotation(angle);
+                vremya = vremya + 50.f;
+                angle -= 1.f;
+                
+               
+            }
+            if (active == true) {
+                vrag.sprite.move(0.05f, 0.f);
+                vrag.stunned = true;
+                vrag.StandOff = true;
+            }
+            if (active == true && 10.f < TimeAction.getElapsedTime().asSeconds()) {
+                active = false;
+                vrag.stunned = false;
+                vrag.StandOff = false;
+            
+            }
+            if (active == false && view.getRotation() != 0.f) {
+                view.setRotation(angle);
+                angle += 1.f;
+              
+            }
+            if (active == false && soundplay2 == true) {
+                sound2.play();
+                soundplay2 = false;
+            }
+        }
+        
+        void Activate() {
+            vremya = 100.f;
+            angle = 0.f;
+            active = true;
+            TimeAction.restart();
+            soundplay = true;
+            soundplay2 = true;
+       }
+       
+    };
+
+    

@@ -17,6 +17,12 @@ bool AerosmithHbutton = false;
 bool TheWorldKniveSpawn = false;
 bool SheertHeartAttackSpawn = false;
 bool KqCoinSpawn = false;
+bool GeTreeSpawn = false;
+bool GeSoulPunch = false;
+bool D4cLoveTrain = false;
+bool WsDiscSpawn = false;
+bool WsAcidSpawn = false;
+bool CmoonRotateSpawn = false;
 void OffPowers() {
      isTimeStopped = false;
      isEmeraldSplash = false;
@@ -30,6 +36,13 @@ void OffPowers() {
      TheWorldKniveSpawn = false;
      SheertHeartAttackSpawn = false;
      KqCoinSpawn = false;
+     GeTreeSpawn = false;
+     GeSoulPunch = false;
+     D4cLoveTrain = false;
+     WsDiscSpawn = false;
+     WsAcidSpawn = false;
+     CmoonRotateSpawn = false;
+    
 }
 sf::Clock EmeraldSplashTm;
 sf::Clock timestop;
@@ -41,6 +54,7 @@ sf::Clock WROxy;
 sf::Clock SAWBublTm;
 sf::Clock Hbuttontime;
 sf::Clock Gbuttontime;
+
 
 struct Stand {
     sf::Texture texture;
@@ -76,7 +90,7 @@ struct Player {
     float maxhealth = 200;
     int FightTech = 0;
     bool attacking;
-    bool stoi = false;
+    bool intimestopdio = false;
    
 };
 
@@ -105,16 +119,16 @@ void PlayerUpdate(Player& obj, std::string LeftSpriteFileNAME, std::string Right
     if (obj.stand != 0) {
         obj.old_stand = obj.stand;
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && obj.sprite.getPosition().y >= 0 && obj.stoi == false) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && obj.sprite.getPosition().y >= 0 && obj.intimestopdio == false) {
         obj.sprite.move(0, -obj.speed * time);
         obj.up = true;
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && obj.sprite.getPosition().y + 96.f <= 2160 && obj.stoi == false) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && obj.sprite.getPosition().y + 96.f <= 2160 && obj.intimestopdio == false) {
         obj.sprite.move(0, obj.speed * time);
         obj.up = false;
     }
   
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && obj.sprite.getPosition().x + 44.f <= 3840 && obj.stoi == false) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && obj.sprite.getPosition().x + 44.f <= 3840 && obj.intimestopdio == false) {
         if (obj.attacking == true) {
             obj.texture.loadFromFile("sprites\\player\\player1rightAttacking.png");
         }
@@ -133,7 +147,7 @@ void PlayerUpdate(Player& obj, std::string LeftSpriteFileNAME, std::string Right
         }
 
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)&& obj.sprite.getPosition().x >= 0 && obj.stoi == false) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)&& obj.sprite.getPosition().x >= 0 && obj.intimestopdio == false) {
         obj.left = true;
         if (obj.attacking == true) {
             obj.texture.loadFromFile("sprites\\player\\player1leftAttacking.png");
@@ -171,10 +185,10 @@ void StandUpdate(Stand& stand, Player& obj, float time) {
     if (obj.stand == 0) {
         stand.visible = false;
     }
-    if (stand.visible == false || obj.stoi == true) {
+    if (stand.visible == false || obj.intimestopdio == true) {
         stand.barrage = false;
     }
- else if (stand.visible == true && obj.stoi == false) {
+ else if (stand.visible == true && obj.intimestopdio == false) {
        /*1 - the world
        2 - Mandom
        3 - Weather Report
@@ -183,6 +197,9 @@ void StandUpdate(Stand& stand, Player& obj, float time) {
        6 - D4C
        7 - Aerosmith
        8 - Killer Queen
+       9 - Golden Expirience
+       10 - White Snake
+       11 - Cmoon
         */
         if (obj.stand == 1) {
            
@@ -220,13 +237,13 @@ void StandUpdate(Stand& stand, Player& obj, float time) {
 
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::H)) {
-                if (isTimeStopped == false && timestop.getElapsedTime().asSeconds() > 30.f)
+                if (isTimeStopped == false && Hbuttontime.getElapsedTime().asSeconds() > 30.f)
                 {
                     
                
                   
                     isTimeStopped = true; 
-                  
+                    Hbuttontime.restart();
                     timestop.restart();
                 }
             }
@@ -610,7 +627,7 @@ void StandUpdate(Stand& stand, Player& obj, float time) {
 
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::G) && stand.barrage == false ) {
-                if (SheertHeartAttackSpawn == false && Gbuttontime.getElapsedTime().asSeconds() >= 45.f)
+                if (SheertHeartAttackSpawn == false && Gbuttontime.getElapsedTime().asSeconds() >= 30.f)
                 {
 
 
@@ -621,7 +638,7 @@ void StandUpdate(Stand& stand, Player& obj, float time) {
                 }
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::H) && SheertHeartAttackSpawn == false) {
-                if (KqCoinSpawn == false && Hbuttontime.getElapsedTime().asSeconds() >= 10.f)
+                if (KqCoinSpawn == false && Hbuttontime.getElapsedTime().asSeconds() >= 5.f)
                 {
 
                     KqCoinSpawn = true;
@@ -632,6 +649,197 @@ void StandUpdate(Stand& stand, Player& obj, float time) {
                 }
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && Barrageplayer.getElapsedTime().asSeconds() > 20.f && SheertHeartAttackSpawn == false) {
+                if (stand.barrage == false)
+                {
+                    Barrageplayer.restart();
+                    stand.barrage = true;
+                }
+            }
+        }
+        if (obj.stand == 9) {
+
+
+
+            if (obj.left == true) {
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+                    stand.texture.loadFromFile("sprites\\stands\\KQLeft.png");
+                }
+                else {
+                    stand.texture.loadFromFile("sprites\\stands\\GeIdle.png");
+                }
+                if (stand.barrage == false) {
+                    moveTo(stand, { obj.sprite.getPosition().x + 60, obj.sprite.getPosition().y - 50 }, 3.5, 0.11f * time);
+                }
+                if (stand.barrage == true || GeSoulPunch == true) {
+                    moveTo(stand, { obj.sprite.getPosition().x - 60, obj.sprite.getPosition().y - 20 }, 3.5, 0.25f * time);
+                }
+
+            }
+            if (obj.left == false) {
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+                    stand.texture.loadFromFile("sprites\\stands\\KQRight.png");
+                }
+                else {
+                    stand.texture.loadFromFile("sprites\\stands\\GeIdle.png");
+                }
+                if (stand.barrage == false) {
+                    moveTo(stand, { obj.sprite.getPosition().x - 60, obj.sprite.getPosition().y - 50 }, 3.5, 0.11f * time);
+                }
+                if (stand.barrage == true || GeSoulPunch == true) {
+                    moveTo(stand, { obj.sprite.getPosition().x + 60, obj.sprite.getPosition().y - 20 }, 3.5, 0.25f * time);
+                }
+
+
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::G) && stand.barrage == false) {
+                if (GeSoulPunch == false && Gbuttontime.getElapsedTime().asSeconds() >= 20.f)
+                {
+
+
+
+
+                    GeSoulPunch = true;
+                    Gbuttontime.restart();
+                }
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::H) && stand.barrage == false && Hbuttontime.getElapsedTime().asSeconds() > 25.f && GeSoulPunch == false) {
+                if (GeTreeSpawn == false )
+                {
+
+                    GeTreeSpawn = true;
+                    Hbuttontime.restart();
+
+
+
+                }
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && Barrageplayer.getElapsedTime().asSeconds() > 20.f && GeSoulPunch == false) {
+                if (stand.barrage == false)
+                {
+                    Barrageplayer.restart();
+                    stand.barrage = true;
+                }
+            }
+        }
+        if (obj.stand == 10) {
+
+
+
+            if (obj.left == true) {
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+                    stand.texture.loadFromFile("sprites\\stands\\WsLeftMove.png");
+                }
+                else {
+                    stand.texture.loadFromFile("sprites\\stands\\WsIdle.png");
+                }
+                if (stand.barrage == false) {
+                    moveTo(stand, { obj.sprite.getPosition().x + 60, obj.sprite.getPosition().y - 50 }, 3.5, 0.11f * time);
+                }
+                if (stand.barrage == true || WsDiscSpawn == true) {
+                    moveTo(stand, { obj.sprite.getPosition().x - 60, obj.sprite.getPosition().y - 20 }, 3.5, 0.25f * time);
+                }
+
+            }
+            if (obj.left == false) {
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+                    stand.texture.loadFromFile("sprites\\stands\\WsRightMove.png");
+                }
+                else {
+                    stand.texture.loadFromFile("sprites\\stands\\WsIdle.png");
+                }
+                if (stand.barrage == false) {
+                    moveTo(stand, { obj.sprite.getPosition().x - 60, obj.sprite.getPosition().y - 50 }, 3.5, 0.11f * time);
+                }
+                if (stand.barrage == true || WsDiscSpawn == true) {
+                    moveTo(stand, { obj.sprite.getPosition().x + 60, obj.sprite.getPosition().y - 20 }, 3.5, 0.25f * time);
+                }
+
+
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::G) && stand.barrage == false && WsDiscSpawn == false) {
+                if (WsAcidSpawn == false && Gbuttontime.getElapsedTime().asSeconds() >= 40.f)
+                {
+
+
+
+
+                    WsAcidSpawn = true;
+                    Gbuttontime.restart();
+                }
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::H) && stand.barrage == false && Hbuttontime.getElapsedTime().asSeconds() > 25.f) {
+                if (WsDiscSpawn == false)
+                {
+
+                    WsDiscSpawn = true;
+                    Hbuttontime.restart();
+
+
+
+                }
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && Barrageplayer.getElapsedTime().asSeconds() > 20.f && GeSoulPunch == false) {
+                if (stand.barrage == false)
+                {
+                    Barrageplayer.restart();
+                    stand.barrage = true;
+                }
+            }
+        }
+        if (obj.stand == 11) {
+
+
+
+            if (obj.left == true) {
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+                    stand.texture.loadFromFile("sprites\\stands\\KQLeft.png");
+                }
+                else {
+                    stand.texture.loadFromFile("sprites\\stands\\GeIdle.png");
+                }
+                if (stand.barrage == false) {
+                    moveTo(stand, { obj.sprite.getPosition().x + 60, obj.sprite.getPosition().y - 50 }, 3.5, 0.11f * time);
+                }
+                if (stand.barrage == true || WsDiscSpawn == true) {
+                    moveTo(stand, { obj.sprite.getPosition().x - 60, obj.sprite.getPosition().y - 20 }, 3.5, 0.25f * time);
+                }
+
+            }
+            if (obj.left == false) {
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+                    stand.texture.loadFromFile("sprites\\stands\\KQRight.png");
+                }
+                else {
+                    stand.texture.loadFromFile("sprites\\stands\\GeIdle.png");
+                }
+                if (stand.barrage == false) {
+                    moveTo(stand, { obj.sprite.getPosition().x - 60, obj.sprite.getPosition().y - 50 }, 3.5, 0.11f * time);
+                }
+                if (stand.barrage == true || WsDiscSpawn == true) {
+                    moveTo(stand, { obj.sprite.getPosition().x + 60, obj.sprite.getPosition().y - 20 }, 3.5, 0.25f * time);
+                }
+
+
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::G) && stand.barrage == false && WsDiscSpawn == false) {
+                if (WsAcidSpawn == false && Gbuttontime.getElapsedTime().asSeconds() >= 40.f)
+                {
+
+
+                }
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::H) && stand.barrage == false && Hbuttontime.getElapsedTime().asSeconds() > 15.f) {
+                if (CmoonRotateSpawn == false)
+                {
+
+                    CmoonRotateSpawn = true;
+                    Hbuttontime.restart();
+
+
+
+                }
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && Barrageplayer.getElapsedTime().asSeconds() > 20.f && GeSoulPunch == false) {
                 if (stand.barrage == false)
                 {
                     Barrageplayer.restart();
@@ -671,6 +879,15 @@ void StandSummon(Player& player1, Stand& playerstand) {
         else if (player1.stand == 8) {
             playerstand.sprite.setPosition(player1.sprite.getPosition().x + 60, player1.sprite.getPosition().y - 50);
         }
+        else if (player1.stand == 9) {
+            playerstand.sprite.setPosition(player1.sprite.getPosition().x + 60, player1.sprite.getPosition().y - 50);
+        }
+        else if (player1.stand == 10) {
+            playerstand.sprite.setPosition(player1.sprite.getPosition().x + 60, player1.sprite.getPosition().y - 50);
+        }
+        else if (player1.stand == 11) {
+            playerstand.sprite.setPosition(player1.sprite.getPosition().x + 60, player1.sprite.getPosition().y - 50);
+        }
     }
     else if (player1.left == false) {
      if (player1.stand == 1) {
@@ -698,6 +915,15 @@ void StandSummon(Player& player1, Stand& playerstand) {
          playerstand.sprite.setPosition(player1.sprite.getPosition().x - 60, player1.sprite.getPosition().y - 50);
      }
      else   if (player1.stand == 8) {
+         playerstand.sprite.setPosition(player1.sprite.getPosition().x - 60, player1.sprite.getPosition().y - 50);
+     }
+     else   if (player1.stand == 9) {
+         playerstand.sprite.setPosition(player1.sprite.getPosition().x - 60, player1.sprite.getPosition().y - 50);
+     }
+     else   if (player1.stand == 10) {
+         playerstand.sprite.setPosition(player1.sprite.getPosition().x - 60, player1.sprite.getPosition().y - 50);
+     }
+     else   if (player1.stand == 11) {
          playerstand.sprite.setPosition(player1.sprite.getPosition().x - 60, player1.sprite.getPosition().y - 50);
      }
     }
@@ -798,6 +1024,14 @@ void AuraUpdate(Aura& obj, Player& pl, Stand& st, float time) {
             obj.texture.loadFromFile("sprites\\stands\\auras\\KQAuraFrame2.png");
         }
     }
+    if (pl.stand == 9) {
+        if (obj.CurrentFrame == 1) {
+            obj.texture.loadFromFile("sprites\\stands\\auras\\TwAuraFrame1.png");
+        }
+        if (obj.CurrentFrame == 2) {
+            obj.texture.loadFromFile("sprites\\stands\\auras\\TwAuraFrame2.png");
+        }
+    }
 }
 void AuraDraw(sf::RenderWindow& window, Aura& obj) {
     if (obj.visible == true) {
@@ -805,7 +1039,75 @@ void AuraDraw(sf::RenderWindow& window, Aura& obj) {
     }
 }
 
+class PlayerAura {
+private:
+    Player* pl;
+    sf::Texture textureLeft;
+    sf::Texture textureRight;
+    sf::Sprite sprite;
+   Stand* st;
+public:
 
+
+    PlayerAura(Player& gl, Stand& sta) : pl(&gl), st(&sta) {
+        textureLeft.loadFromFile("sprites\\stands\\auras\\PlayerAuraLeft.png");
+        textureRight.loadFromFile("sprites\\stands\\auras\\PlayerAuraRight.png");
+        sprite.setTexture(textureLeft);
+    }
+    void update() {
+        if (pl->left == true) {
+            sprite.setTexture(textureLeft);
+        }
+        else if (pl->left == false) {
+            sprite.setTexture(textureRight);
+        }
+        sprite.setPosition({pl->sprite.getPosition().x - 2.f ,pl->sprite.getPosition().y -2.f });
+        switch (pl->stand)
+        {
+        case 1:
+            sprite.setColor(sf::Color(255, 255, 0));
+            break;
+        case 2:
+            sprite.setColor(sf::Color(223, 55, 237));
+            break;
+        case 3:
+            sprite.setColor(sf::Color(205, 205, 205));
+            break;
+        case 4:
+            sprite.setColor(sf::Color(113, 243, 112));
+            break;
+        case 5:
+            sprite.setColor(sf::Color(100, 255, 254));
+            break;
+        case 6:
+            sprite.setColor(sf::Color(20, 31, 237));
+            break;
+        case 7:
+            sprite.setColor(sf::Color(244, 11, 11));
+            break;
+        case 8:
+            sprite.setColor(sf::Color(254, 129, 255));
+            break;
+        case 9:
+            sprite.setColor(sf::Color(255, 214, 35));
+            break;
+        case 10:
+            sprite.setColor(sf::Color(200, 164, 211));
+            break;
+        case 11:
+            sprite.setColor(sf::Color(85, 220, 81));
+            break;
+        default:
+            sprite.setColor(sf::Color(0, 0, 0));
+            break;
+        }
+    }
+    void draw(sf::RenderWindow& window) {
+        if (st->visible == true) {
+            window.draw(sprite);
+        }
+    }
+};
 
 class PlayerHealth {
 
@@ -847,3 +1149,4 @@ public:
         }
     }
 };
+

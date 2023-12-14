@@ -112,10 +112,11 @@ public:
         // 3 - dio diary
         // 4 - havchik
        //5 - heart
+       
     }
     void updatedva() {
         if (ID == 0) {
-            texture.loadFromFile("sprites\\hud\\inventory\\none.png");
+          
             weigt = 0;
         }
         else if (ID == 1) {
@@ -149,6 +150,14 @@ public:
         else if (ID == 8) {
             texture.loadFromFile("sprites\\hud\\inventory\\SteelBall.png");
             weigt = 4;
+        }
+        else if (ID == 9) {
+            texture.loadFromFile("sprites\\hud\\inventory\\dioBone.png");
+            weigt = 1;
+        }
+        else if (ID == 10) {
+            texture.loadFromFile("sprites\\hud\\inventory\\greenBaby.png");
+            weigt = 1;
         }
     }
     void update(sf::Vector2f pos, sf::Vector2f mouspos, Player& pl) {
@@ -403,6 +412,26 @@ public:
                 NameText.setString(L"Стальной шар");
             }
         }
+        else if (ItemMenuID == 9) {
+            if (language.EnglishText == true) {
+                Description.setString(L"When used \nyou can \nregenerate it");
+                NameText.setString(L"Dio Bone");
+            }
+            else if (language.RussiaText == true) {
+                Description.setString(L"При применении \nможно её \nрегенерировать  ");
+                NameText.setString(L"Кость Дио");
+            }
+        }
+        else if (ItemMenuID == 10) {
+            if (language.EnglishText == true) {
+                Description.setString(L"When used, \nmakes \nWHITESNAKE C-MOON");
+                NameText.setString(L"Green Baby");
+            }
+            else if (language.RussiaText == true) {
+                Description.setString(L"При применении \nделает из \nWHITESNAKE C-MOON  ");
+                NameText.setString(L"Зелёный ребёнок");
+            }
+        }
         else {
             Description.setString(L"???");
             NameText.setString(L"???");
@@ -412,12 +441,12 @@ public:
 
         if (ItemMenuID == 1 && pl.stand == 0) {
 
-            pl.stand = rand() % 8 + 1;
+            pl.stand = rand() % 11 + 1;
             OffPowers();
           
-            while (pl.stand == pl.old_stand || pl.stand == 6) {
+            while (pl.stand == pl.old_stand || pl.stand == 6 || pl.stand == 11) {
          
-                pl.stand = rand() % 6 + 1;
+                pl.stand = rand() % 11 + 1;
             }
             items[ItemMenu].setID(0);
         }
@@ -441,6 +470,19 @@ public:
         else if (ItemMenuID == 8) {
             pl.FightTech = 1;
             items[ItemMenu].setID(0);
+        }
+        else if (ItemMenuID == 9) {
+            if (pl.stand == 9) {
+                
+                items[ItemMenu].setID(10);
+            }
+        }
+        else if (ItemMenuID == 10) {
+            if (pl.stand == 10) {
+                pl.stand = 11;
+                OffPowers();
+                items[ItemMenu].setID(0);
+            }
         }
     }
 
@@ -619,8 +661,14 @@ public:
     }
     bool getOpen() { return IsOpen; }
     void setOpen(bool a) { IsOpen = a; }
-   
-   
+    auto getItems() { return inventoryitems; }
+    auto getCorpses() { return saintscorpes; }
+
+    void setItemsFromIDs(std::vector<int>& ids) {
+        for (int i = 0; i < 16;i++) {
+            inventoryitems[i].setID(ids[i]);
+        }
+    }
 
     void update(sf::Vector2f pos, sf::Vector2f pos2, Player& pl, sf::Vector2f mouspos, Languages& language) {
         if (saintscorpes[2].getActive() == true) {
@@ -743,6 +791,15 @@ public:
             else  if (pl.stand == 8) {
                 standtext.setString("STAND: Killer Queen");
             }
+            else if (pl.stand == 9) {
+                standtext.setString("STAND: GOLD EXPERIENCE");
+            }
+            else if (pl.stand == 10) {
+                standtext.setString("STAND: WHITE SNAKE");
+            }
+            else if (pl.stand == 11) {
+                standtext.setString("STAND: C-MOON");
+            }
             else   {
                 standtext.setString("STAND: ???");
             }
@@ -828,6 +885,12 @@ public:
         else if (id == 8) {
             return 4;
         }
+        else if (id == 9) {
+            return 1;
+        }
+        else if (id == 10) {
+            return 1;
+        }
         else {
             return 0;
         }
@@ -873,7 +936,9 @@ public:
             window.draw(weighttext);
             window.draw(FightTechtext);
             for (int i = 0; i < 16; i++) {
-                window.draw(inventoryitems[i].getSprite());
+                if (inventoryitems[i].getID() != 0) {
+                    window.draw(inventoryitems[i].getSprite());
+                }
             }
         }
        
@@ -1039,7 +1104,7 @@ public:
                 }
             }
             if (ID == 3) {
-                price = 500;
+                price = 200;
                 texture.loadFromFile("sprites\\hud\\inventory\\FoodPomidori.png");
                 if (language.EnglishText == true) {
                     name = L"Tonio Food";
@@ -1175,5 +1240,181 @@ public:
             item[i].draw(window);
         }
         window.draw(MoneyText);
+    }
+};
+
+class ReloadingPowers {
+private:
+    sf::Sprite sprite1;
+    sf::Sprite sprite2;
+    sf::Sprite sprite3;
+    sf::Texture texture;
+    sf::RectangleShape ReloadBar1;
+    sf::RectangleShape ReloadBar2;
+    sf::RectangleShape ReloadBar3;
+    float height;
+    float width;
+    float sec1;
+    float sec2;
+    float sec3;
+    std::string PowerName1;
+    std::string PowerName2;
+    std::string PowerName3;
+    sf::Font font;
+    sf::Text text1;
+    sf::Text text2;
+    sf::Text text3;
+public:
+    ReloadingPowers() {
+        PowerName1 =  "None";
+     PowerName2 = "None";
+     PowerName3 = "Barrage";
+     font.loadFromFile("NjalBold.ttf");
+     text1.setFont(font);
+     text1.setCharacterSize(16);
+     text1.setFillColor(sf::Color::Black);
+     text2.setFont(font);
+     text2.setCharacterSize(16);
+     text2.setFillColor(sf::Color::Black);
+     text3.setFont(font);
+     text3.setCharacterSize(16);
+     text3.setFillColor(sf::Color::Black);
+        sec1 = 0.f;
+        sec2 = 0.f;
+        sec3 = 0.f;
+        height = 44.f;
+        width = 192.f;
+        ReloadBar1.setFillColor(sf::Color::White);
+        ReloadBar1.setSize({ width,0.f });
+        ReloadBar2.setFillColor(sf::Color::White);
+        ReloadBar2.setSize({ width,0.f });
+        ReloadBar3.setFillColor(sf::Color::White);
+        ReloadBar3.setSize({ width,0.f });
+        texture.loadFromFile("sprites\\hud\\Frame.png");
+        sprite1.setTexture(texture);
+        sprite2.setTexture(texture);
+        sprite3.setTexture(texture);
+    }
+    void update(sf::Vector2f pos,sf::Clock& power1,sf::Clock power2, sf::Clock power3, Player& pl) {
+        switch (pl.stand)
+        {
+        case 1:
+            sec1 = 30.f;
+            sec2 = 1.f;
+            sec3 = 20.f;
+            PowerName1 = "Time Stop";
+            PowerName2 = "Knifes";
+            break;
+        case 2:
+            sec1 = 15.f;
+            sec2 = 0.f;
+            sec3 = 0.f;
+            PowerName1 = "Rewind Time";
+            PowerName2 = "None";
+            break;
+        case 3:
+            sec1 = 30.f;
+            sec2 = 0.f;
+            sec3 = 20.f;
+            PowerName1 = "Air Theft";
+            PowerName2 = "None";
+            break;
+        case 4:
+            sec1 = 45.f;
+            sec2 = 0.f;
+            sec3 = 20.f;
+            PowerName1 = "Emerald Splash";
+            PowerName2 = "None";
+            break;
+        case 5:
+            sec1 = 1.f;
+            sec2 = 0.f;
+            sec3 = 30.f;
+            PowerName1 = "Bubble";
+            PowerName2 = "None";
+            break;
+        case 6:
+            sec1 = 20.f;
+            sec2 = 30.f;
+            sec3 = 20.f;
+            PowerName1 = "Make a Clone";
+            PowerName2 = "Move Dimension";
+            break;
+        case 7:
+            sec1 = 30.f;
+            sec2 = 0.f;
+            sec3 = 20.f;
+            PowerName1 = "Shelling";
+            PowerName2 = "None";
+            break;
+        case 8:
+            sec1 = 5.f;
+            sec2 = 30.f;
+            sec3 = 20.f;
+            PowerName1 = "Coin Spawn";
+            PowerName2 = "Sheert Heart Attack";
+            break;
+        case 9:
+            sec1 = 25.f;
+            sec2 = 20.f;
+            sec3 = 20.f;
+            PowerName1 = "Tree Spawn";
+            PowerName2 = "Soul Punch";
+            break;
+        case 10:
+            sec1 = 25.f;
+            sec2 = 40.f;
+            sec3 = 20.f;
+            PowerName1 = "Disc with Stand";
+            PowerName2 = "Cloud of Acid";
+            break;
+        case 11:
+            sec1 = 15.f;
+            sec2 = 40.f;
+            sec3 = 20.f;
+            PowerName1 = "Gravity Shift";
+            PowerName2 = "Cloud of Acid";
+            break;
+        default:
+            sec1 = 0.f;
+            sec2 = 0.f;
+            sec3 = 0.f;
+            PowerName1 = "None";
+            PowerName2 = "None";
+            break;
+        };
+        sprite1.setPosition(pos);
+        sprite2.setPosition({ sprite1.getPosition().x, sprite1.getPosition().y + sprite2.getGlobalBounds().height + 2.f});
+        sprite3.setPosition({ sprite2.getPosition().x, sprite2.getPosition().y + sprite3.getGlobalBounds().height + 2.f });
+        ReloadBar1.setPosition({ sprite1.getPosition().x + 7.f, sprite1.getPosition().y + 9.f});
+        ReloadBar1.setSize({ (sec1 - power1.getElapsedTime().asSeconds()) / sec1 * width, height });
+        text1.setString(PowerName1); 
+        text1.setPosition({ sprite1.getPosition().x + 3.f, sprite1.getPosition().y  });
+        text2.setString(PowerName2);
+        text2.setPosition({ sprite2.getPosition().x + 3.f, sprite2.getPosition().y });
+        ReloadBar2.setPosition({ sprite2.getPosition().x + 7.f, sprite2.getPosition().y + 9.f });
+        ReloadBar2.setSize({ (sec2 - power2.getElapsedTime().asSeconds()) / sec2 * width, height });
+        text3.setString(PowerName3);
+        text3.setPosition({ sprite3.getPosition().x + 3.f, sprite3.getPosition().y });
+        ReloadBar3.setPosition({ sprite3.getPosition().x + 7.f, sprite3.getPosition().y + 9.f });
+        ReloadBar3.setSize({ (sec3 - power3.getElapsedTime().asSeconds()) / sec3 * width, height });
+    }
+    void draw(sf::RenderWindow& window, sf::Clock& power1, sf::Clock power2, sf::Clock power3) {
+       
+        if (sec1 != 0 && sec1 > power1.getElapsedTime().asSeconds()) {
+            window.draw(sprite1);
+            window.draw(ReloadBar1);
+            window.draw(text1);
+        }
+        if (sec2 != 0 && sec2 > power2.getElapsedTime().asSeconds()) {
+            window.draw(sprite2);
+            window.draw(ReloadBar2);
+            window.draw(text2);
+        }
+        if (sec3 != 0 && sec3 > power3.getElapsedTime().asSeconds()) {
+            window.draw(sprite3);
+            window.draw(ReloadBar3);
+            window.draw(text3);
+        }
     }
 };
