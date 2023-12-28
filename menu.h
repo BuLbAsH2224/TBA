@@ -115,7 +115,7 @@ private:
 	std::string filename;
 	Player* pl;
 	Inventory* inv;
-
+	
 public:
 
 
@@ -123,6 +123,7 @@ public:
 		filename = filename2;
 		pl = &gl;
 		inv = &inv2;
+		
 	}
 
 
@@ -142,6 +143,7 @@ public:
 			for (int i = 0; i < 9; i++) {
 				file << inv->getCorpses()[i].getActive() << " ";
 			}
+		
 		}
 
 		file.close();
@@ -188,7 +190,7 @@ public:
 
 		file.close();
 	}
-
+	
 
 };
 	class Menu {
@@ -228,6 +230,7 @@ public:
 		sf::Sprite Save3sprite;
 		sf::Sprite Save4sprite;
 		sf::Text Save1Text;
+		sf::Text Save1TimeText;
 		sf::Text Load1Text;
 		sf::Text Save2Text;
 		sf::Text Load2Text;
@@ -247,6 +250,7 @@ public:
 		float viewpositionx;
 		float viewpositiony;
 		bool MenuView;
+		tm* Time1;
 	public:
 		Menu(Languages& lang, Player& pl, Inventory& inv)
 			: language(lang), save1("saves\\save1.txt", pl, inv), save2("saves\\save2.txt", pl, inv),
@@ -295,6 +299,7 @@ public:
 			PlayText.setFont(font);
 			PlayText.setCharacterSize(64);
 			PlayText.setPosition(Playsprite.getPosition().x + 30, Playsprite.getPosition().y + 50);
+
 			if (lang.EnglishText == true) {
 				PlayText.setString("Play");
 			}
@@ -353,6 +358,11 @@ public:
 			Save1Text.setFont(font);
 			Save1Text.setCharacterSize(40);
 			Save1Text.setPosition(Save1sprite.getPosition().x + 35.f, Save1sprite.getPosition().y + 40.f);
+
+			Save1TimeText.setFont(font);
+			Save1TimeText.setCharacterSize(40);
+			Save1TimeText.setPosition(Save1sprite.getPosition().x, Save1sprite.getPosition().y + 40.f);
+
 			Load1Text.setFont(font);
 			Load1Text.setCharacterSize(40);
 			Load1Text.setPosition(Save1sprite.getPosition().x + 405.f, Save1sprite.getPosition().y + 40.f);
@@ -435,6 +445,7 @@ public:
 		bool getViewMenu() { return MenuView; }
 		sf::Vector2f getViewPos() { return { viewpositionx,viewpositiony }; }
 		void update(sf::Vector2f mouspos, sf::RenderWindow& window) {
+			
 			if (Playsprite.getGlobalBounds().contains(mouspos.x, mouspos.y) && ButtonIsNotPress == true) {
 				
 			    Playtexture.loadFromFile("sprites\\menu\\ButtonsCont.png");
@@ -562,6 +573,7 @@ public:
 					ButtonIsNotPress = false;
 				}
 			}
+		
 		}
 		void draw(sf::Text& vers,CursorArrow& curs, sf::RenderWindow& window) {
 			window.clear();
@@ -582,6 +594,7 @@ public:
 				window.draw(Load3Text);
 				window.draw(Save4Text);
 				window.draw(Load4Text);
+				
 			}
 			if (CreditsPress == true) {
 				window.draw(CReditsText);

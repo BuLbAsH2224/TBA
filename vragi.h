@@ -9,6 +9,7 @@ bool VragTwKnifeSpawn = false;
 struct Vragi {
     bool left = false;
     sf::Texture texture;
+    sf::Texture texture2;
     sf::Sprite sprite;
     int stand = 0;
     float health;
@@ -21,8 +22,9 @@ struct Vragi {
     bool StandOff = false;
 };
 
-void VragiInit(Vragi& obj, std::string fileName, int stand, float health, sf::Vector2f pos, bool tupoi, std::string name, int rewards) {
-    obj.texture.loadFromFile(fileName);
+void VragiInit(Vragi& obj, std::string fileName1, std::string fileName2, int stand, float health, sf::Vector2f pos, bool tupoi, std::string name, int rewards) {
+    obj.texture.loadFromFile(fileName1);
+    obj.texture2.loadFromFile(fileName2);
     obj.sprite.setTexture(obj.texture);
     obj.stand = stand;
     obj.health = health;
@@ -117,10 +119,10 @@ void VragiUpdate(Vragi& obj, Stand& st, Player& pl1, float time) {
                 obj.left = true;
             }
             if (obj.left == true) {
-                obj.texture.loadFromFile("sprites\\npc\\PlohoiParenLeft.png");
+                obj.sprite.setTexture(obj.texture);
             }
             else if (obj.left == false) {
-                obj.texture.loadFromFile("sprites\\npc\\PlohoiParenRight.png");
+                obj.sprite.setTexture(obj.texture2);
             }
             if (obj.sprite.getPosition().y > 840.f - obj.sprite.getGlobalBounds().height)
             {

@@ -37,7 +37,7 @@ FightBackButton backbuttonfights;
 HUD AngeloHealth;
 VragiHealth fighthealth;
 DayAndNight dayAndNight;
-Aura plAura;
+
 Aura VragAura;
 CmoonRotate playerCmoonRotate;
 CursorArrow cursor1;
@@ -64,9 +64,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     std::list<KqCoins*> KqCoinsSprites;
     std::list<GeTree*> GeTreeSprites;
     std::list<GeSoul*> GeSoulSprites;
+    std::list<BubbleTrap*> BubbleTrapSprites;
     std::list<WsDisc*> WsDiscSprites;
     std::list<VragTheWorldKnive*> VragTheWorldKniveSprites;
-        std::list<WsAcidCloud*> WsAcidCloudSprites;
+    std::list<WsAcidCloud*> WsAcidCloudSprites;
+    std::list<GerReset*> GerResetsSprites;
+
+    std::list<snow*> SnowSprites;
+    sf::Clock snowspawn;
     setlocale(LC_ALL, "Russian");
   
     ShopTutorial.SetShopItems(3, 2, 1);
@@ -242,7 +247,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     GeTreeSummonbuffer.loadFromFile("sounds\\stands\\GeTreeSummon.ogg");
     sf::Sound GeTreeSummonSound(GeTreeSummonbuffer);
 
+    sf::SoundBuffer WsBarragebuffer;
+    WsBarragebuffer.loadFromFile("sounds\\stands\\WsBarrage.ogg");
+    sf::Sound WsBarrageSound(WsBarragebuffer);
 
+    sf::SoundBuffer CmBarragebuffer;
+    WsBarragebuffer.loadFromFile("sounds\\stands\\CmBarrage.ogg");
+    sf::Sound CmBarrageSound(CmBarragebuffer);
+
+    sf::SoundBuffer GeBarragebuffer;
+    GeBarragebuffer.loadFromFile("sounds\\stands\\GeBarrage.ogg");
+    sf::Sound GeBarrageSound(GeBarragebuffer);
 
     RenderWindow window(sf::VideoMode::getDesktopMode(), "Traveler's Bizzare Adventure",
         Style::Titlebar | Style::Close | Style::Fullscreen );
@@ -269,9 +284,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
    // HudInit(InventoryArrow, "sprites\\hud\\ARROW.png");
     HudInit(AngeloHealth, "sprites\\hud\\angeloHealth10.png");
 
-    VragiInit(YopAngelo, "sprites\\npc\\YoAngelo.png", 0, 100.f,{ 2377.f,1064.f }, true,"Yo Angelo",0);
-    VragiInit(PlohoiParen, "sprites\\npc\\PlohoiParenLeft.png", 1, 100.f, { 0,0 }, false, "Bad Guy", 1000);
-    VragiInit(DIO, "sprites\\npc\\PlohoiParenLeft.png", 2, 300.f, { 0.f,0.f }, false, "DIO", 3000);
+    VragiInit(YopAngelo, "sprites\\npc\\YoAngelo.png", "sprites\\npc\\YoAngelo.png", 0, 100.f,{ 2377.f,1064.f }, true,"Yo Angelo",0);
+    VragiInit(PlohoiParen, "sprites\\npc\\PlohoiParenLeft.png","sprites\\npc\\PlohoiParenRight.png", 1, 100.f, { 0,0 }, false, "Bad Guy", 1000);
+    VragiInit(DIO, "sprites\\npc\\DIOLeft.png", "sprites\\npc\\DIORight.png", 2, 300.f, { 0.f,0.f }, false, "DIO", 3000);
 
     PowrsObjectsINIT(timestoppower, "sprites\\powers\\TimeStop.png");
     PowrsObjectsINIT(Vragtimestoppower, "sprites\\powers\\TimeStop.png");
@@ -293,7 +308,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
   
     
 
-    AuraInit(plAura, "sprites\\stands\\auras\\TwAuraFrame1.png");
+    
     AuraInit(VragAura, "sprites\\stands\\auras\\TwAuraFrame1.png");
     sf::View view2(sf::FloatRect(0.f, 0.f, 960, 540));
    
@@ -304,7 +319,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
    // ArrowKolInv.setFillColor(sf::Color::Black);
    
     float time;
-
+    AngeloZiv = true;
     Menu menu1(laungag, player1, PlayerInventory);
     while (window.isOpen()) {
        
@@ -437,6 +452,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             {
                 CmTheme.play();
             }
+            else if (player1.stand == 12 && GeTheme.getStatus() == sf::SoundSource::Status::Stopped)
+            {
+                GeTheme.play();
+            }
             if (MandomX >= 1920.f || MandomX <= 0.f) {
                 MandomX = 900.f;
             }
@@ -527,7 +546,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                 NotificationsTexts.push_back(Notificationstext);
             }
             VragiAuraUpdate(VragAura, *fightmenu1.getVrag(), VragStand, time);
-            AuraUpdate(plAura, player1, playerstand, time);
+          
             fighthealth.update({ view2.getCenter().x + 350.f - fighthealth.getSprite().getGlobalBounds().width , view2.getCenter().y - 250.f }, *fightmenu1.getVrag());
             PlayerUpdateInFight(player1, PLAYER1LEFT_FILE_NAME, "sprites\\player\\player1rightmove1.png", "sprites\\player\\player1leftmove1.png", PLAYER1RIGHT_FILE_NAME, playerstand, time);
             StandUpdate(playerstand, player1, time);
@@ -552,8 +571,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             cursor1.update(pos);
             window.clear();
             MapObjectsDraw(window, FightBackground);
-
-            AuraDraw(window, plAura);
+            playerAura.update();
+            playerAura.draw(window);
             if (D4CDimension == false) {
                 AuraDraw(window, VragAura);
             }
@@ -618,6 +637,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                 Vragtimestoppower.visible = false;
 
             }
+            if (player1.stand == 12 && VragIsTimeStopped == true) {
+                VragIsTimeStopped = false;
+                timeresumesound.play();
+                Vragtimestoppower.visible = false;
+            }
             if (isMandomTime == false && MandomTime.getElapsedTime().asSeconds() > 6.f) {
                 if (player1.stand == 2) {
                     MandomClockEndsound.play();
@@ -651,55 +675,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             }
             MandomClock(MandomTime, MandomClockHUD);
 
-            for (auto dimensionClones : DimensionClonesSprites) {
-                DimensionClonesDamage(*dimensionClones, DimensionClonesSprites);
-            }
-            for (auto laser : laserSprites) {
-                LaserDamage(*laser, laserSprites, *fightmenu1.getVrag());
-            }
-            for (auto GeTree : GeTreeSprites) {
-                GeTreesDamage(*GeTree, GeTreeSprites);
-            }
-            for (auto gesoul : GeSoulSprites) {
-                gesoul->update(*gesoul, time);
-            }
-            for (auto gesoul : GeSoulSprites) {
-                GeSoulDamage(*gesoul, GeSoulSprites);
-            }
-            for (auto WsDisc : WsDiscSprites) {
-                WsDisc->update();
-            }
-            for (auto WsAcid : WsAcidCloudSprites) {
-                WsAcid->update(playerstand, *fightmenu1.getVrag());
-            }
-            for (auto WsAcid : WsAcidCloudSprites) {
-                WsAcidCloudDamage(*WsAcid, WsAcidCloudSprites);
-            }
-            for (auto WsDisc : WsDiscSprites) {
-                WsDiscDamage(*WsDisc, WsDiscSprites);
-            }
-            for (auto barragehands : BarrageHandsSprites) {
-                barragehands->update();
-            }
-            for (auto bubles : BublesSprites) {
-                BublesDamage(*bubles, BublesSprites, *fightmenu1.getVrag());
-            }
-            for (auto barragehands : BarrageHandsSprites) {
-                DeleteBarrageHands(*barragehands, BarrageHandsSprites);
-            }
-            for (auto steelballs : SteelBallsPlayerSprites) {
-                SteelBallsDamage(*steelballs, SteelBallsPlayerSprites, *fightmenu1.getVrag());
-            }
-            for (auto steelballs : SteelBallsPlayerSprites) {
-                steelballs->update(time);
-            }
-            for (auto VragTheWorld : VragTheWorldKniveSprites) {
-                VragTheWorld->update(time,Vragtimestoppower);
-            }
-            for (auto VragTheWorld : VragTheWorldKniveSprites) {
-                VragTheWorldKnivesDamage(*VragTheWorld, VragTheWorldKniveSprites,player1);
-                    
-            }
+            
             WrOxyDamagePl(WrOxyImage, player1, time);
             WrOxyDamageVragov(WrOxyImage, *fightmenu1.getVrag(), time);
             if (isEmeraldSplash == true && EmeraldSplashTm.getElapsedTime().asMilliseconds() > EmeraldSplashTmAttack) {
@@ -725,6 +701,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                 WsAcidSpawn = false;
           
         }
+            if (GerResetSpawn == true) {
+                GerReset* GerResets = new  GerReset(player1, *fightmenu1.getVrag());
+                GerResetsSprites.push_back(GerResets);
+                GerResetSpawn = false;
+            }
             if (GeTreeSpawn == true) {
                 sf::Vector2f pos;
                 if (player1.left == true) {
@@ -754,6 +735,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                 WsAcidCloud* WsAcidClouds = new  WsAcidCloud(YopAngelo, playerstand);
                 WsAcidCloudSprites.push_back(WsAcidClouds);
                 WsAcidSpawn = false;
+
+            }
+            if (BubbleTrapSpawn == true) {
+                sf::FloatRect StandBounds = playerstand.sprite.getGlobalBounds();
+                StandBounds.width += 50.f;
+                sf::Vector2f pos = playerstand.sprite.getPosition();
+                if (StandBounds.intersects(fightmenu1.getVrag()->sprite.getGlobalBounds())) {
+                    BubbleTrap* bubbletrap = new BubbleTrap(*fightmenu1.getVrag());
+                    BubbleTrapSprites.push_back(bubbletrap);
+                    BubbleTrapSpawn = false;
+                }
+
 
             }
             for (auto theworldknives : TheWorldKnivesSprites) {
@@ -853,6 +846,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                 else if (player1.stand == 8) {
                     KQBarragesound.play();
                 }
+                else if (player1.stand == 9) {
+                    GeBarrageSound.play();
+                }
+                else if (player1.stand == 10) {
+                    WsBarrageSound.play();
+                }
+                else if (player1.stand == 11) {
+                    CmBarrageSound.play();
+                }
             }
             hpbar.update(view2.getCenter(), player1, fightmenu1.getFight());
             if (SAWBublCreate == true) {
@@ -939,6 +941,68 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                 VragTwKnifeSpawn = false;
 
             }
+            for (auto dimensionClones : DimensionClonesSprites) {
+                DimensionClonesDamage(*dimensionClones, DimensionClonesSprites);
+            }
+            for (auto laser : laserSprites) {
+                LaserDamage(*laser, laserSprites, *fightmenu1.getVrag());
+            }
+            for (auto GeTree : GeTreeSprites) {
+                GeTreesDamage(*GeTree, GeTreeSprites);
+            }
+            for (auto gesoul : GeSoulSprites) {
+                gesoul->update(*gesoul, time);
+            }
+            for (auto gesoul : GeSoulSprites) {
+                GeSoulDamage(*gesoul, GeSoulSprites);
+            }
+            for (auto WsDisc : WsDiscSprites) {
+                WsDisc->update();
+            }
+            for (auto WsAcid : WsAcidCloudSprites) {
+                WsAcid->update(playerstand, *fightmenu1.getVrag());
+            }
+            for (auto WsAcid : WsAcidCloudSprites) {
+                WsAcidCloudDamage(*WsAcid, WsAcidCloudSprites);
+            }
+            for (auto WsDisc : WsDiscSprites) {
+                WsDiscDamage(*WsDisc, WsDiscSprites);
+            }
+            for (auto barragehands : BarrageHandsSprites) {
+                barragehands->update();
+            }
+            for (auto bubles : BublesSprites) {
+                BublesDamage(*bubles, BublesSprites, *fightmenu1.getVrag());
+            }
+            for (auto barragehands : BarrageHandsSprites) {
+                DeleteBarrageHands(*barragehands, BarrageHandsSprites);
+            }
+            for (auto steelballs : SteelBallsPlayerSprites) {
+                SteelBallsDamage(*steelballs, SteelBallsPlayerSprites, *fightmenu1.getVrag());
+            }
+            for (auto steelballs : SteelBallsPlayerSprites) {
+                steelballs->update(time);
+            }
+            for (auto VragTheWorld : VragTheWorldKniveSprites) {
+                VragTheWorld->update(time, Vragtimestoppower);
+            }
+            for (auto VragTheWorld : VragTheWorldKniveSprites) {
+                VragTheWorldKnivesDamage(*VragTheWorld, VragTheWorldKniveSprites, player1);
+
+            }
+            for (auto bubbletrap : BubbleTrapSprites) {
+                bubbletrap->update();
+            }
+            for (auto bubbletrap : BubbleTrapSprites) {
+                BubbleTrapDamage(*bubbletrap, BubbleTrapSprites);
+            }
+            for (auto GerResets : GerResetsSprites) {
+                GerResets->update();
+            }
+
+            for (auto GerResets : GerResetsSprites) {
+                GerResetDamage(*GerResets, GerResetsSprites);
+            }
             if (playerstand.barrage == true && Barrageplayer.getElapsedTime().asSeconds() > 5.f && player1.stand != 5) {
                 playerstand.barrage = false;
             }
@@ -1013,6 +1077,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             for (auto VragTheWorld : VragTheWorldKniveSprites) {
                 VragTheWorld->draw(window);
             }
+            for (auto bubbletrap : BubbleTrapSprites) {
+                bubbletrap->draw(window);
+            }
+           
             PowersObjectsDraw(window, Vragtimestoppower);
             PowersObjectsDraw(window, timestoppower);
             PowersObjectsDraw(window, WrOxyImage);
@@ -1033,6 +1101,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             if (fightmenu1.getVrag()->Name == "DIO") {
                 dayAndNight.setNight(true);
             }
+
+           
             if (D4CDimension == false) {
                 dayAndNight.draw(window);
             }
@@ -1345,6 +1415,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             else if (player1.stand == 8) {
                 KQBarragesound.play();
             }
+            else if (player1.stand == 9) {
+                GeBarrageSound.play();
+            }
+            else if (player1.stand == 10) {
+                WsBarrageSound.play();
+            }
+            else if (player1.stand == 11) {
+                CmBarrageSound.play();
+            }
         }
 
 
@@ -1387,7 +1466,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             }
             if (dayAndNight.getNight() == true) {
                 if (player1.sprite.getGlobalBounds().intersects(NPCDIO.sprite.getGlobalBounds())) {
-                    NPCDIO.texture.loadFromFile("sprites\\npc\\PlohoiParenContour.png");
+                    NPCDIO.texture.loadFromFile("sprites\\npc\\DIOContour.png");
                     if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) && fightmenu1.getOpen() == false) {
                         player1.intimestopdio = true;
                         fightmenu1.OpenMenu(DIO);
@@ -1396,7 +1475,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
                 }
                 else {
-                    NPCDIO.texture.loadFromFile("sprites\\npc\\PlohoiParen.png");
+                    NPCDIO.texture.loadFromFile("sprites\\npc\\DIOLeft.png");
                 }
             }
             
@@ -1600,6 +1679,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             KqCoinsSprites.push_back(kqcoins);
             KqCoinSpawn = false;
         }
+        if (BubbleTrapSpawn == true) {
+            sf::FloatRect StandBounds = playerstand.sprite.getGlobalBounds();
+            StandBounds.width += 50.f;
+            sf::Vector2f pos = playerstand.sprite.getPosition();
+            if (StandBounds.intersects(YopAngelo.sprite.getGlobalBounds())) {
+                BubbleTrap* bubbletrap = new BubbleTrap(YopAngelo);
+                BubbleTrapSprites.push_back(bubbletrap);
+                BubbleTrapSpawn = false;
+            }
+
+            
+        }
         if (TheWorldKniveSpawn == true) {
             sf::Vector2f pos = playerstand.sprite.getPosition();
             sf::FloatRect bounds = playerstand.sprite.getGlobalBounds();
@@ -1665,7 +1756,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                 
             }
         }
-
+        if (GerResetSpawn == true) {
+                GerReset* GerResets = new  GerReset(player1,YopAngelo);
+                GerResetsSprites.push_back(GerResets);
+                GerResetSpawn = false;
+        }
         if (CmoonRotateSpawn == true) {
             CmoonRotateSpawn = false;
             playerCmoonRotate.Activate();
@@ -1752,7 +1847,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
        
         BarrageDamage(YopAngelo, time, player1, playerstand);
         PlayerUpdate(player1, PLAYER1LEFT_FILE_NAME, "sprites\\player\\player1rightmove1.png", "sprites\\player\\player1leftmove1.png", PLAYER1RIGHT_FILE_NAME, playerstand, time);
-        AuraUpdate(plAura, player1, playerstand, time);
+        
         playerAura.update();
         Powersbjupdate(timestoppower, { player1.sprite.getPosition().x - 370, player1.sprite.getPosition().y - 425 }, 1);
         
@@ -1812,6 +1907,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         for (auto bubles : BublesSprites) {
             bubles->update();
         }
+        for (auto bubbletrap : BubbleTrapSprites) {
+            bubbletrap->update();
+        }
+        for (auto bubbletrap : BubbleTrapSprites) {
+            BubbleTrapDamage(*bubbletrap, BubbleTrapSprites);
+        }
         for (auto gesoul : GeSoulSprites) {
             gesoul->update(*gesoul,time);
         }
@@ -1836,6 +1937,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
       
         for (auto GeTree : GeTreeSprites) {
             GeTreesDamage(*GeTree, GeTreeSprites);
+        }
+        for (auto GerResets : GerResetsSprites) {
+            GerResets->update();
+        }
+
+        for (auto GerResets : GerResetsSprites) {
+            GerResetDamage(*GerResets, GerResetsSprites);
         }
         cheats.update(player1);
 
@@ -1926,7 +2034,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             HudDraw(window, AngeloHealth);
 
         }
-       
+        for (auto bubbletrap : BubbleTrapSprites) {
+            bubbletrap->draw(window);
+        }
         PowersObjectsDraw(window, timestoppower);
         PowersObjectsDraw(window, WrOxyImage);
         for (auto WsAcid : WsAcidCloudSprites) {
@@ -1940,7 +2050,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         }
         for (auto Notificationstext : NotificationsTexts) {
             Notificationstext->draw(window);
-
         }
         ReloadBar1.update({ view.getCenter().x - 950.f , view.getCenter().y }, Hbuttontime, Gbuttontime, Barrageplayer, player1);
         ReloadBar1.draw(window, Hbuttontime, Gbuttontime,Barrageplayer );
@@ -1949,17 +2058,35 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         if (D4CDimension == false) {
             hpbar.Draw(window);
         }
+        if (snowspawn.getElapsedTime().asMilliseconds() >= 300.f) {
+            snow* Snow = new snow(view, window);
+            SnowSprites.push_back(Snow);
+            snowspawn.restart();
+        }
+       
+       
+        for (auto Snow : SnowSprites) {
+            Snow->update(time);
+            SnowDelete(*Snow, SnowSprites);
+            Snow->draw();
+        }
         window.draw(VersionText);
+
         if (D4CDimension == false) {
             InvPR1.draw(window);
             PlayerInventory.draw(window);
         }
        
         cursor1.draw(window);
+       
+       
+     
         dayAndNight.update({view.getCenter().x - 960.f,view.getCenter().y - 540.f });
         if (D4CDimension == false) {
             dayAndNight.draw(window);
         }
+       
+
         window.display();
     }
     return 0;

@@ -10,7 +10,7 @@ void PlayerUpdateInFight(Player& obj, std::string LeftSpriteFileNAME, std::strin
     if (obj.health > obj.maxhealth) {
         obj.health = obj.maxhealth;
     }
-    if (obj.intimestopdio == false) {
+    if (obj.intimestopdio == false && obj.stunned == false) {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && obj.sprite.getPosition().x <= 1920.f - obj.sprite.getGlobalBounds().width) {
             if (obj.attacking == true) {
                 obj.texture.loadFromFile("sprites\\player\\player1rightAttacking.png");
@@ -183,6 +183,9 @@ public:
           
             if (VragBitv->Name == "Bad Guy") {
                 Icontexture.loadFromFile("sprites\\NPC\\icons\\PlohoiParenIcon.png");
+            }
+            if (VragBitv->Name == "DIO") {
+                Icontexture.loadFromFile("sprites\\NPC\\icons\\DIOIcon.png");
             }
             if (language.EnglishText == true) {
                 RewardText.setString("Reward: " + std::to_string(VragBitv->Reward) + "$");

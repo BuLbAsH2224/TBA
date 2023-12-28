@@ -23,6 +23,9 @@ bool D4cLoveTrain = false;
 bool WsDiscSpawn = false;
 bool WsAcidSpawn = false;
 bool CmoonRotateSpawn = false;
+bool BubbleTrapSpawn = false;
+bool GerResetSpawn = false;
+
 void OffPowers() {
      isTimeStopped = false;
      isEmeraldSplash = false;
@@ -42,7 +45,8 @@ void OffPowers() {
      WsDiscSpawn = false;
      WsAcidSpawn = false;
      CmoonRotateSpawn = false;
-    
+     BubbleTrapSpawn = false;
+     GerResetSpawn = false;
 }
 sf::Clock EmeraldSplashTm;
 sf::Clock timestop;
@@ -91,18 +95,18 @@ struct Player {
     int FightTech = 0;
     bool attacking;
     bool intimestopdio = false;
-   
+    bool stunned = false;
 };
 
 void PlayerInit(Player& obj, std::string fileName) {
     obj.texture.loadFromFile(fileName);
     obj.sprite.setTexture(obj.texture);
-    obj.sprite.setPosition(1632,1054);
+    obj.sprite.setPosition(1632.f,1054.f);
 }
 void StandInit(Stand& obj, std::string fileName) {
     obj.texture.loadFromFile(fileName);
     obj.sprite.setTexture(obj.texture);
-    obj.sprite.setPosition(500 - 100, 500);
+    obj.sprite.setPosition(500.f - 100.f, 500.f);
     
 }
 
@@ -119,16 +123,16 @@ void PlayerUpdate(Player& obj, std::string LeftSpriteFileNAME, std::string Right
     if (obj.stand != 0) {
         obj.old_stand = obj.stand;
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && obj.sprite.getPosition().y >= 0 && obj.intimestopdio == false) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && obj.sprite.getPosition().y >= 0 && obj.intimestopdio == false && obj.stunned == false) {
         obj.sprite.move(0, -obj.speed * time);
         obj.up = true;
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && obj.sprite.getPosition().y + 96.f <= 2160 && obj.intimestopdio == false) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && obj.sprite.getPosition().y + 96.f <= 2160 && obj.intimestopdio == false && obj.stunned == false) {
         obj.sprite.move(0, obj.speed * time);
         obj.up = false;
     }
   
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && obj.sprite.getPosition().x + 44.f <= 3840 && obj.intimestopdio == false) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && obj.sprite.getPosition().x + 44.f <= 3840 && obj.intimestopdio == false && obj.stunned == false) {
         if (obj.attacking == true) {
             obj.texture.loadFromFile("sprites\\player\\player1rightAttacking.png");
         }
@@ -147,7 +151,7 @@ void PlayerUpdate(Player& obj, std::string LeftSpriteFileNAME, std::string Right
         }
 
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)&& obj.sprite.getPosition().x >= 0 && obj.intimestopdio == false) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)&& obj.sprite.getPosition().x >= 0 && obj.intimestopdio == false && obj.stunned == false) {
         obj.left = true;
         if (obj.attacking == true) {
             obj.texture.loadFromFile("sprites\\player\\player1leftAttacking.png");
@@ -167,12 +171,11 @@ void PlayerUpdate(Player& obj, std::string LeftSpriteFileNAME, std::string Right
         }
 
     }
-   if (sf::Keyboard::isKeyPressed(sf::Keyboard::T) && AttackTm.getElapsedTime().asSeconds() > 3 && obj.attacking == false) {
+   if (sf::Keyboard::isKeyPressed(sf::Keyboard::T) && AttackTm.getElapsedTime().asSeconds() > 3 && obj.attacking == false && obj.stunned == false) {
         AttackTm.restart();
         obj.attacking = true;
     }
-   
-     }
+}
 
 
 void StandDraw(sf::RenderWindow& window, Stand& obj) {
@@ -185,10 +188,10 @@ void StandUpdate(Stand& stand, Player& obj, float time) {
     if (obj.stand == 0) {
         stand.visible = false;
     }
-    if (stand.visible == false || obj.intimestopdio == true) {
+    if (stand.visible == false || obj.intimestopdio == true || obj.stunned == true) {
         stand.barrage = false;
     }
- else if (stand.visible == true && obj.intimestopdio == false) {
+ else if (stand.visible == true && obj.intimestopdio == false && obj.stunned == false) {
        /*1 - the world
        2 - Mandom
        3 - Weather Report
@@ -200,6 +203,7 @@ void StandUpdate(Stand& stand, Player& obj, float time) {
        9 - Golden Expirience
        10 - White Snake
        11 - Cmoon
+       12 - Ger
         */
         if (obj.stand == 1) {
            
@@ -428,10 +432,10 @@ void StandUpdate(Stand& stand, Player& obj, float time) {
                 }
 
               
-                if (stand.barrage == false) {
+                if (stand.barrage == false && BubbleTrapSpawn == false) {
                     moveTo(stand, { obj.sprite.getPosition().x + 60, obj.sprite.getPosition().y - 50 }, 3.5, 0.11f * time);
                 }
-                else if (stand.barrage == true) {
+                else if (stand.barrage == true || BubbleTrapSpawn == true) {
                     moveTo(stand, { obj.sprite.getPosition().x - 60, obj.sprite.getPosition().y - 20 }, 3.5, 0.25f * time);
                 }
 
@@ -445,10 +449,10 @@ void StandUpdate(Stand& stand, Player& obj, float time) {
                 }
                 
 
-                if (stand.barrage == false) {
+                if (stand.barrage == false && BubbleTrapSpawn == false) {
                     moveTo(stand, { obj.sprite.getPosition().x - 60, obj.sprite.getPosition().y - 50 }, 3.5, 0.11f * time);
                 }
-                else if (stand.barrage == true) {
+                else if (stand.barrage == true || BubbleTrapSpawn == true) {
                     moveTo(stand, { obj.sprite.getPosition().x + 60, obj.sprite.getPosition().y - 20 }, 3.5, 0.25f * time);
                 }
 
@@ -461,7 +465,13 @@ void StandUpdate(Stand& stand, Player& obj, float time) {
                     SAWBublTm.restart();
                 }
             }
-
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::G)) {
+                if (BubbleTrapSpawn == false && Gbuttontime.getElapsedTime().asSeconds() > 20.f && stand.barrage == false)
+                {
+                    BubbleTrapSpawn = true;
+                    Gbuttontime.restart();
+                }
+            }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && Barrageplayer.getElapsedTime().asSeconds() > 30.f) {
                 if (stand.barrage == false)
                 {
@@ -795,7 +805,7 @@ void StandUpdate(Stand& stand, Player& obj, float time) {
                     stand.texture.loadFromFile("sprites\\stands\\KQLeft.png");
                 }
                 else {
-                    stand.texture.loadFromFile("sprites\\stands\\GeIdle.png");
+                    stand.texture.loadFromFile("sprites\\stands\\CmIdle.png");
                 }
                 if (stand.barrage == false) {
                     moveTo(stand, { obj.sprite.getPosition().x + 60, obj.sprite.getPosition().y - 50 }, 3.5, 0.11f * time);
@@ -810,7 +820,7 @@ void StandUpdate(Stand& stand, Player& obj, float time) {
                     stand.texture.loadFromFile("sprites\\stands\\KQRight.png");
                 }
                 else {
-                    stand.texture.loadFromFile("sprites\\stands\\GeIdle.png");
+                    stand.texture.loadFromFile("sprites\\stands\\CmIdle.png");
                 }
                 if (stand.barrage == false) {
                     moveTo(stand, { obj.sprite.getPosition().x - 60, obj.sprite.getPosition().y - 50 }, 3.5, 0.11f * time);
@@ -840,6 +850,67 @@ void StandUpdate(Stand& stand, Player& obj, float time) {
                 }
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && Barrageplayer.getElapsedTime().asSeconds() > 20.f && GeSoulPunch == false) {
+                if (stand.barrage == false)
+                {
+                    Barrageplayer.restart();
+                    stand.barrage = true;
+                }
+            }
+        }
+        if (obj.stand == 12) {
+
+
+
+            if (obj.left == true) {
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+                    stand.texture.loadFromFile("sprites\\stands\\KQLeft.png");
+                }
+                else {
+                    stand.texture.loadFromFile("sprites\\stands\\GeIdle.png");
+                }
+                if (stand.barrage == false) {
+                    moveTo(stand, { obj.sprite.getPosition().x + 60, obj.sprite.getPosition().y - 50 }, 3.5, 0.11f * time);
+                }
+                if (stand.barrage == true ) {
+                    moveTo(stand, { obj.sprite.getPosition().x - 60, obj.sprite.getPosition().y - 20 }, 3.5, 0.25f * time);
+                }
+
+            }
+            if (obj.left == false) {
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+                    stand.texture.loadFromFile("sprites\\stands\\KQRight.png");
+                }
+                else {
+                    stand.texture.loadFromFile("sprites\\stands\\GeIdle.png");
+                }
+                if (stand.barrage == false) {
+                    moveTo(stand, { obj.sprite.getPosition().x - 60, obj.sprite.getPosition().y - 50 }, 3.5, 0.11f * time);
+                }
+                if (stand.barrage == true ) {
+                    moveTo(stand, { obj.sprite.getPosition().x + 60, obj.sprite.getPosition().y - 20 }, 3.5, 0.25f * time);
+                }
+
+
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::G) && stand.barrage == false ) {
+                if (WsAcidSpawn == false && Gbuttontime.getElapsedTime().asSeconds() >= 40.f)
+                {
+
+
+                }
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::H) && stand.barrage == false && Hbuttontime.getElapsedTime().asSeconds() >= 20.f) {
+                if (GerResetSpawn == false)
+                {
+
+                    GerResetSpawn = true;
+                    Hbuttontime.restart();
+
+
+
+                }
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && Barrageplayer.getElapsedTime().asSeconds() >= 15.f && GeSoulPunch == false) {
                 if (stand.barrage == false)
                 {
                     Barrageplayer.restart();
@@ -888,6 +959,10 @@ void StandSummon(Player& player1, Stand& playerstand) {
         else if (player1.stand == 11) {
             playerstand.sprite.setPosition(player1.sprite.getPosition().x + 60, player1.sprite.getPosition().y - 50);
         }
+        
+        else if (player1.stand == 12) {
+            playerstand.sprite.setPosition(player1.sprite.getPosition().x + 60, player1.sprite.getPosition().y - 50);
+        }
     }
     else if (player1.left == false) {
      if (player1.stand == 1) {
@@ -924,6 +999,9 @@ void StandSummon(Player& player1, Stand& playerstand) {
          playerstand.sprite.setPosition(player1.sprite.getPosition().x - 60, player1.sprite.getPosition().y - 50);
      }
      else   if (player1.stand == 11) {
+         playerstand.sprite.setPosition(player1.sprite.getPosition().x - 60, player1.sprite.getPosition().y - 50);
+     }
+     else   if (player1.stand == 12) {
          playerstand.sprite.setPosition(player1.sprite.getPosition().x - 60, player1.sprite.getPosition().y - 50);
      }
     }
@@ -1061,7 +1139,7 @@ public:
         else if (pl->left == false) {
             sprite.setTexture(textureRight);
         }
-        sprite.setPosition({pl->sprite.getPosition().x - 2.f ,pl->sprite.getPosition().y -2.f });
+        sprite.setPosition({pl->sprite.getPosition().x - 2.f ,pl->sprite.getPosition().y - 2.f });
         switch (pl->stand)
         {
         case 1:
@@ -1096,6 +1174,9 @@ public:
             break;
         case 11:
             sprite.setColor(sf::Color(85, 220, 81));
+            break;
+        case 12:
+            sprite.setColor(sf::Color(255, 214, 35));
             break;
         default:
             sprite.setColor(sf::Color(0, 0, 0));

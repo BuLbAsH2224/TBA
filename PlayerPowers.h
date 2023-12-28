@@ -284,6 +284,10 @@ public:
         }
         else if (pl.stand == 11) {
 
+            texture.loadFromFile("sprites\\stands\\barrageHands\\CmHand.png");
+        }
+        else if (pl.stand == 12) {
+
             texture.loadFromFile("sprites\\stands\\barrageHands\\GeHand.png");
         }
         sprite.setTexture(texture);
@@ -814,6 +818,12 @@ public:
             else  if (pl.stand == 10) {
                 vrag.health = vrag.health - 0.006f * time;
             }
+            else  if (pl.stand == 11) {
+                vrag.health = vrag.health - 0.006f * time;
+            }
+            else  if (pl.stand == 12) {
+                vrag.health = vrag.health - 0.006f * time;
+            }
         }
     }
 
@@ -1322,4 +1332,167 @@ public:
        
     };
 
-    
+    class BubbleTrap {
+    private:
+        sf::Sprite sprite;
+        sf::Texture texture;
+        Vragi* vragPtr;
+        sf::Clock TimeAction;
+        sf::Clock DamageAction;
+        sf::RectangleShape EffectTime;
+        float width;
+        float height;
+        float damage;
+        sf::SoundBuffer buffer;
+        sf::Sound Sound;
+        bool playsound;
+    public:
+        BubbleTrap(Vragi& vrag) {
+            texture.loadFromFile("sprites\\powers\\BubbleTrap.png");
+            sprite.setTexture(texture);
+            sprite.setPosition({ (vrag.sprite.getPosition().x + (vrag.sprite.getGlobalBounds().width / 2.f)) - (sprite.getGlobalBounds().width / 2.f),(vrag.sprite.getPosition().y + (vrag.sprite.getGlobalBounds().height / 2.f)) - (sprite.getGlobalBounds().height / 2.f) });
+            vragPtr = &vrag;
+            width = sprite.getGlobalBounds().width;
+            height = 10.f;
+            EffectTime.setFillColor(sf::Color::White);
+            EffectTime.setSize({ width,height });
+            buffer.loadFromFile("sounds\\stands\\BubbleTrap.ogg");
+            Sound.setBuffer(buffer);
+            playsound = true;
+            damage = vrag.health * 0.04f;
+        }
+
+        void update() {
+            if (playsound == true) {
+                playsound = false;
+                Sound.play();
+            }
+            damage = vragPtr->health * 0.03f;
+            sprite.setPosition({ (vragPtr->sprite.getPosition().x + (vragPtr->sprite.getGlobalBounds().width / 2.f)) - (sprite.getGlobalBounds().width / 2.f),(vragPtr->sprite.getPosition().y + (vragPtr->sprite.getGlobalBounds().height / 2.f)) - (sprite.getGlobalBounds().height / 2.f) });
+            EffectTime.setPosition({ sprite.getPosition().x, sprite.getPosition().y - height });
+            EffectTime.setSize({ (7.f - TimeAction.getElapsedTime().asSeconds()) / 7.f * width, height });
+            vragPtr->StandOff = true;
+            vragPtr->stunned = true;
+            if (DamageAction.getElapsedTime().asSeconds() >= 1.f) {
+                vragPtr->health = vragPtr->health - damage;
+                DamageAction.restart();
+            }
+
+        }
+        void draw(sf::RenderWindow& window) {
+            window.draw(sprite);
+            window.draw(EffectTime);
+        }
+        bool getDeletes() {
+            return vragPtr->health < 0.f;
+        }
+        bool getDeletesClock() {
+            return TimeAction.getElapsedTime().asSeconds() >= 7.f;
+        }
+        auto getVrag() { return vragPtr; }
+
+        sf::Sprite& getSprite() { return sprite; }
+        sf::FloatRect getHitBox() { return sprite.getGlobalBounds(); }
+    };
+
+    void BubbleTrapDamage(BubbleTrap& las, std::list<BubbleTrap*>& lasers) {
+        for (auto it = lasers.begin(); it != lasers.end(); /* без ++it здесь */) {
+            if ((*it)->getDeletesClock() == true) {
+                (*it)->getVrag()->StandOff = false;
+                (*it)->getVrag()->stunned = false;
+                it = lasers.erase(it);
+            }
+            else {
+                ++it;
+            }
+        }
+        for (auto it = lasers.begin(); it != lasers.end(); /* без ++it здесь */) {
+            if ((*it)->getDeletes() == true) {
+                (*it)->getVrag()->StandOff = false;
+                (*it)->getVrag()->stunned = false;
+                it = lasers.erase(it);
+            }
+            else {
+                ++it;
+            }
+        }
+
+    }
+    class GerReset {
+    private:
+        sf::Clock Waiting;
+        bool soundplay2;
+        sf::SoundBuffer buffer2;
+        sf::Sound sound2;
+        float damage;
+        float health;
+        Player* pl;
+        Vragi* vragPtr;
+        bool damaged;
+    public:
+        GerReset(Player& t, Vragi& vrag) {
+            pl = &t;
+            vragPtr = &vrag;
+           
+        
+            buffer2.loadFromFile("sounds\\stands\\GerReset.ogg");
+            sound2.setBuffer(buffer2);
+            soundplay2 = false;
+            damage = 0.f;
+            health = pl->health;
+            damaged = false;
+        }
+
+        void update() {
+            pl->stunned = true;
+            if (Waiting.getElapsedTime().asSeconds() >= 5.f && damaged == false) {
+                if (health >= pl->health) {
+                    damage = (health - pl->health) * 0.7f;
+                    soundplay2 = true;
+                 
+                }
+                damaged = true;
+            }
+            
+
+            if (soundplay2 == true) {
+                sound2.play();
+                soundplay2 = false;
+            }
+        }
+        float getPlHealth() { return health; }
+        bool getDeletes() {
+            return vragPtr->health < 0.f;
+        }
+        float getDamage() { return damage; }
+        auto getVrag() { return vragPtr; }
+        auto getPl() { return pl; }
+        bool getDeletesClock() {
+            return Waiting.getElapsedTime().asSeconds() >= 5.f && damaged == true;
+        }
+    };
+
+    void GerResetDamage(GerReset& las, std::list<GerReset*>& lasers) {
+        for (auto it = lasers.begin(); it != lasers.end(); /* без ++it здесь */) {
+            if ((*it)->getDeletesClock() == true) {
+                (*it)->getPl()->stunned = false;
+                (*it)->getVrag()->health = (*it)->getVrag()->health - (*it)->getDamage();
+                (*it)->getPl()->health = (*it)->getPlHealth();
+                it = lasers.erase(it);
+            }
+            else {
+                ++it;
+            }
+        }
+        for (auto it = lasers.begin(); it != lasers.end(); /* без ++it здесь */) {
+            if ((*it)->getDeletes() == true) {
+                (*it)->getPl()->stunned = false;
+                
+                it = lasers.erase(it);
+            }
+            else {
+                ++it;
+            }
+        }
+
+    }

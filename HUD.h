@@ -388,7 +388,7 @@ public:
                 NameText.setString(L"RibCage OTS Corpse");
             }
             else if (language.RussiaText == true) {
-                Description.setString(L"При экипирировании \nувеличивает \nмаксимальный вес \nрюказака на 10");
+                Description.setString(L"При экипирировании \nувеличивает \nмаксимальный вес \nрюкзака на 10");
                 NameText.setString(L"Ребро СТ");
             }
         }
@@ -418,7 +418,7 @@ public:
                 NameText.setString(L"Dio Bone");
             }
             else if (language.RussiaText == true) {
-                Description.setString(L"При применении \nможно её \nрегенерировать  ");
+                Description.setString(L"При применении \nможно её \nрегенерировать \n ( нужен стенд GE ) ");
                 NameText.setString(L"Кость Дио");
             }
         }
@@ -439,16 +439,20 @@ public:
     }
     void ItemActions(Player& pl) {
 
-        if (ItemMenuID == 1 && pl.stand == 0) {
-
-            pl.stand = rand() % 11 + 1;
-            OffPowers();
-          
-            while (pl.stand == pl.old_stand || pl.stand == 6 || pl.stand == 11) {
-         
-                pl.stand = rand() % 11 + 1;
+        if (ItemMenuID == 1 && (pl.stand == 0 || pl.stand == 9)) {
+            if (pl.stand == 9) {
+                pl.stand = 12;
             }
-            items[ItemMenu].setID(0);
+            else {
+                pl.stand = rand() % 12 + 1;
+                OffPowers();
+
+                while (pl.stand == pl.old_stand || pl.stand == 6 || pl.stand == 11 || pl.stand == 12) {
+
+                    pl.stand = rand() % 12 + 1;
+                }
+                items[ItemMenu].setID(0);
+            }
         }
 
         else if (ItemMenuID == 2 && pl.stand != 0) {
@@ -799,6 +803,9 @@ public:
             }
             else if (pl.stand == 11) {
                 standtext.setString("STAND: C-MOON");
+            }
+            else if (pl.stand == 12) {
+                standtext.setString("STAND: GOLD EXPERIENCE REQUIEM");
             }
             else   {
                 standtext.setString("STAND: ???");
@@ -1328,10 +1335,10 @@ public:
             break;
         case 5:
             sec1 = 1.f;
-            sec2 = 0.f;
+            sec2 = 20.f;
             sec3 = 30.f;
             PowerName1 = "Bubble";
-            PowerName2 = "None";
+            PowerName2 = "Bubble Trap";
             break;
         case 6:
             sec1 = 20.f;
@@ -1370,10 +1377,17 @@ public:
             break;
         case 11:
             sec1 = 15.f;
-            sec2 = 40.f;
+            sec2 = 0.f;
             sec3 = 20.f;
             PowerName1 = "Gravity Shift";
-            PowerName2 = "Cloud of Acid";
+            PowerName2 = "None";
+            break;
+        case 12:
+            sec1 = 20.f;
+            sec2 = 0.f;
+            sec3 = 15.f;
+            PowerName1 = "Reset";
+            PowerName2 = "None";
             break;
         default:
             sec1 = 0.f;
